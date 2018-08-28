@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepattributes Signature, InternalClasses, Exceptions
+-keep class com.estimote.proximity_sdk.internals.proximity.cloud.model.**
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-dontwarn retrofit2.Platform$Java8
+-dontwarn kotlin.**
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
