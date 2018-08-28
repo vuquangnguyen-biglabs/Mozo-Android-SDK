@@ -1,0 +1,1 @@
+include ':shopper-app-example', ':retailer-app-example', ':mozo-sdk'
