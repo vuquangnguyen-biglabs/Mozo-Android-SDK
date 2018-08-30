@@ -1,17 +1,13 @@
 package com.biglabs.mozo.sdk
 
 import android.content.Context
+import com.biglabs.mozo.sdk.services.AuthService
 import com.biglabs.mozo.sdk.services.BeaconService
 
 class MozoSDK private constructor(context: Context) {
 
-    init {
-        BeaconService.initialize(context)
-    }
-
-    fun stopScan() {
-        BeaconService.getInstance().stopScan()
-    }
+    val auth: AuthService = AuthService.getInstance(context)
+    //val beacon: BeaconService = BeaconService.getInstance(context)
 
     companion object {
         @Volatile

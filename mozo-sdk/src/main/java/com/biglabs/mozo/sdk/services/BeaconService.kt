@@ -8,7 +8,7 @@ import com.estimote.proximity_sdk.api.ProximityObserver
 import com.estimote.proximity_sdk.api.ProximityObserverBuilder
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder
 
-internal class BeaconService private constructor(context: Context) {
+class BeaconService private constructor(context: Context) {
 
     private val proximityObserver: ProximityObserver
     private var observationHandler: ProximityObserver.Handler? = null
@@ -40,7 +40,7 @@ internal class BeaconService private constructor(context: Context) {
                         Toast.makeText(context, "venueZone onContextChange", Toast.LENGTH_SHORT).show()
                     }
                     .build()
-            observationHandler = proximityObserver.startObserving(venueZone)
+//            observationHandler = proximityObserver.startObserving(venueZone)
 
         }, 5000)
     }
@@ -58,16 +58,9 @@ internal class BeaconService private constructor(context: Context) {
         private var instance: BeaconService? = null
 
         @Synchronized
-        fun initialize(context: Context) {
+        internal fun getInstance(context: Context): BeaconService {
             if (instance == null) {
                 instance = BeaconService(context)
-            }
-        }
-
-        @Synchronized
-        fun getInstance(): BeaconService {
-            if (instance == null) {
-                throw IllegalStateException("BeaconService is not initialized. Make sure to call BeaconService.initialize(Activity) first.")
             }
             return instance as BeaconService
         }

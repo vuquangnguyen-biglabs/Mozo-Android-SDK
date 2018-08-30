@@ -1,8 +1,9 @@
 package com.biglabs.mozo.example.shopper
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import com.biglabs.mozo.sdk.MozoSDK
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,11 +12,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         MozoSDK.initialize(this)
-        MozoSDK.getInstance()
+        signInBtn.setOnClickListener {
+            MozoSDK.getInstance().auth.signIn(this)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        //MozoSDK.getInstance().stopScan()
+        //MozoSDK.getInstance().beacon.stopScan()
     }
 }

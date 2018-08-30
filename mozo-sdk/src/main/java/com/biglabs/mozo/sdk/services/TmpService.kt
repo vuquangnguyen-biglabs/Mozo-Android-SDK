@@ -1,24 +1,17 @@
 package com.biglabs.mozo.sdk.services
 
-import android.app.Activity
+import android.content.Context
 
-internal class TmpService private constructor(activity: Activity) {
+internal class TmpService private constructor(context: Context) {
 
     companion object {
         @Volatile
         private var instance: TmpService? = null
 
         @Synchronized
-        fun initialize(activity: Activity) {
+        fun getInstance(context: Context): TmpService {
             if (instance == null) {
-                instance = TmpService(activity)
-            }
-        }
-
-        @Synchronized
-        fun getInstance(): TmpService {
-            if (instance == null) {
-                throw IllegalStateException("TmpService is not initialized. Make sure to call TmpService.initialize(Activity) first.")
+                instance = TmpService(context)
             }
             return instance as TmpService
         }
