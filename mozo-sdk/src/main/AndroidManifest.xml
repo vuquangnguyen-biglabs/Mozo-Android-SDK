@@ -8,4 +8,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name=".ui.WrapperActivity"
+            android:launchMode="singleTop" />
+    </application>
 </manifest>

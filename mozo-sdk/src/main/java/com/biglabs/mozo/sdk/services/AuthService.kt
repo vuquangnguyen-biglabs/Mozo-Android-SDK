@@ -6,6 +6,7 @@ class AuthService private constructor(context: Context) {
 
     fun signIn(context: Context) {
         val wallet: WalletService = WalletService.getInstance(context)
+        wallet.createWallet(context)
     }
 
     fun signOut() {
