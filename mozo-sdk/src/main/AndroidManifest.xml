@@ -12,6 +12,12 @@
     <application>
         <activity
             android:name=".ui.WrapperActivity"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Transparent"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize" />
+
+        <activity
+            android:name=".ui.SecurityActivity"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
     </application>
 </manifest>

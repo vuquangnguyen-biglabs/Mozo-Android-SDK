@@ -1,12 +1,11 @@
 package com.biglabs.mozo.sdk.services
 
-import android.content.Context
+class AuthService private constructor() {
 
-class AuthService private constructor(context: Context) {
+    private val wallet: WalletService by lazy { WalletService.getInstance() }
 
-    fun signIn(context: Context) {
-        val wallet: WalletService = WalletService.getInstance(context)
-        wallet.createWallet(context)
+    fun signIn() {
+        wallet.createWallet()
     }
 
     fun signOut() {
@@ -15,14 +14,11 @@ class AuthService private constructor(context: Context) {
 
     companion object {
         @Volatile
-        private var instance: AuthService? = null
+        private var INSTANCE: AuthService? = null
 
-        @Synchronized
-        internal fun getInstance(context: Context): AuthService {
-            if (instance == null) {
-                instance = AuthService(context)
-            }
-            return instance as AuthService
-        }
+        internal fun getInstance(): AuthService =
+                INSTANCE ?: synchronized(this) {
+                    INSTANCE ?: AuthService()
+                }
     }
 }

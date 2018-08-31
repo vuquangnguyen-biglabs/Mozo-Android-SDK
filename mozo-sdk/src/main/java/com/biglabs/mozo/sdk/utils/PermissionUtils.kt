@@ -10,12 +10,12 @@ class PermissionUtils {
     companion object {
         private fun isPermissionGranted(context: Context, permission: String): Boolean = (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED)
 
-        fun requestPermission(context: Context, permission: String, callback: () -> Unit) {
+        fun requestPermission(context: Context, permission: String): Boolean {
             if (!isPermissionGranted(context, permission)) {
-                WrapperActivity.startRequestPermission(context, permission, callback)
-            } else {
-                callback()
+                WrapperActivity.startRequestPermission(context, permission)
+                return false
             }
+            return true
         }
     }
 }

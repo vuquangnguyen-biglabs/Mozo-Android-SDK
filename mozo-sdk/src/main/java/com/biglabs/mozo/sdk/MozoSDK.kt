@@ -1,33 +1,39 @@
 package com.biglabs.mozo.sdk
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.biglabs.mozo.sdk.services.AuthService
-import com.biglabs.mozo.sdk.services.BeaconService
 
-class MozoSDK private constructor(context: Context) {
+class MozoSDK private constructor() {
 
-    val auth: AuthService = AuthService.getInstance(context)
-    //val beacon: BeaconService = BeaconService.getInstance(context)
+    val auth: AuthService by lazy { AuthService.getInstance() }
+    //val beacon: BeaconService by lazy { BeaconService.getInstance() }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         @Volatile
-        private var instance: MozoSDK? = null
+        private var INSTANCE: MozoSDK? = null
+
+        @SuppressLint("StaticFieldLeak")
+        @Volatile
+        internal var context: Context? = null
 
         @JvmStatic
         @Synchronized
-        fun initialize(applicationContext: Context) {
-            if (instance == null) {
-                instance = MozoSDK(applicationContext)
+        fun initialize(context: Context) {
+            if (INSTANCE == null) {
+                this.context = context.applicationContext
+                INSTANCE = MozoSDK()
             }
         }
 
         @JvmStatic
         @Synchronized
         fun getInstance(): MozoSDK {
-            if (instance == null) {
+            if (INSTANCE == null) {
                 throw IllegalStateException("MozoSDK is not initialized. Make sure to call MozoSDK.initialize(Context) first.")
             }
-            return instance as MozoSDK
+            return INSTANCE as MozoSDK
         }
     }
 }

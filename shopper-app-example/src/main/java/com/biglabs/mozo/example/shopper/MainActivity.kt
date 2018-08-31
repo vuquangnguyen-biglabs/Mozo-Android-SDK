@@ -11,9 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        MozoSDK.initialize(this)
         signInBtn.setOnClickListener {
-            MozoSDK.getInstance().auth.signIn(this)
+            MozoSDK.getInstance().auth.signIn()
         }
     }
 

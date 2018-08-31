@@ -1,19 +1,15 @@
 package com.biglabs.mozo.sdk.services
 
-import android.content.Context
-
-internal class TmpService private constructor(context: Context) {
+internal class TmpService private constructor() {
 
     companion object {
         @Volatile
-        private var instance: TmpService? = null
+        private var INSTANCE: TmpService? = null
 
         @Synchronized
-        fun getInstance(context: Context): TmpService {
-            if (instance == null) {
-                instance = TmpService(context)
-            }
-            return instance as TmpService
-        }
+        fun getInstance(): TmpService =
+                INSTANCE ?: synchronized(this) {
+                    INSTANCE ?: TmpService()
+                }
     }
 }

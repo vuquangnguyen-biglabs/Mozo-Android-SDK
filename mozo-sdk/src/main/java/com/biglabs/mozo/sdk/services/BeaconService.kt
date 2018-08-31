@@ -3,25 +3,30 @@ package com.biglabs.mozo.sdk.services
 import android.content.Context
 import android.os.Handler
 import android.widget.Toast
+import com.biglabs.mozo.sdk.MozoSDK
 import com.estimote.proximity_sdk.api.EstimoteCloudCredentials
 import com.estimote.proximity_sdk.api.ProximityObserver
 import com.estimote.proximity_sdk.api.ProximityObserverBuilder
 import com.estimote.proximity_sdk.api.ProximityZoneBuilder
 
-class BeaconService private constructor(context: Context) {
+class BeaconService private constructor() {
 
-    private val proximityObserver: ProximityObserver
+    private val proximityObserver: ProximityObserver? by lazy {
+        MozoSDK.context?.let {
+            ProximityObserverBuilder(it, EstimoteCloudCredentials(ESTIMOTE_APP_ID, ESTIMOTE_APP_TOKEN))
+                    .withAnalyticsReportingDisabled()
+                    .onError { throwable ->
+                        Toast.makeText(it, "proximityObserver onError:" + throwable.message, Toast.LENGTH_SHORT).show()
+                    }
+                    .build()
+        }
+    }
     private var observationHandler: ProximityObserver.Handler? = null
 
     init {
-        proximityObserver = ProximityObserverBuilder(context, EstimoteCloudCredentials(ESTIMOTE_APP_ID, ESTIMOTE_APP_TOKEN))
-                .withAnalyticsReportingDisabled()
-                .onError {
-                    Toast.makeText(context, "proximityObserver onError:" + it.message, Toast.LENGTH_SHORT).show()
-                }
-                .build()
-
-        startRanging(context)
+        MozoSDK.context?.let {
+            startRanging(it)
+        }
     }
 
     private fun startRanging(context: Context) {
@@ -55,14 +60,11 @@ class BeaconService private constructor(context: Context) {
         private const val ESTIMOTE_APP_TOKEN = "76edde3928a11914b0465a82f13ba3cc"
 
         @Volatile
-        private var instance: BeaconService? = null
+        private var INSTANCE: BeaconService? = null
 
-        @Synchronized
-        internal fun getInstance(context: Context): BeaconService {
-            if (instance == null) {
-                instance = BeaconService(context)
-            }
-            return instance as BeaconService
-        }
+        internal fun getInstance(): BeaconService =
+                INSTANCE ?: synchronized(this) {
+                    INSTANCE ?: BeaconService()
+                }
     }
 }
