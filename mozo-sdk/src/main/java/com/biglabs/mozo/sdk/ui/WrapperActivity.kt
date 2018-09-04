@@ -27,8 +27,8 @@ internal class WrapperActivity : Activity() {
         targetPermission?.run {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this@WrapperActivity, this)) {
                 AlertDialog.Builder(this@WrapperActivity)
-                        .setTitle(R.string.dialog_storage_permission_title)
-                        .setMessage(R.string.dialog_storage_permission_msg)
+                        .setTitle(R.string.mozo_dialog_storage_permission_title)
+                        .setMessage(R.string.mozo_dialog_storage_permission_msg)
                         .setPositiveButton(android.R.string.ok) { dialog, _ ->
                             dialog.dismiss()
                         }

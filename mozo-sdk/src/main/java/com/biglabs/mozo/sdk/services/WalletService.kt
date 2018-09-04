@@ -43,6 +43,8 @@ internal class WalletService private constructor() {
                 SecureRandom().nextBytes(bytes)
                 val wallet = MnemonicUtils.generateMnemonic(bytes)
 
+
+
                 val msg = "Wallet service init: \n wallet: $wallet"
                 Log.e("vu", msg)
                 launch(UI) {
