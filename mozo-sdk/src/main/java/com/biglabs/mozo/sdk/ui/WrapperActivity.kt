@@ -60,6 +60,7 @@ internal class WrapperActivity : Activity() {
         fun startRequestPermission(context: Context, permission: String) {
             val intent = Intent(context, WrapperActivity::class.java)
             intent.putExtra(TARGET_PERMISSION, permission)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
         }
     }

@@ -10,7 +10,8 @@ import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.PermissionUtils
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import org.web3j.crypto.WalletUtils
+import org.web3j.crypto.MnemonicUtils
+import java.security.SecureRandom
 
 internal class WalletService private constructor() {
 
@@ -38,9 +39,11 @@ internal class WalletService private constructor() {
         MozoSDK.context?.let {
             SecurityActivity.start(it)
             launch {
-                val wallet = WalletUtils.generateBip39Wallet("0000", Environment.getExternalStorageDirectory())
+                val bytes = ByteArray(16 /* 12 words */)
+                SecureRandom().nextBytes(bytes)
+                val wallet = MnemonicUtils.generateMnemonic(bytes)
 
-                val msg = "Wallet service init: \n wallet: " + wallet + ", dir: " + Environment.getExternalStorageDirectory()
+                val msg = "Wallet service init: \n wallet: $wallet"
                 Log.e("vu", msg)
                 launch(UI) {
                     Toast.makeText(it, msg, Toast.LENGTH_LONG).show()

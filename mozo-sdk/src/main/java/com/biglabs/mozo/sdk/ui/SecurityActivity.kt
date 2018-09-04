@@ -15,7 +15,9 @@ class SecurityActivity : AppCompatActivity() {
 
     companion object {
         fun start(context: Context) {
-            context.startActivity(Intent(context, SecurityActivity::class.java))
+            val intent = Intent(context, SecurityActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
         }
     }
 }
