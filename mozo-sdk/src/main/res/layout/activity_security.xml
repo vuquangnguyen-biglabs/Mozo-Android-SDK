@@ -24,12 +24,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.biglabs.mozo.sdk.ui.views.KeyboardAlwaysEditText
+    <com.biglabs.mozo.sdk.ui.views.PinEntryEditText
         android:id="@+id/input_pin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:imeOptions="actionDone"
         android:inputType="numberPassword"
+        android:maxLength="4"
+        app:pinAnimationType="fromBottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
