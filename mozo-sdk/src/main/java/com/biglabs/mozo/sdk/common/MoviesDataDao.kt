@@ -11,8 +11,11 @@ interface MoviesDataDao {
     @Insert
     fun insertMultipleMovies(moviesList: List<Movies>)
 
-    @Query("SELECT * FROM Movies WHERE movieId = :movieId")
-    fun fetchOneMoviesbyMovieId(movieId: Int): Movies
+    @Query("SELECT * FROM Movies WHERE id = :movieId")
+    fun fetchOneMoviesByMovieId(movieId: Long): Movies
+
+    @Query("SELECT * FROM Movies")
+    fun fetchMovies(): List<Movies>
 
     @Update
     fun updateMovie(movies: Movies)

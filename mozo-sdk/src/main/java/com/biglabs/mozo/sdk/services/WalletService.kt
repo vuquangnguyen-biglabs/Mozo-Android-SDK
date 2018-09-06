@@ -2,10 +2,11 @@ package com.biglabs.mozo.sdk.services
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
+import com.biglabs.mozo.sdk.common.MoviesDatabase
+import com.biglabs.mozo.sdk.entities.Movies
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.PermissionUtils
 import kotlinx.coroutines.experimental.android.UI
@@ -43,12 +44,19 @@ internal class WalletService private constructor() {
                 SecureRandom().nextBytes(bytes)
                 val wallet = MnemonicUtils.generateMnemonic(bytes)
 
-
-
                 val msg = "Wallet service init: \n wallet: $wallet"
                 Log.e("vu", msg)
-                launch(UI) {
-                    Toast.makeText(it, msg, Toast.LENGTH_LONG).show()
+
+                launch {
+                    val movies = Movies(name = "Civil War")
+                    MoviesDatabase.getInstance(it).moviesDataDao().insertOnlySingleMovie(movies)
+
+                    val result = MoviesDatabase.getInstance(it).moviesDataDao().fetchMovies()
+                    Log.e("vu", "movies: " + result)
+
+                    launch(UI) {
+                        Toast.makeText(it, msg, Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
