@@ -1,11 +1,12 @@
 package com.biglabs.mozo.sdk.common
 
 import android.arch.persistence.room.*
+import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import com.biglabs.mozo.sdk.entities.Movies
 
 @Dao
 interface MoviesDataDao {
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun insertOnlySingleMovie(movies: Movies)
 
     @Insert
@@ -22,4 +23,7 @@ interface MoviesDataDao {
 
     @Delete
     fun deleteMovie(movies: Movies)
+
+    @Query("DELETE from Movies")
+    fun deleteMovies()
 }

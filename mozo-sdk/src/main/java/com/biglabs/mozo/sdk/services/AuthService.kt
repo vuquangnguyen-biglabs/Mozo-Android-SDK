@@ -14,6 +14,8 @@ class AuthService private constructor() {
          */
 
         UUID.randomUUID().toString().logAsError("uuid")
+
+
     }
 
     fun signIn() {
