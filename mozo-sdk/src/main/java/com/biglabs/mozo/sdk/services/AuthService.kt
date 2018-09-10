@@ -47,15 +47,23 @@ class AuthService private constructor() {
         }
     }
 
-    fun signOut() {
+    suspend fun isSignedIn(): Boolean {
+        return if (MozoSDK.context != null) {
+            MozoDatabase.getInstance(MozoSDK.context!!).userInfo().get() != null
+        } else false
+    }
 
+    fun signOut() {
+        MozoDatabase.destroyInstance()
     }
 
     @Subscribe
-    fun onReceivePin(event: MessageEvent.Pin) {
+    internal fun onReceivePin(event: MessageEvent.Pin) {
         EventBus.getDefault().unregister(this@AuthService)
         launch(UI) {
-            // TODO load wallet info from DB by pin
+            // TODO try to load wallet info from DB by pin
+            // verify PIN
+
             Toast.makeText(MozoSDK.context!!, "receive pin in Auth", Toast.LENGTH_SHORT).show()
         }
     }

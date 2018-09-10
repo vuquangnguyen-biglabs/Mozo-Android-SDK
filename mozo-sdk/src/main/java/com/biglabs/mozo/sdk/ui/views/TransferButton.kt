@@ -36,4 +36,6 @@ class TransferButton : Button {
         width = newWidth
         height = newHeight
     }
+
+    // TODO override onCLick event
 }
