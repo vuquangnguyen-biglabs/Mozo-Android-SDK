@@ -29,3 +29,5 @@
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
 }
+
+-keep class com.biglabs.mozo.sdk.core.Models** { *; }

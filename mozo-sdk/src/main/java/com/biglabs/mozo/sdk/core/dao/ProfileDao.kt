@@ -1,29 +1,29 @@
 package com.biglabs.mozo.sdk.core.dao
 
 import android.arch.persistence.room.*
-import com.biglabs.mozo.sdk.core.entities.Profiles
+import com.biglabs.mozo.sdk.core.Models.Profile
 
 @Dao
 interface ProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun save(profile: Profiles)
+    fun save(profile: Profile)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun save(profiles: List<Profiles>)
+    fun save(profiles: List<Profile>)
 
-    @Query("SELECT * FROM Profiles WHERE id = :id")
-    fun get(id: Long): Profiles
+    @Query("SELECT * FROM Profile WHERE userId = :userId")
+    fun get(userId: String): Profile?
 
-    @Query("SELECT * FROM Profiles")
-    fun getAll(): List<Profiles>
+    @Query("SELECT * FROM Profile")
+    fun getAll(): List<Profile>
 
     @Update
-    fun update(profile: Profiles)
+    fun update(profile: Profile)
 
     @Delete
-    fun delete(profile: Profiles)
+    fun delete(profile: Profile)
 
-    @Query("DELETE from Profiles")
+    @Query("DELETE from Profile")
     fun deleteAll()
 }

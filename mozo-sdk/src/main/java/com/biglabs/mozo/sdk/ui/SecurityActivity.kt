@@ -9,6 +9,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.ui.views.onBackPress
@@ -39,6 +40,7 @@ class SecurityActivity : AppCompatActivity() {
                     TextUtils.equals(input_pin.text, pin) -> doResponseResult()
                     else -> AlertDialog.Builder(this)
                             .setMessage("PIN does not match")
+                            .setNegativeButton(android.R.string.ok, null)
                             .create().show()
                 }
                 true
@@ -51,6 +53,7 @@ class SecurityActivity : AppCompatActivity() {
         if (!isValid) {
             AlertDialog.Builder(this)
                     .setMessage("PIN is not enough")
+                    .setNegativeButton(android.R.string.ok, null)
                     .create().show()
         }
         return isValid

@@ -6,9 +6,8 @@ import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import com.biglabs.mozo.sdk.core.dao.ProfileDao
 import com.biglabs.mozo.sdk.core.dao.UserInfoDao
-import com.biglabs.mozo.sdk.core.entities.Profiles
 
-@Database(entities = [Profiles::class], version = 1, exportSchema = false)
+@Database(entities = [Models.UserInfo::class, Models.Profile::class], version = 1, exportSchema = false)
 abstract class MozoDatabase : RoomDatabase() {
     abstract fun profile(): ProfileDao
     abstract fun userInfo(): UserInfoDao

@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.core.MozoDatabase
-import com.biglabs.mozo.sdk.core.entities.Profiles
+import com.biglabs.mozo.sdk.core.Models.Profile
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PermissionUtils
@@ -21,15 +21,22 @@ import java.security.SecureRandom
 
 internal class WalletService private constructor() {
 
-    fun createWallet() {
+    var userId: String? = null
+
+    fun initWallet(userId: String) {
+        this.userId = userId
         MozoSDK.context?.let {
-            if (PermissionUtils.requestPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                executeCreateWallet()
+
+            launch {
+                if (MozoDatabase.getInstance(it).profile().get(userId) == null) {
+                    // TODO check server wallet is existing ?
+                    executeCreateWallet()
+                }
             }
         }
     }
 
-    internal fun onPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
+    fun onPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
         grantResults.mapIndexed { index, value ->
             if (value == PackageManager.PERMISSION_GRANTED) {
                 when (permissions[index]) {
@@ -43,11 +50,14 @@ internal class WalletService private constructor() {
 
     private fun executeCreateWallet() {
         MozoSDK.context?.let {
-            SecurityActivity.start(it, true)
+            if (PermissionUtils.requestPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                SecurityActivity.start(it, true)
+            }
         }
     }
 
-    internal fun onReceivePin(pin: String) {
+    fun onReceivePin(pin: String) {
+        if (userId == null) return
         launch {
             val mnemonic = MnemonicUtils.generateMnemonic(
                     SecureRandom().generateSeed(16)
@@ -68,7 +78,8 @@ internal class WalletService private constructor() {
             Log.e("vu", "privateKey: $privKey")
 
 
-            val profile = Profiles(
+            val profile = Profile(
+                    userId = userId!!,
                     seed = CryptoUtils.encrypt(mnemonic, pin),
                     address = credentials.address,
                     prvKey = CryptoUtils.encrypt(privKey, pin)
@@ -85,9 +96,9 @@ internal class WalletService private constructor() {
         @Volatile
         private var INSTANCE: WalletService? = null
 
-        fun getInstance(): WalletService =
-                INSTANCE ?: synchronized(this) {
-                    INSTANCE ?: WalletService()
-                }
+        fun getInstance(): WalletService {
+            if (INSTANCE == null) INSTANCE = WalletService()
+            return INSTANCE!!
+        }
     }
 }
