@@ -96,9 +96,9 @@ internal class WalletService private constructor() {
         @Volatile
         private var INSTANCE: WalletService? = null
 
-        fun getInstance(): WalletService {
+        fun getInstance() = INSTANCE ?: synchronized(this) {
             if (INSTANCE == null) INSTANCE = WalletService()
-            return INSTANCE!!
-        }
+            INSTANCE
+        }!!
     }
 }
