@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
 import com.biglabs.mozo.sdk.MozoSDK
+import com.biglabs.mozo.sdk.common.MozoDatabase
+import com.biglabs.mozo.sdk.entities.Profiles
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PermissionUtils
@@ -27,7 +29,7 @@ internal class WalletService private constructor() {
         }
     }
 
-    fun onPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
+    internal fun onPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
         grantResults.mapIndexed { index, value ->
             if (value == PackageManager.PERMISSION_GRANTED) {
                 when (permissions[index]) {
@@ -41,41 +43,39 @@ internal class WalletService private constructor() {
 
     private fun executeCreateWallet() {
         MozoSDK.context?.let {
-            SecurityActivity.start(it)
-            launch {
+            SecurityActivity.start(it, true)
+        }
+    }
 
-                val mnemonic = MnemonicUtils.generateMnemonic(
-                        SecureRandom().generateSeed(16)
-                )
+    internal fun onReceivePin(pin: String) {
+        launch {
+            val mnemonic = MnemonicUtils.generateMnemonic(
+                    SecureRandom().generateSeed(16)
+            )
 
-                val key = DeterministicKeyChain
-                        .builder()
-                        .seed(DeterministicSeed(mnemonic, null, "", System.nanoTime()))
-                        .build()
-                        .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
-                val privKey = key.privKey.toString(16)
+            val key = DeterministicKeyChain
+                    .builder()
+                    .seed(DeterministicSeed(mnemonic, null, "", System.nanoTime()))
+                    .build()
+                    .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
+            val privKey = key.privKey.toString(16)
 
-                // Web3j
-                val credentials = Credentials.create(privKey)
-                Log.e("vu", "mnemonic: $mnemonic")
-                Log.e("vu", "address: ${credentials.address}")
-                Log.e("vu", "publicKey: ${key.pubKey.toHexString()}")
-                Log.e("vu", "privateKey: $privKey")
+            // Web3j
+            val credentials = Credentials.create(privKey)
+            Log.e("vu", "mnemonic: $mnemonic")
+            Log.e("vu", "address: ${credentials.address}")
+            Log.e("vu", "publicKey: ${key.pubKey.toHexString()}")
+            Log.e("vu", "privateKey: $privKey")
 
-                /*
-                launch {
-                    val movies = Movies(name = "Civil War")
-                    MoviesDatabase.getInstance(it).moviesDataDao().insertOnlySingleMovie(movies)
 
-                    val result = MoviesDatabase.getInstance(it).moviesDataDao().fetchMovies()
-                    Log.e("vu", "movies: " + result)
+            val profile = Profiles(
+                    seed = CryptoUtils.encrypt(mnemonic, pin),
+                    address = credentials.address,
+                    prvKey = CryptoUtils.encrypt(privKey, pin)
+            )
+            MozoDatabase.getInstance(MozoSDK.context!!).profile().save(profile)
 
-                    launch(UI) {
-                        Toast.makeText(it, msg, Toast.LENGTH_LONG).show()
-                    }
-                }
-                */
-            }
+            
         }
     }
 
