@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
+import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.core.Models.Profile
 import com.biglabs.mozo.sdk.ui.SecurityActivity
@@ -14,6 +15,8 @@ import kotlinx.coroutines.experimental.launch
 import org.bitcoinj.crypto.HDUtils
 import org.bitcoinj.wallet.DeterministicKeyChain
 import org.bitcoinj.wallet.DeterministicSeed
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import java.security.SecureRandom
@@ -72,15 +75,18 @@ internal class WalletService private constructor() {
                 val credentials = Credentials.create(privKey)
                 this@WalletService.seed = mnemonic
                 this@WalletService.address = credentials.address
+                EventBus.getDefault().register(this@WalletService)
                 SecurityActivity.start(it, mnemonic)
             }
         }
     }
 
-    fun onReceivePin(pin: String) {
+    @Subscribe
+    fun onReceivePin(event: MessageEvent.Pin) {
+        EventBus.getDefault().unregister(this@WalletService)
         if (userId == null) return
         launch {
-
+            val pin = event.pin
             val profile = Profile(
                     userId = userId!!,
                     seed = CryptoUtils.encrypt(this@WalletService.seed!!, pin),

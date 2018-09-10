@@ -8,11 +8,12 @@ import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.inputmethod.EditorInfo
 import com.biglabs.mozo.sdk.R
-import com.biglabs.mozo.sdk.services.WalletService
+import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.ui.views.onBackPress
 import com.biglabs.mozo.sdk.utils.hideSotfKeyboard
 import kotlinx.android.synthetic.main.view_backup.*
 import kotlinx.android.synthetic.main.view_pin_input.*
+import org.greenrobot.eventbus.EventBus
 
 class SecurityActivity : AppCompatActivity() {
 
@@ -74,7 +75,7 @@ class SecurityActivity : AppCompatActivity() {
 
     private fun doResponseResult() {
         finish()
-        WalletService.getInstance().onReceivePin(pin)
+        EventBus.getDefault().post(MessageEvent.Pin(pin))
     }
 
     companion object {

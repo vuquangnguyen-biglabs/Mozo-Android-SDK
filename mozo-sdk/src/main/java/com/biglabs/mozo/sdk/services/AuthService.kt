@@ -1,10 +1,16 @@
 package com.biglabs.mozo.sdk.services
 
+import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
+import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models.UserInfo
 import com.biglabs.mozo.sdk.core.MozoDatabase
+import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.logAsError
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
 class AuthService private constructor() {
@@ -34,7 +40,8 @@ class AuthService private constructor() {
 
                     wallet.initWallet(user.userId)
                 } else {
-
+                    EventBus.getDefault().register(this@AuthService)
+                    SecurityActivity.start(it)
                 }
             }
         }
@@ -42,6 +49,15 @@ class AuthService private constructor() {
 
     fun signOut() {
 
+    }
+
+    @Subscribe
+    fun onReceivePin(event: MessageEvent.Pin) {
+        EventBus.getDefault().unregister(this@AuthService)
+        launch(UI) {
+            // TODO load wallet info from DB by pin
+            Toast.makeText(MozoSDK.context!!, "receive pin in Auth", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
