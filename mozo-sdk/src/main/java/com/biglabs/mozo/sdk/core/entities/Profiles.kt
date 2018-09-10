@@ -1,4 +1,4 @@
-package com.biglabs.mozo.sdk.entities
+package com.biglabs.mozo.sdk.core.entities
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey

@@ -4,8 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
 import com.biglabs.mozo.sdk.MozoSDK
-import com.biglabs.mozo.sdk.common.MozoDatabase
-import com.biglabs.mozo.sdk.entities.Profiles
+import com.biglabs.mozo.sdk.core.MozoDatabase
+import com.biglabs.mozo.sdk.core.entities.Profiles
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PermissionUtils
@@ -75,7 +75,7 @@ internal class WalletService private constructor() {
             )
             MozoDatabase.getInstance(MozoSDK.context!!).profile().save(profile)
 
-            
+            // TODO Send the wallet to server
         }
     }
 

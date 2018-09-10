@@ -1,7 +1,7 @@
-package com.biglabs.mozo.sdk.common
+package com.biglabs.mozo.sdk.core.dao
 
 import android.arch.persistence.room.*
-import com.biglabs.mozo.sdk.entities.Profiles
+import com.biglabs.mozo.sdk.core.entities.Profiles
 
 @Dao
 interface ProfileDao {
