@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.core.Models.Profile
 import com.biglabs.mozo.sdk.ui.SecurityActivity
@@ -89,9 +90,11 @@ internal class WalletService private constructor() {
             val pin = event.pin
             val profile = Profile(
                     userId = userId!!,
-                    seed = CryptoUtils.encrypt(this@WalletService.seed!!, pin),
-                    address = this@WalletService.address!!,
-                    prvKey = CryptoUtils.encrypt(this@WalletService.privKey!!, pin)
+                    walletInfo = Models.WalletInfo(
+                            CryptoUtils.encrypt(this@WalletService.seed!!, pin),
+                            this@WalletService.address!!,
+                            CryptoUtils.encrypt(this@WalletService.privKey!!, pin)
+                    )
             )
             MozoDatabase.getInstance(MozoSDK.context!!).profile().save(profile)
 
