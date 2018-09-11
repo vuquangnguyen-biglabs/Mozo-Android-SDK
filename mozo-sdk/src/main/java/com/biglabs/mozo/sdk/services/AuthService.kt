@@ -3,10 +3,10 @@ package com.biglabs.mozo.sdk.services
 import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
 import com.biglabs.mozo.sdk.core.Models.UserInfo
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.SecurityActivity
-import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
@@ -16,29 +16,28 @@ import java.util.*
 class AuthService private constructor() {
 
     private val wallet: WalletService by lazy { WalletService.getInstance() }
+    private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
 
     init {
-        /* TODO
-        check token
-        init anonymous user
-         */
-
-        UUID.randomUUID().toString().logAsError("uuid")
-
-
+        launch {
+            if (!isSignedIn()) {
+                val anonymousUser = initAnonymousUser()
+                // TODO authentication with anonymousUser
+            }
+        }
     }
 
     fun signIn() {
         MozoSDK.context?.let {
             launch {
-                val mozoDB = MozoDatabase.getInstance(it)
-
                 var user = mozoDB.userInfo().get()
                 if (user == null) {
                     user = UserInfo(userId = "abcxyz", phoneNumber = "0123456789", fullName = "Vu Nguyen")
                     mozoDB.userInfo().save(user)
 
                     wallet.initWallet(user.userId)
+
+                    // TODO claim Mozo token from anonymous to this user
                 } else {
                     EventBus.getDefault().register(this@AuthService)
                     SecurityActivity.start(it)
@@ -49,7 +48,7 @@ class AuthService private constructor() {
 
     suspend fun isSignedIn(): Boolean {
         return if (MozoSDK.context != null) {
-            MozoDatabase.getInstance(MozoSDK.context!!).userInfo().get() != null
+            mozoDB.userInfo().get() != null
         } else false
     }
 
@@ -66,6 +65,18 @@ class AuthService private constructor() {
 
             Toast.makeText(MozoSDK.context!!, "receive pin in Auth", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private suspend fun initAnonymousUser(): AnonymousUserInfo {
+        var anonymousUser = mozoDB.anonymousUserInfo().get()
+        if (anonymousUser == null) {
+            val userId = UUID.randomUUID().toString()
+            anonymousUser = AnonymousUserInfo(userId = userId)
+
+            mozoDB.anonymousUserInfo().save(anonymousUser)
+        }
+
+        return anonymousUser
     }
 
     companion object {

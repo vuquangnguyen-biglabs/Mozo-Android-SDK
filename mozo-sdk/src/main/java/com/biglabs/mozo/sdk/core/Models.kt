@@ -5,12 +5,24 @@ import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
 
 object Models {
+
+    @Entity
+    data class AnonymousUserInfo(
+            @NonNull @PrimaryKey var id: Long = 0L,
+            val userId: String,
+            val balance: Long = 0L,
+            val accessToken: String? = null,
+            val refreshToken: String? = null
+    )
+
     @Entity
     data class UserInfo(
             @NonNull @PrimaryKey var id: Long = 0L,
             val userId: String,
             val phoneNumber: String,
-            val fullName: String
+            val fullName: String,
+            val accessToken: String? = null,
+            val refreshToken: String? = null
     )
 
     @Entity
