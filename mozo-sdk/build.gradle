@@ -11,9 +11,17 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                appAuthRedirectScheme: auth_redirect_rul_scheme,
+        ]
+        buildConfigField 'String', 'AUTH_REDIRECT_URL_SCHEME', "\"$auth_redirect_rul_scheme\""
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -51,6 +59,7 @@ dependencies {
     implementation 'com.estimote:proximity-sdk:1.0.2'
     implementation 'org.bitcoinj:bitcoinj-core:0.14.7'
     implementation 'org.web3j:core:3.5.0'
+    implementation 'net.openid:appauth:0.7.1'
 
     // test
     testImplementation 'junit:junit:4.12'

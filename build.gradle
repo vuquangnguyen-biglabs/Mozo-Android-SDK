@@ -11,6 +11,8 @@ buildscript {
     ext.kotlinx_version = '0.25.3'
     ext.retrofit_version = '2.4.0'
 
+    ext.auth_redirect_rul_scheme = 'com.mozo.sdk'
+
     repositories {
         google()
         jcenter()

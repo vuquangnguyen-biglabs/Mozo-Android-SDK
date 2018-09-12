@@ -7,6 +7,7 @@ import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
 import com.biglabs.mozo.sdk.core.Models.UserInfo
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.SecurityActivity
+import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
@@ -22,12 +23,17 @@ class AuthService private constructor() {
         launch {
             if (!isSignedIn()) {
                 val anonymousUser = initAnonymousUser()
+                anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             }
         }
     }
 
     fun signIn() {
+
+
+
+
         MozoSDK.context?.let {
             launch {
                 var user = mozoDB.userInfo().get()

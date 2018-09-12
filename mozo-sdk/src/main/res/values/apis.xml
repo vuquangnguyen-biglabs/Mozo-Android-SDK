@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="redirect_url_host">keycloak.mozocoin.io</string>
+</resources>
