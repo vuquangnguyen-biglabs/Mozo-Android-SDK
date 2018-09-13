@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_client_id">native_app</string>
+    <string name="auth_redirect_uri">%s:/oauth2redirect/mozo-provider</string>
+    <string name="auth_discovery_uri">https://dev.keycloak.mozocoin.io/auth/realms/mozo/.well-known/openid-configuration</string>
+
+    <string name="redirect_url_scheme">com.mozo.sdk</string>
+    <string name="redirect_url_host">keycloak.mozocoin.io</string>
+
+</resources>

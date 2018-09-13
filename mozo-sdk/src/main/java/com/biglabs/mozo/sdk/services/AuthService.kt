@@ -6,10 +6,13 @@ import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
 import com.biglabs.mozo.sdk.core.Models.UserInfo
 import com.biglabs.mozo.sdk.core.MozoDatabase
+import com.biglabs.mozo.sdk.ui.AuthenticationWrapperActivity
 import com.biglabs.mozo.sdk.ui.SecurityActivity
+import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import net.openid.appauth.AuthState
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
@@ -30,11 +33,13 @@ class AuthService private constructor() {
     }
 
     fun signIn() {
+        MozoSDK.context?.run {
+            if (!EventBus.getDefault().isRegistered(this@AuthService)) {
+                EventBus.getDefault().register(this@AuthService)
+            }
+            AuthenticationWrapperActivity.start(this)
+            return
 
-
-
-
-        MozoSDK.context?.let {
             launch {
                 var user = mozoDB.userInfo().get()
                 if (user == null) {
@@ -46,7 +51,7 @@ class AuthService private constructor() {
                     // TODO claim Mozo token from anonymous to this user
                 } else {
                     EventBus.getDefault().register(this@AuthService)
-                    SecurityActivity.start(it)
+                    SecurityActivity.start(this@run)
                 }
             }
         }
@@ -60,6 +65,16 @@ class AuthService private constructor() {
 
     fun signOut() {
         MozoDatabase.destroyInstance()
+
+        MozoSDK.context?.let {
+            val mStateManager = AuthStateManager.getInstance(it)
+            val currentState = mStateManager.current
+            val clearedState = AuthState(currentState.authorizationServiceConfiguration!!)
+            if (currentState.lastRegistrationResponse != null) {
+                clearedState.update(currentState.lastRegistrationResponse)
+            }
+            mStateManager.replace(clearedState)
+        }
     }
 
     @Subscribe
@@ -71,6 +86,14 @@ class AuthService private constructor() {
 
             Toast.makeText(MozoSDK.context!!, "receive pin in Auth", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    @Subscribe
+    internal fun onAuthorized(auth: MessageEvent.Auth) {
+        EventBus.getDefault().unregister(this@AuthService)
+
+        Toast.makeText(MozoSDK.context!!, "Authorized\n" + auth.authState.scope, Toast.LENGTH_SHORT).show()
+
     }
 
     private suspend fun initAnonymousUser(): AnonymousUserInfo {

@@ -1,6 +1,7 @@
 package com.biglabs.mozo.sdk.utils
 
 import android.content.Context
+import android.support.annotation.StringRes
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -22,8 +23,12 @@ fun View.onClick(action: suspend () -> Unit) {
     }
 }
 
-fun Context.hideSotfKeyboard(view: View) {
+fun Context.hideSoftKeyboard(view: View) {
     (getSystemService(Context.INPUT_METHOD_SERVICE))?.run {
         (this as InputMethodManager).hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
+}
+
+fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): String {
+    return if (idRef != 0) getString(id, string(idRef)) else getString(id)
 }

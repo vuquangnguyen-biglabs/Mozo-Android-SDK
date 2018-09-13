@@ -3,7 +3,7 @@ package com.biglabs.mozo.sdk.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.content.ContextCompat
-import com.biglabs.mozo.sdk.ui.WrapperActivity
+import com.biglabs.mozo.sdk.ui.PermissionWrapperActivity
 
 
 class PermissionUtils {
@@ -12,7 +12,7 @@ class PermissionUtils {
 
         fun requestPermission(context: Context, permission: String): Boolean {
             if (!isPermissionGranted(context, permission)) {
-                WrapperActivity.startRequestPermission(context, permission)
+                PermissionWrapperActivity.startRequestPermission(context, permission)
                 return false
             }
             return true

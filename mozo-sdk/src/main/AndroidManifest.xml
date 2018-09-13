@@ -12,7 +12,14 @@
 
     <application>
         <activity
-            android:name=".ui.WrapperActivity"
+            android:name=".ui.AuthenticationWrapperActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Transparent"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize" />
+
+        <activity
+            android:name=".ui.PermissionWrapperActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.Transparent"
@@ -24,16 +31,32 @@
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
 
         <activity
+            android:name="net.openid.appauth.AuthorizationManagementActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             tools:node="replace">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="@string/redirect_url_host"
                     android:path="/auth/realms/mozo/login-actions/authenticate"
                     android:scheme="https" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="@string/redirect_url_scheme" />
             </intent-filter>
         </activity>
     </application>

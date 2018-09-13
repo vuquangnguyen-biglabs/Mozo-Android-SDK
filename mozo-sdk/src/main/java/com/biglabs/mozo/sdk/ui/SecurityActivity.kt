@@ -10,12 +10,12 @@ import android.view.inputmethod.EditorInfo
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.ui.views.onBackPress
-import com.biglabs.mozo.sdk.utils.hideSotfKeyboard
+import com.biglabs.mozo.sdk.utils.hideSoftKeyboard
 import kotlinx.android.synthetic.main.view_backup.*
 import kotlinx.android.synthetic.main.view_pin_input.*
 import org.greenrobot.eventbus.EventBus
 
-class SecurityActivity : AppCompatActivity() {
+internal class SecurityActivity : AppCompatActivity() {
 
     private var pin = ""
     private var seed: String? = null
@@ -67,7 +67,7 @@ class SecurityActivity : AppCompatActivity() {
     }
 
     private fun showBackupUI() {
-        hideSotfKeyboard(input_pin)
+        hideSoftKeyboard(input_pin)
         setContentView(R.layout.view_backup)
         seed_view.text = seed
         done_button.setOnClickListener { doResponseResult() }
