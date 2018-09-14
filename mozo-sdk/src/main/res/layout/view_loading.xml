@@ -1,44 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/title_token"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="intro_header"
-            android:textSize="8sp" />
-
-        <LinearLayout
-            android:id="@+id/error_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/error_description"
-                style="@style/Base.TextAppearance.AppCompat.Body1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="8dp" />
-
-        </LinearLayout>
-    </LinearLayout>
-
+    android:fitsSystemWindows="true"
+    android:gravity="center">
 
     <ProgressBar
         android:id="@+id/loading_container"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_gravity="center" />
-</android.support.design.widget.CoordinatorLayout>
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center"
+        android:background="@drawable/mozo_bg_loading_indicator"
+        android:padding="24dp"
+        android:progressBackgroundTint="@color/colorPrimary"
+        android:progressTint="@color/colorPrimary" />
+</LinearLayout>

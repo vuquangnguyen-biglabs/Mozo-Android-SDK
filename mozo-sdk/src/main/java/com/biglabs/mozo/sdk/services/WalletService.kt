@@ -30,17 +30,22 @@ internal class WalletService private constructor() {
     var privKey: String? = null
     var address: String? = null
 
-    fun initWallet(userId: String) {
-        this.userId = userId
+    fun initWallet() {
         MozoSDK.context?.let {
-
             launch {
-                if (MozoDatabase.getInstance(it).profile().get(userId) == null) {
-                    // TODO check server wallet is existing ?
-                    // if true
-                    // TODO recover wallet
-                    // else
-                    executeCreateWallet()
+                val profile = MozoDatabase.getInstance(it).profile().getCurrentUserProfile()
+                profile?.run {
+                    if (walletInfo == null) {
+                        /* Server wallet is NOT existing, create a new one at local */
+                        executeCreateWallet()
+                        /* Required input new PIN */
+                        /* After input PIN will be continue at onReceivePin() fun */
+                    } else if (walletInfo.privateKey == null) {
+                        /* Local wallet is existing but no private Key */
+                        /* Required input previous PIN */
+                        // TODO show PIN UI
+                        /* After input PIN will be continue at onReceivePin() fun */
+                    }
                 }
             }
         }

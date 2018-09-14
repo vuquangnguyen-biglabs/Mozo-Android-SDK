@@ -5,5 +5,5 @@ import net.openid.appauth.AuthorizationResponse
 
 object MessageEvent {
     class Pin(val pin: String)
-    class Auth(val authState: AuthState, val response: AuthorizationResponse? = null, val exception: Exception? = null)
+    class Auth(val authState: AuthState, val exception: Exception? = null)
 }

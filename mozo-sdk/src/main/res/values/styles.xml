@@ -3,6 +3,7 @@
 
     <style name="Theme.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
@@ -10,5 +11,9 @@
         <item name="android:colorAccent">@color/colorPrimary</item>
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="android:colorPrimaryDark">@color/colorPrimary</item>
+    </style>
+
+    <style name="Theme.Transparent.Dim">
+        <item name="android:backgroundDimEnabled">true</item>
     </style>
 </resources>

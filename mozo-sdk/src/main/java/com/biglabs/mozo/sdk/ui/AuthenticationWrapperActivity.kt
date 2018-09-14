@@ -5,14 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.annotation.MainThread
 import android.support.customtabs.CustomTabsIntent
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.Toast
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.core.Models
+import com.biglabs.mozo.sdk.core.MozoApiService
+import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.utils.AuthStateManager
+import com.biglabs.mozo.sdk.utils.logAsError
+import com.biglabs.mozo.sdk.utils.setMatchParent
 import com.biglabs.mozo.sdk.utils.string
 import kotlinx.android.synthetic.main.view_loading.*
 import kotlinx.coroutines.experimental.android.UI
@@ -22,7 +27,7 @@ import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 
-class AuthenticationWrapperActivity : Activity() {
+class AuthenticationWrapperActivity : FragmentActivity() {
 
     private var mAuthService: AuthorizationService? = null
     private var mAuthStateManager: AuthStateManager? = null
@@ -34,11 +39,11 @@ class AuthenticationWrapperActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_loading)
+        setMatchParent()
         mAuthStateManager = AuthStateManager.getInstance(this)
 
         if (mAuthStateManager!!.current.isAuthorized) {
-            EventBus.getDefault().post(MessageEvent.Auth(mAuthStateManager!!.current))
-            finish()
+            doResponseAndFinish()
             return
         }
 
@@ -54,66 +59,6 @@ class AuthenticationWrapperActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         mAuthService?.dispose()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if (resultCode == Activity.RESULT_CANCELED) {
-            finish()
-            return
-        } else {
-            val response = AuthorizationResponse.fromIntent(data)
-            val ex = AuthorizationException.fromIntent(data)
-
-            if (response != null || ex != null) {
-                mAuthStateManager!!.updateAfterAuthorization(response, ex)
-            }
-
-            when {
-                response?.authorizationCode != null -> {
-                    // authorization code exchange is required
-                    mAuthStateManager!!.updateAfterAuthorization(response, ex)
-                    exchangeAuthorizationCode(response)
-                }
-                else -> {
-                    EventBus.getDefault().post(MessageEvent.Auth(mAuthStateManager!!.current, response, ex))
-                    finish()
-                }
-            }
-        }
-    }
-
-    private fun exchangeAuthorizationCode(response: AuthorizationResponse) {
-        displayLoading()
-        performTokenRequest(response.createTokenExchangeRequest(), AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
-            mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
-            EventBus.getDefault().post(MessageEvent.Auth(mAuthStateManager!!.current, exception = authException))
-            finish()
-        })
-    }
-
-    private fun performTokenRequest(request: TokenRequest, callback: AuthorizationService.TokenResponseCallback) {
-        val clientAuthentication: ClientAuthentication
-        try {
-            clientAuthentication = mAuthStateManager!!.current.clientAuthentication
-        } catch (ex: ClientAuthentication.UnsupportedAuthenticationMethod) {
-            EventBus.getDefault().post(MessageEvent.Auth(mAuthStateManager!!.current, exception = ex))
-            finish()
-            return
-        }
-
-        mAuthService!!.performTokenRequest(request, clientAuthentication, callback)
-    }
-
-    private fun refreshAccessToken() {
-        displayLoading()
-        performTokenRequest(
-                mAuthStateManager!!.current.createTokenRefreshRequest(),
-                AuthorizationService.TokenResponseCallback { tokenResponse, authException -> this.handleAccessTokenResponse(tokenResponse, authException) })
-    }
-
-    private fun handleAccessTokenResponse(tokenResponse: TokenResponse?, authException: AuthorizationException?) {
-        mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
-        Toast.makeText(this, "refreshAccessToken DONE", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -135,11 +80,15 @@ class AuthenticationWrapperActivity : Activity() {
         ) { config, ex -> this.handleConfigurationRetrievalResult(config, ex) }
     }
 
-    @MainThread
+    private fun initializeAuthRequest() {
+        createAuthRequest()
+        warmUpBrowser()
+        doAuth()
+    }
+
     private fun handleConfigurationRetrievalResult(config: AuthorizationServiceConfiguration?, ex: AuthorizationException?) {
         if (config == null) {
-            EventBus.getDefault().post(MessageEvent.Auth(mAuthStateManager!!.current, exception = ex))
-            finish()
+            doResponseAndFinish(exception = ex)
             return
         }
 
@@ -152,19 +101,6 @@ class AuthenticationWrapperActivity : Activity() {
         mAuthService = AuthorizationService(this)
         mAuthRequest.set(null)
         mAuthIntent.set(null)
-    }
-
-    private fun displayLoading() {
-        launch(UI) {
-            loading_container.visibility = View.VISIBLE
-        }
-    }
-
-    @MainThread
-    private fun initializeAuthRequest() {
-        createAuthRequest()
-        warmUpBrowser()
-        doAuth()
     }
 
     private fun createAuthRequest() {
@@ -200,6 +136,109 @@ class AuthenticationWrapperActivity : Activity() {
         startActivityForResult(intent, RC_AUTH)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            finish()
+            return
+        } else {
+            val response = AuthorizationResponse.fromIntent(data)
+            val ex = AuthorizationException.fromIntent(data)
+
+            if (response != null || ex != null) {
+                mAuthStateManager!!.updateAfterAuthorization(response, ex)
+            }
+
+            when {
+                response?.authorizationCode != null -> {
+                    // authorization code exchange is required
+                    mAuthStateManager!!.updateAfterAuthorization(response, ex)
+                    exchangeAuthorizationCode(response)
+                }
+                else -> {
+                    doResponseAndFinish(exception = ex)
+                }
+            }
+        }
+    }
+
+    private fun exchangeAuthorizationCode(response: AuthorizationResponse) {
+        displayLoading()
+        performTokenRequest(response.createTokenExchangeRequest(), AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
+            mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
+            doResponseAndFinish(exception = authException)
+        })
+    }
+
+    private fun performTokenRequest(request: TokenRequest, callback: AuthorizationService.TokenResponseCallback) {
+        val clientAuthentication: ClientAuthentication
+        try {
+            clientAuthentication = mAuthStateManager!!.current.clientAuthentication
+        } catch (ex: ClientAuthentication.UnsupportedAuthenticationMethod) {
+            doResponseAndFinish(exception = ex)
+            return
+        }
+
+        mAuthService!!.performTokenRequest(request, clientAuthentication, callback)
+    }
+
+    private fun refreshAccessToken() {
+        displayLoading()
+        performTokenRequest(
+                mAuthStateManager!!.current.createTokenRefreshRequest(),
+                AuthorizationService.TokenResponseCallback { tokenResponse, authException -> this.handleAccessTokenResponse(tokenResponse, authException) })
+    }
+
+    private fun handleAccessTokenResponse(tokenResponse: TokenResponse?, authException: AuthorizationException?) {
+        mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
+        Toast.makeText(this, "refreshAccessToken DONE", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun displayLoading() {
+        launch(UI) {
+            loading_container.visibility = View.VISIBLE
+        }
+    }
+
+    private fun doResponseAndFinish(exception: Exception? = null) {
+        launch {
+            val currentAuth = mAuthStateManager!!.current
+            if (exception == null) {
+                val response = MozoApiService.create().fetchProfile().await()
+                val serverProfile = response.body()
+
+                if (response.isSuccessful && serverProfile != null) {
+                    val mozoDB = MozoDatabase.getInstance(this@AuthenticationWrapperActivity)
+                    /* save User info first */
+                    mozoDB.userInfo().save(Models.UserInfo(
+                            userId = serverProfile.userId,
+                            accessToken = currentAuth.accessToken,
+                            refreshToken = currentAuth.refreshToken
+                    ))
+
+                    /* Check local profile existing  */
+                    val localProfile = mozoDB.profile().get(serverProfile.userId)
+                    if (localProfile == null) {
+                        /* local profile is not exist */
+                        /* save server profile to local */
+                        mozoDB.profile().save(serverProfile)
+                    } else {
+                        /* local profile is already existing */
+                        /* update local profile to match with server profile */
+                        mozoDB.profile().update(serverProfile)
+                    }
+                } else {
+                    // TODO handle fetch profile error
+                    "Failed to fetch user profile!!".logAsError()
+                }
+            }
+
+            launch(UI) {
+                EventBus.getDefault().post(MessageEvent.Auth(currentAuth, exception))
+                finish()
+            }
+        }
+    }
+
     companion object {
         private const val EXTRA_FAILED = "failed"
         private const val RC_AUTH = 100
@@ -207,6 +246,7 @@ class AuthenticationWrapperActivity : Activity() {
         fun start(context: Context) {
             val starter = Intent(context, AuthenticationWrapperActivity::class.java)
             starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            starter.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             context.startActivity(starter)
         }
     }

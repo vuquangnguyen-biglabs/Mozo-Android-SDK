@@ -15,7 +15,7 @@
             android:name=".ui.AuthenticationWrapperActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Transparent"
+            android:theme="@style/Theme.Transparent.Dim"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize" />
 
         <activity

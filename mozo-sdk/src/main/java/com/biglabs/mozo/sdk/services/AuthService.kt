@@ -46,7 +46,7 @@ class AuthService private constructor() {
                     user = UserInfo(userId = "abcxyz", phoneNumber = "0123456789", fullName = "Vu Nguyen")
                     mozoDB.userInfo().save(user)
 
-                    wallet.initWallet(user.userId)
+//                    wallet.initWallet(user.userId)
 
                     // TODO claim Mozo token from anonymous to this user
                 } else {
@@ -91,9 +91,23 @@ class AuthService private constructor() {
     @Subscribe
     internal fun onAuthorized(auth: MessageEvent.Auth) {
         EventBus.getDefault().unregister(this@AuthService)
+        auth.authState.accessToken?.logAsError("\nAccessToken")
+        auth.authState.refreshToken?.logAsError("\nRefreshToken")
+        launch {
+            val user = mozoDB.userInfo().get()
+            user?.toString()?.logAsError("user")
 
-        Toast.makeText(MozoSDK.context!!, "Authorized\n" + auth.authState.scope, Toast.LENGTH_SHORT).show()
+            mozoDB.profile().getAll().toString().logAsError("all profile")
 
+            wallet.initWallet()
+
+            val profile = mozoDB.profile().getCurrentUserProfile()
+            launch(UI) {
+                profile?.userId?.logAsError("profile userId")
+                profile?.status?.logAsError("profile status")
+                Toast.makeText(MozoSDK.context!!, "Authorized\n" + profile, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private suspend fun initAnonymousUser(): AnonymousUserInfo {

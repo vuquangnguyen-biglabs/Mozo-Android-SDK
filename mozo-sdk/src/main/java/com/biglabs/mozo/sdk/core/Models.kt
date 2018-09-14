@@ -2,6 +2,7 @@ package com.biglabs.mozo.sdk.core
 
 import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
 
@@ -20,23 +21,24 @@ object Models {
     data class UserInfo(
             @NonNull @PrimaryKey var id: Long = 0L,
             val userId: String,
-            val phoneNumber: String,
-            val fullName: String,
+            val phoneNumber: String? = null,
+            val fullName: String? = null,
             val accessToken: String? = null,
             val refreshToken: String? = null
     )
 
-    @Entity
+    @Entity(indices = [Index(value = ["id", "userId"], unique = true)])
     data class Profile(
-            @NonNull @PrimaryKey(autoGenerate = true) var id: Long = 0L,
+            @PrimaryKey
+            var id: Long = 0L,
+            val userId: String,
+            val status: String? = null,
             @Embedded
             val exchangeInfo: ExchangeInfo? = null,
             @Embedded
             val settings: Settings? = null,
-            val status: String? = null,
-            val userId: String,
             @Embedded
-            val walletInfo: WalletInfo
+            val walletInfo: WalletInfo? = null
     )
 
     data class ExchangeInfo(
@@ -51,9 +53,10 @@ object Models {
             val notificationThreshold: Int
     )
 
+    @Suppress("SpellCheckingInspection")
     data class WalletInfo(
             val encryptSeedPhrase: String,
-            val address: String? = null,
+            val offchainAddress: String? = null,
             val privateKey: String? = null
     )
 }
