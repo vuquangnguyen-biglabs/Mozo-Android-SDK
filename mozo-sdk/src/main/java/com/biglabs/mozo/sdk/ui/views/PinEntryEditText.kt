@@ -49,10 +49,10 @@ internal class PinEntryEditText : AppCompatEditText {
     private var mMaskChars: StringBuilder? = null
     private var mSingleCharHint: String? = null
     private var mAnimatedType = 0
-    private var mSpace = 24f //24 dp by default, space between the lines
-    private var mCharSize: Float = 0.toFloat()
+    private var mSpace = 10f //24 dp by default, space between the lines
+    private var mCharSize = 0f
     private var mNumChars = 4f
-    private var mTextBottomPadding = 8f //8dp by default, height of the text from our lines
+    private var mTextBottomPadding = 9f //8dp by default, height of the text from our lines
     private var mMaxLength = 4
     private var mLineCoords: Array<RectF>? = null
     private lateinit var mCharBottom: FloatArray

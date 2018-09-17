@@ -7,25 +7,35 @@ import android.support.v4.widget.TextViewCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.ui.views.onBackPress
 import com.biglabs.mozo.sdk.utils.dp2Px
-import com.biglabs.mozo.sdk.utils.hideSoftKeyboard
-import com.biglabs.mozo.sdk.utils.showSoftKeyboard
+import com.biglabs.mozo.sdk.utils.getInteger
+import com.biglabs.mozo.sdk.utils.hideKeyboard
+import com.biglabs.mozo.sdk.utils.showKeyboard
 import kotlinx.android.synthetic.main.view_backup.*
 import kotlinx.android.synthetic.main.view_pin_input.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
 
 
 internal class SecurityActivity : AppCompatActivity() {
 
     private var pin = ""
+    private var pinLength = 0
+    private var showMessageDuration = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        pinLength = getInteger(R.integer.security_pin_length)
+        showMessageDuration = getInteger(R.integer.security_pin_show_msg_duration)
+
         val seed = intent.getStringExtra(KEY_SEED_WORDS)
         if (seed != null)
             showBackupUI(seed)
@@ -35,9 +45,7 @@ internal class SecurityActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        if (input_pin != null) {
-            hideSoftKeyboard(input_pin)
-        }
+        input_pin?.hideKeyboard()
     }
 
     private fun showBackupUI(seed: String) {
@@ -61,47 +69,54 @@ internal class SecurityActivity : AppCompatActivity() {
 
     private fun showPinInputUI() {
         setContentView(R.layout.view_pin_input)
+
+        sub_title_pin.setText(R.string.mozo_pin_sub_title)
+        text_content_pin.setText(R.string.mozo_pin_content)
+
+        input_pin.setMaxLength(pinLength)
         input_pin.requestFocus()
-        showSoftKeyboard(input_pin)
         input_pin.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_NEXT && validatePIN()) {
-                when {
-                    pin.isEmpty() -> {
-                        pin = input_pin.text.toString()
-                        showConfirmUI()
-                    }
-                    TextUtils.equals(input_pin.text, pin) -> doResponseResult()
-                    else -> AlertDialog.Builder(this)
-                            .setMessage("PIN does not match")
-                            .setNegativeButton(android.R.string.ok, null)
-                            .create().show()
-                }
-                true
-            } else false
+            actionId == EditorInfo.IME_ACTION_NEXT && validatePIN()
         }
 
         input_pin.onBackPress { finish() }
+        input_pin.showKeyboard()
+        input_pin_checker_status.visibility = View.GONE
     }
 
     private fun showConfirmUI() {
-        //screen_title.text = "Confirm PIN"
+        sub_title_pin.setText(R.string.mozo_pin_confirm_sub_title)
+        text_content_pin.setText(R.string.mozo_pin_confirm_content)
+
         input_pin.text = null
+        input_pin_checker_status.visibility = View.VISIBLE
+        input_pin_checker_status.isSelected = false
+    }
+
+    private fun showErrorUI() {
+        text_incorrect_pin.visibility = View.VISIBLE
     }
 
     private fun validatePIN(): Boolean {
-        val isValid = input_pin.length() == 4
-        if (!isValid) {
-            AlertDialog.Builder(this)
-                    .setMessage("PIN is not enough")
-                    .setNegativeButton(android.R.string.ok, null)
-                    .create().show()
+        when {
+            pin.isEmpty() && input_pin.length() == pinLength -> {
+                pin = input_pin.text.toString()
+                showConfirmUI()
+            }
+            !pin.isEmpty() && TextUtils.equals(input_pin.text, pin) -> doResponseResult()
+            !pin.isEmpty() && !TextUtils.equals(input_pin.text, pin) -> showErrorUI()
+
         }
-        return isValid
+        return true
     }
 
     private fun doResponseResult() {
-        finish()
-        EventBus.getDefault().post(MessageEvent.Pin(pin))
+        input_pin_checker_status.isSelected = true
+        launch(UI) {
+            delay(showMessageDuration)
+            finish()
+            EventBus.getDefault().post(MessageEvent.Pin(pin))
+        }
     }
 
     companion object {

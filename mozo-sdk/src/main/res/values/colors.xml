@@ -5,7 +5,9 @@
 
     <color name="mozo_color_action_text">#969696</color>
     <color name="mozo_color_content">#747474</color>
+    <color name="mozo_color_correct">#17b978</color>
     <color name="mozo_color_disable">#d1d7dd</color>
     <color name="mozo_color_error">#f05454</color>
     <color name="mozo_color_title">#141a22</color>
+    <color name="mozo_color_un_active">#c1c1c1</color>
 </resources>

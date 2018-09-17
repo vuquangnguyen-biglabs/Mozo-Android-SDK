@@ -29,7 +29,7 @@
             android:name=".ui.SecurityActivity"
             android:excludeFromRecents="true"
             android:theme="@style/MozoTheme"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize|adjustPan" />
 
         <activity
             android:name="net.openid.appauth.AuthorizationManagementActivity"

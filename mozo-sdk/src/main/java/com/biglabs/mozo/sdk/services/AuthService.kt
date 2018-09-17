@@ -4,10 +4,8 @@ import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
-import com.biglabs.mozo.sdk.core.Models.UserInfo
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.AuthenticationWrapperActivity
-import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
@@ -29,9 +27,6 @@ class AuthService private constructor() {
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             }
-
-            wallet.initWallet()
-
         }
     }
 
@@ -79,23 +74,9 @@ class AuthService private constructor() {
     @Subscribe
     internal fun onAuthorized(auth: MessageEvent.Auth) {
         EventBus.getDefault().unregister(this@AuthService)
-        auth.authState.accessToken?.logAsError("\nAccessToken")
-        auth.authState.refreshToken?.logAsError("\nRefreshToken")
-        launch {
-            val user = mozoDB.userInfo().get()
-            user?.toString()?.logAsError("user")
-
-            mozoDB.profile().getAll().toString().logAsError("all profile")
-
-            wallet.initWallet()
-
-            val profile = mozoDB.profile().getCurrentUserProfile()
-            launch(UI) {
-                profile?.userId?.logAsError("profile userId")
-                profile?.status?.logAsError("profile status")
-                Toast.makeText(MozoSDK.context!!, "Authorized\n" + profile, Toast.LENGTH_SHORT).show()
-            }
-        }
+        auth.authState.accessToken?.logAsError("\n\nAccessToken")
+        auth.authState.refreshToken?.logAsError("\n\nRefreshToken")
+        wallet.initWallet()
     }
 
     private suspend fun initAnonymousUser(): AnonymousUserInfo {

@@ -6,13 +6,13 @@
     android:layout_height="match_parent">
 
     <com.biglabs.mozo.sdk.ui.views.MozoToolbar
-        android:id="@+id/title_bar"
+        android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:buttonClose="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:title="@string/mozo_title_backup_wallet" />
+        app:title="@string/mozo_backup_title" />
 
     <TextView
         android:id="@android:id/text1"
@@ -23,7 +23,7 @@
         android:text="@string/mozo_backup_sub_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_bar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <TextView
         android:id="@android:id/text2"

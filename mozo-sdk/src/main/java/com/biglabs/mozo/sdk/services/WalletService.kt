@@ -28,7 +28,6 @@ internal class WalletService private constructor() {
     var address: String? = null
 
     fun initWallet() {
-        executeCreateWallet()
         MozoSDK.context?.let {
             launch {
                 val profile = MozoDatabase.getInstance(it).profile().getCurrentUserProfile()
@@ -66,7 +65,9 @@ internal class WalletService private constructor() {
             val credentials = Credentials.create(privKey)
             this@WalletService.seed = mnemonic
             this@WalletService.address = credentials.address
-            EventBus.getDefault().register(this@WalletService)
+            if (!EventBus.getDefault().isRegistered(this@WalletService)) {
+                EventBus.getDefault().register(this@WalletService)
+            }
             SecurityActivity.start(it, mnemonic)
         }
     }
