@@ -42,44 +42,44 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.*
 
-class PinEntryEditText : AppCompatEditText {
+internal class PinEntryEditText : AppCompatEditText {
     private var onBackPress: (suspend () -> Unit)? = null
 
-    protected var mMask: String? = null
-    protected var mMaskChars: StringBuilder? = null
-    protected var mSingleCharHint: String? = null
-    protected var mAnimatedType = 0
-    protected var mSpace = 24f //24 dp by default, space between the lines
-    protected var mCharSize: Float = 0.toFloat()
-    protected var mNumChars = 4f
-    protected var mTextBottomPadding = 8f //8dp by default, height of the text from our lines
-    protected var mMaxLength = 4
-    protected var mLineCoords: Array<RectF>? = null
-    protected lateinit var mCharBottom: FloatArray
-    protected lateinit var mCharPaint: Paint
-    protected lateinit var mLastCharPaint: Paint
-    protected lateinit var mSingleCharPaint: Paint
-    protected var mPinBackground: Drawable? = null
-    protected var mTextHeight = Rect()
-    protected var mIsDigitSquare = false
+    private var mMask: String? = null
+    private var mMaskChars: StringBuilder? = null
+    private var mSingleCharHint: String? = null
+    private var mAnimatedType = 0
+    private var mSpace = 24f //24 dp by default, space between the lines
+    private var mCharSize: Float = 0.toFloat()
+    private var mNumChars = 4f
+    private var mTextBottomPadding = 8f //8dp by default, height of the text from our lines
+    private var mMaxLength = 4
+    private var mLineCoords: Array<RectF>? = null
+    private lateinit var mCharBottom: FloatArray
+    private lateinit var mCharPaint: Paint
+    private lateinit var mLastCharPaint: Paint
+    private lateinit var mSingleCharPaint: Paint
+    private var mPinBackground: Drawable? = null
+    private var mTextHeight = Rect()
+    private var mIsDigitSquare = false
 
-    protected var mClickListener: View.OnClickListener? = null
-    protected var mOnPinEnteredListener: OnPinEnteredListener? = null
+    private var mClickListener: View.OnClickListener? = null
+    private var mOnPinEnteredListener: OnPinEnteredListener? = null
 
-    protected var mLineStroke = 1f //1dp by default
-    protected var mLineStrokeSelected = 2f //2dp by default
-    protected lateinit var mLinesPaint: Paint
-    protected var mAnimate = false
+    private var mLineStroke = 1f //1dp by default
+    private var mLineStrokeSelected = 2f //2dp by default
+    private lateinit var mLinesPaint: Paint
+    private var mAnimate = false
     var isError = false
-    protected var mOriginalTextColors: ColorStateList? = null
-    protected var mStates = arrayOf(intArrayOf(android.R.attr.state_selected), // selected
+    private var mOriginalTextColors: ColorStateList? = null
+    private var mStates = arrayOf(intArrayOf(android.R.attr.state_selected), // selected
             intArrayOf(android.R.attr.state_active), // error
             intArrayOf(android.R.attr.state_focused), // focused
             intArrayOf(-android.R.attr.state_focused))// unfocused
 
-    protected var mColors = intArrayOf(Color.GREEN, Color.RED, Color.BLACK, Color.GRAY)
+    private var mColors = intArrayOf(Color.GREEN, Color.RED, Color.BLACK, Color.GRAY)
 
-    protected var mColorStates = ColorStateList(mStates, mColors)
+    private var mColorStates = ColorStateList(mStates, mColors)
 
     private val fullText: CharSequence
         get() = if (mMask == null) {
@@ -137,10 +137,10 @@ class PinEntryEditText : AppCompatEditText {
 
     private fun init(context: Context, attrs: AttributeSet) {
         val multi = context.resources.displayMetrics.density
-        mLineStroke = multi * mLineStroke
-        mLineStrokeSelected = multi * mLineStrokeSelected
-        mSpace = multi * mSpace //convert to pixels for our density
-        mTextBottomPadding = multi * mTextBottomPadding //convert to pixels for our density
+        mLineStroke *= multi
+        mLineStrokeSelected *= multi
+        mSpace *= multi //convert to pixels for our density
+        mTextBottomPadding *= multi //convert to pixels for our density
 
         val ta = context.obtainStyledAttributes(attrs, R.styleable.PinEntryEditText, 0, 0)
         try {
@@ -516,10 +516,10 @@ class PinEntryEditText : AppCompatEditText {
     }
 
     companion object {
-        private val XML_NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
+        private const val XML_NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
 
-        val DEFAULT_MASK = "\u25CF"
+        const val DEFAULT_MASK = "\u25CF"
     }
 }
 
-fun PinEntryEditText.onBackPress(action: suspend () -> Unit) = setOnBackPress(action)
+internal fun PinEntryEditText.onBackPress(action: suspend () -> Unit) = setOnBackPress(action)

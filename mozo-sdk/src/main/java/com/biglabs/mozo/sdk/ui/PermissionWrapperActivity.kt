@@ -45,7 +45,7 @@ internal class PermissionWrapperActivity : Activity() {
         finish()
         when (requestCode) {
             PERMISSIONS_REQUEST -> {
-                WalletService.getInstance().onPermissionsResult(permissions, grantResults)
+                //WalletService.getInstance().onPermissionsResult(permissions, grantResults)
             }
             else -> {
                 // Ignore all other requests.

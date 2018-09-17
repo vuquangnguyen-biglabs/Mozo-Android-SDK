@@ -15,20 +15,21 @@
             android:name=".ui.AuthenticationWrapperActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Transparent.Dim"
+            android:theme="@style/MozoTheme.Transparent.Dim"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize" />
 
         <activity
             android:name=".ui.PermissionWrapperActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Transparent"
+            android:theme="@style/MozoTheme.Transparent"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden|adjustResize" />
 
         <activity
             android:name=".ui.SecurityActivity"
             android:excludeFromRecents="true"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+            android:theme="@style/MozoTheme"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name="net.openid.appauth.AuthorizationManagementActivity"

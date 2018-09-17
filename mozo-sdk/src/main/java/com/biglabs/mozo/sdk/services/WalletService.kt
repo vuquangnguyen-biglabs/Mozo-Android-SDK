@@ -1,7 +1,5 @@
 package com.biglabs.mozo.sdk.services
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -10,7 +8,6 @@ import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.core.Models.Profile
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
-import com.biglabs.mozo.sdk.utils.PermissionUtils
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.bitcoinj.crypto.HDUtils
@@ -31,6 +28,7 @@ internal class WalletService private constructor() {
     var address: String? = null
 
     fun initWallet() {
+        executeCreateWallet()
         MozoSDK.context?.let {
             launch {
                 val profile = MozoDatabase.getInstance(it).profile().getCurrentUserProfile()
@@ -51,39 +49,25 @@ internal class WalletService private constructor() {
         }
     }
 
-    fun onPermissionsResult(permissions: Array<out String>, grantResults: IntArray) {
-        grantResults.mapIndexed { index, value ->
-            if (value == PackageManager.PERMISSION_GRANTED) {
-                when (permissions[index]) {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
-                        executeCreateWallet()
-                    }
-                }
-            }
-        }
-    }
-
     private fun executeCreateWallet() {
         MozoSDK.context?.let {
-            if (PermissionUtils.requestPermission(it, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                val mnemonic = MnemonicUtils.generateMnemonic(
-                        SecureRandom().generateSeed(16)
-                )
+            val mnemonic = MnemonicUtils.generateMnemonic(
+                    SecureRandom().generateSeed(16)
+            )
 
-                val key = DeterministicKeyChain
-                        .builder()
-                        .seed(DeterministicSeed(mnemonic, null, "", System.nanoTime()))
-                        .build()
-                        .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
-                this@WalletService.privKey = key.privKey.toString(16)
+            val key = DeterministicKeyChain
+                    .builder()
+                    .seed(DeterministicSeed(mnemonic, null, "", System.nanoTime()))
+                    .build()
+                    .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
+            this@WalletService.privKey = key.privKey.toString(16)
 
-                // Web3j
-                val credentials = Credentials.create(privKey)
-                this@WalletService.seed = mnemonic
-                this@WalletService.address = credentials.address
-                EventBus.getDefault().register(this@WalletService)
-                SecurityActivity.start(it, mnemonic)
-            }
+            // Web3j
+            val credentials = Credentials.create(privKey)
+            this@WalletService.seed = mnemonic
+            this@WalletService.address = credentials.address
+            EventBus.getDefault().register(this@WalletService)
+            SecurityActivity.start(it, mnemonic)
         }
     }
 

@@ -2,8 +2,10 @@ package com.biglabs.mozo.sdk.utils
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
 import android.support.annotation.StringRes
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -34,10 +36,20 @@ internal fun View.onClick(action: suspend () -> Unit) {
 
 internal fun Context.hideSoftKeyboard(view: View) {
     (getSystemService(Context.INPUT_METHOD_SERVICE))?.run {
-        (this as InputMethodManager).hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        (this as InputMethodManager).hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_IMPLICIT_ONLY)
+    }
+}
+
+internal fun Context.showSoftKeyboard(view: View) {
+    (getSystemService(Context.INPUT_METHOD_SERVICE))?.run {
+        (this as InputMethodManager).showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 }
 
 internal fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): String {
     return if (idRef != 0) getString(id, string(idRef)) else getString(id)
+}
+
+internal fun Resources.dp2Px(value: Float): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics)
 }

@@ -5,27 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_mozo"
-        app:layout_constraintBottom_toTopOf="@+id/screen_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
-
-    <TextView
-        android:id="@+id/screen_title"
-        android:layout_width="wrap_content"
+    <com.biglabs.mozo.sdk.ui.views.MozoToolbar
+        android:id="@+id/title_bar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:labelFor="@id/input_pin"
-        android:text="Input PIN"
-        app:layout_constraintBottom_toTopOf="@+id/input_pin"
+        app:buttonBack="true"
+        app:buttonClose="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logo" />
+        app:title="@string/mozo_title_create_security_pin" />
 
     <com.biglabs.mozo.sdk.ui.views.PinEntryEditText
         android:id="@+id/input_pin"
@@ -37,7 +25,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/screen_title"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar"
         app:layout_constraintWidth_percent="0.5"
         app:pinAnimationType="fromBottom" />
 </android.support.constraint.ConstraintLayout>

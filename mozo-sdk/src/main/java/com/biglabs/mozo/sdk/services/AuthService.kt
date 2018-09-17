@@ -29,6 +29,9 @@ class AuthService private constructor() {
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             }
+
+            wallet.initWallet()
+
         }
     }
 
@@ -39,21 +42,6 @@ class AuthService private constructor() {
             }
             AuthenticationWrapperActivity.start(this)
             return
-
-            launch {
-                var user = mozoDB.userInfo().get()
-                if (user == null) {
-                    user = UserInfo(userId = "abcxyz", phoneNumber = "0123456789", fullName = "Vu Nguyen")
-                    mozoDB.userInfo().save(user)
-
-//                    wallet.initWallet(user.userId)
-
-                    // TODO claim Mozo token from anonymous to this user
-                } else {
-                    EventBus.getDefault().register(this@AuthService)
-                    SecurityActivity.start(this@run)
-                }
-            }
         }
     }
 

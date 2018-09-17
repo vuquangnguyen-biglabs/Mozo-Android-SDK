@@ -35,6 +35,7 @@ dependencies {
     // Android support
     implementation "com.android.support:appcompat-v7:$android_support_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_layout_version"
+    implementation 'com.google.android:flexbox:1.0.0'
 
     // Kotlin & Coroutines
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

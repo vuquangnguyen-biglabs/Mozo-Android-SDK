@@ -16,4 +16,10 @@
         <attr name="pinBackgroundDrawable" format="reference" />
         <attr name="pinBackgroundIsSquare" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="MozoToolbar">
+        <attr name="title" format="string" />
+        <attr name="buttonBack" format="boolean" />
+        <attr name="buttonClose" format="boolean" />
+    </declare-styleable>
 </resources>
