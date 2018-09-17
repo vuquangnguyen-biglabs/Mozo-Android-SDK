@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.widget.TextViewCompat
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
 import android.view.View
@@ -74,12 +73,13 @@ internal class SecurityActivity : AppCompatActivity() {
         text_content_pin.setText(R.string.mozo_pin_content)
 
         input_pin.setMaxLength(pinLength)
-        input_pin.requestFocus()
         input_pin.setOnEditorActionListener { _, actionId, _ ->
             actionId == EditorInfo.IME_ACTION_NEXT && validatePIN()
         }
-
+        
         input_pin.onBackPress { finish() }
+
+        input_pin.requestFocus()
         input_pin.showKeyboard()
         input_pin_checker_status.visibility = View.GONE
     }

@@ -50,11 +50,10 @@
         android:textColor="@color/mozo_color_correct"
         android:textSize="12sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/input_pin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42"
+        app:layout_constraintTop_toBottomOf="@id/text_content_pin"
         tools:visibility="visible" />
 
     <TextView
@@ -67,11 +66,10 @@
         android:textColor="@color/mozo_color_error"
         android:textSize="12sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/input_pin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42" />
+        app:layout_constraintTop_toBottomOf="@id/text_content_pin" />
 
     <com.biglabs.mozo.sdk.ui.views.PinEntryEditText
         android:id="@+id/input_pin"
@@ -80,7 +78,7 @@
         android:imeOptions="actionNext"
         android:inputType="numberPassword"
         android:maxLength="@integer/security_pin_length"
-        android:textSize="35sp"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
