@@ -11,7 +11,7 @@
         android:layout_height="96dp"
         android:layout_gravity="center"
         android:background="@drawable/mozo_bg_loading_indicator"
-        android:padding="24dp"
+        android:padding="32dp"
         android:progressBackgroundTint="@color/colorPrimary"
         android:progressTint="@color/colorPrimary" />
 </LinearLayout>

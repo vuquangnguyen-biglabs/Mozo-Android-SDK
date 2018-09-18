@@ -1,6 +1,7 @@
 <resources>
     <string name="mozo_dialog_storage_permission_title">Storage Access</string>
     <string name="mozo_dialog_storage_permission_msg">Storage permission is required for this feature.</string>
+    <string name="mozo_dialog_loading_msg">Creating Interface</string>
 
     <string name="mozo_button_deposit">Deposit</string>
     <string name="mozo_button_transfer">Transfer</string>
@@ -17,10 +18,13 @@
     <string name="mozo_backup_confirm_msg">I have safely stored recovery phrase</string>
 
     <string name="mozo_pin_title">Create Security Pin</string>
+    <string name="mozo_pin_title_restore">Restore wallet</string>
     <string name="mozo_pin_sub_title">Enter your security pin</string>
+    <string name="mozo_pin_sub_title_restore">Enter your security pin\nto restore wallet</string>
     <string name="mozo_pin_content">Security PIN should be 6 di-git numbers</string>
     <string name="mozo_pin_confirm_sub_title">Confirm security pin</string>
     <string name="mozo_pin_confirm_content">Re-enter your PIN</string>
-    <string name="mozo_pin_msg_enter_correct">Create Security PIN successful</string>
+    <string name="mozo_pin_msg_create_success">Create Security PIN successful</string>
+    <string name="mozo_pin_msg_enter_correct">Security PIN is correct</string>
     <string name="mozo_pin_msg_enter_incorrect">You entered an incorrect PIN</string>
 </resources>

@@ -21,9 +21,6 @@ interface ProfileDao {
     @Query("SELECT * FROM Profile")
     fun getAll(): List<Profile>
 
-    @Update
-    fun update(profile: Profile)
-
     @Delete
     fun delete(profile: Profile)
 

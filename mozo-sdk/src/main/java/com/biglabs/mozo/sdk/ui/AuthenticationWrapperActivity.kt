@@ -215,17 +215,8 @@ class AuthenticationWrapperActivity : FragmentActivity() {
                             refreshToken = currentAuth.refreshToken
                     ))
 
-                    /* Check local profile existing  */
-                    val localProfile = mozoDB.profile().get(serverProfile.userId)
-                    if (localProfile == null) {
-                        /* local profile is not exist */
-                        /* save server profile to local */
-                        mozoDB.profile().save(serverProfile)
-                    } else {
-                        /* local profile is already existing */
-                        /* update local profile to match with server profile */
-                        mozoDB.profile().update(serverProfile)
-                    }
+                    /* update local profile to match with server profile */
+                    mozoDB.profile().save(serverProfile)
                 } else {
                     // TODO handle fetch profile error
                     "Failed to fetch user profile!!".logAsError()

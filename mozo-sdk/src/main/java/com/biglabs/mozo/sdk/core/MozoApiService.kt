@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
 
@@ -52,5 +53,5 @@ interface MozoApiService {
     fun saveSettings(notificationThreshold: Int = 0): Deferred<Response<Models.Profile>>
 
     @PUT("user-profile/wallet")
-    fun saveWallet(encryptedSeed: String): Deferred<Response<Models.Profile>>
+    fun saveWallet(@Body walletInfo: Models.WalletInfo): Deferred<Response<Models.Profile>>
 }

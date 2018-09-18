@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
 
     <com.biglabs.mozo.sdk.ui.views.MozoToolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/pin_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:buttonClose="true"
@@ -20,10 +21,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:gravity="center"
         android:text="@string/mozo_pin_sub_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/pin_toolbar" />
 
     <TextView
         android:id="@+id/text_content_pin"
@@ -54,6 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_content_pin"
+        app:layout_constraintVertical_bias="0.8"
         tools:visibility="visible" />
 
     <TextView
@@ -69,7 +72,8 @@
         app:layout_constraintBottom_toTopOf="@id/input_pin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_content_pin" />
+        app:layout_constraintTop_toBottomOf="@id/text_content_pin"
+        app:layout_constraintVertical_bias="0.8" />
 
     <com.biglabs.mozo.sdk.ui.views.PinEntryEditText
         android:id="@+id/input_pin"
@@ -83,14 +87,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.47"
+        app:layout_constraintVertical_bias="0.48"
         app:layout_constraintWidth_percent="0.6"
         app:pinAnimationType="fromBottom"
         app:pinLineColors="@drawable/mozo_dr_pin_input"
         app:pinLineStroke="1dp"
         app:pinLineStrokeSelected="2dp"
         app:pinTextBottomPadding="10dp"
-        tools:text="000000" />
+        tools:text="000000">
+
+        <requestFocus />
+    </com.biglabs.mozo.sdk.ui.views.PinEntryEditText>
 
     <View
         android:id="@+id/input_pin_checker_status"
@@ -103,4 +110,27 @@
         app:layout_constraintStart_toEndOf="@id/input_pin"
         app:layout_constraintTop_toTopOf="@id/input_pin"
         tools:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/input_loading_indicator"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.47" />
+
+    <TextView
+        android:id="@+id/input_loading_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/mozo_dialog_loading_msg"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_loading_indicator" />
 </android.support.constraint.ConstraintLayout>

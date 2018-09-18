@@ -1,14 +1,15 @@
 package com.biglabs.mozo.sdk.services
 
-import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
+import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
-import com.biglabs.mozo.sdk.core.Models.Profile
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
-import kotlinx.coroutines.experimental.android.UI
+import com.biglabs.mozo.sdk.utils.PreferenceUtils
+import com.biglabs.mozo.sdk.utils.logAsError
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.bitcoinj.crypto.HDUtils
 import org.bitcoinj.wallet.DeterministicKeyChain
@@ -19,86 +20,128 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import java.security.SecureRandom
 
-
 internal class WalletService private constructor() {
 
-    var userId: String? = null
+    private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
+
     var seed: String? = null
-    var privKey: String? = null
     var address: String? = null
+    var privateKey: String? = null
 
     fun initWallet() {
         MozoSDK.context?.let {
             launch {
-                val profile = MozoDatabase.getInstance(it).profile().getCurrentUserProfile()
+                val profile = mozoDB.profile().getCurrentUserProfile()
                 profile?.run {
-                    if (walletInfo == null) {
+                    if (walletInfo == null || walletInfo!!.encryptSeedPhrase.isNullOrEmpty()) {
                         /* Server wallet is NOT existing, create a new one at local */
                         executeCreateWallet()
                         /* Required input new PIN */
                         /* After input PIN will be continue at onReceivePin() fun */
-                    } else if (walletInfo.privateKey == null) {
-                        /* Local wallet is existing but no private Key */
-                        /* Required input previous PIN */
-                        // TODO show PIN UI
-                        /* After input PIN will be continue at onReceivePin() fun */
+                    } else {
+                        if (walletInfo!!.privateKey == null) {
+                            /* Local wallet is existing but no private Key */
+                            /* Required input previous PIN */
+                            if (!EventBus.getDefault().isRegistered(this@WalletService)) {
+                                EventBus.getDefault().register(this@WalletService)
+                            }
+                            SecurityActivity.start(it, requestCode = SecurityActivity.KEY_ENTER_PIN)
+                            /* After input PIN will be continue at onReceivePin() fun */
+                        }
+                        if (PreferenceUtils.getInstance(it).getFlag(PreferenceUtils.FLAG_SYNC_WALLET_INFO)) {
+                            syncWalletInfo(walletInfo!!)
+                        }
                     }
                 }
             }
         }
     }
 
+    private fun clearVariables() {
+        this@WalletService.seed = null
+        this@WalletService.address = null
+        this@WalletService.privateKey = null
+    }
+
     private fun executeCreateWallet() {
+        clearVariables()
         MozoSDK.context?.let {
             val mnemonic = MnemonicUtils.generateMnemonic(
                     SecureRandom().generateSeed(16)
             )
-
-            val key = DeterministicKeyChain
-                    .builder()
-                    .seed(DeterministicSeed(mnemonic, null, "", System.nanoTime()))
-                    .build()
-                    .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
-            this@WalletService.privKey = key.privKey.toString(16)
-
-            // Web3j
-            val credentials = Credentials.create(privKey)
             this@WalletService.seed = mnemonic
+            this@WalletService.privateKey = CryptoUtils.getFirstAddressPrivateKey(mnemonic)
+
+            val credentials = Credentials.create(privateKey)
             this@WalletService.address = credentials.address
             if (!EventBus.getDefault().isRegistered(this@WalletService)) {
                 EventBus.getDefault().register(this@WalletService)
             }
-            SecurityActivity.start(it, mnemonic)
+            SecurityActivity.start(it, mnemonic, SecurityActivity.KEY_CREATE_PIN)
         }
+    }
+
+    fun executeSaveWallet(pin: String) = async {
+        val profile = mozoDB.profile().getCurrentUserProfile()
+        profile?.let {
+            it.walletInfo = Models.WalletInfo(
+                    CryptoUtils.encrypt(this@WalletService.seed!!, pin),
+                    this@WalletService.address!!,
+                    CryptoUtils.encrypt(this@WalletService.privateKey!!, pin)
+            )
+
+            /* save wallet info to local */
+            mozoDB.profile().save(it)
+
+            /* save wallet info to server */
+            syncWalletInfo(it.walletInfo!!).await()
+        }
+        clearVariables()
+    }
+
+    private fun syncWalletInfo(walletInfo: Models.WalletInfo) = async {
+        MozoSDK.context?.let {
+            val response = MozoApiService.create().saveWallet(walletInfo).await()
+            response.body()?.toString()?.logAsError("wallet response")
+            PreferenceUtils.getInstance(it).setFlag(
+                    PreferenceUtils.FLAG_SYNC_WALLET_INFO,
+                    !response.isSuccessful
+            )
+        }
+    }
+
+    fun validatePin(pin: String) = async {
+        val profile = mozoDB.profile().getCurrentUserProfile()
+        profile?.walletInfo?.run {
+            if (encryptSeedPhrase.isNullOrEmpty() || pin.isEmpty()) return@async false
+            else return@async try {
+                val decrypted = CryptoUtils.decrypt(encryptSeedPhrase!!, pin)
+                val isCorrect = decrypted.isNotEmpty() && MnemonicUtils.validateMnemonic(decrypted)
+                if (isCorrect) {
+                    privateKey = CryptoUtils.getFirstAddressPrivateKey(decrypted)
+                    profile.toString().logAsError("\n\nupdate private key \n\n")
+                    mozoDB.profile().save(profile)
+                }
+                isCorrect
+            } catch (ex: Exception) {
+                false
+            }
+        }
+
+        return@async false
     }
 
     @Subscribe
     fun onReceivePin(event: MessageEvent.Pin) {
         EventBus.getDefault().unregister(this@WalletService)
-        if (userId == null) return
+
         launch {
-            val pin = event.pin
-            val profile = Profile(
-                    userId = userId!!,
-                    walletInfo = Models.WalletInfo(
-                            CryptoUtils.encrypt(this@WalletService.seed!!, pin),
-                            this@WalletService.address!!,
-                            CryptoUtils.encrypt(this@WalletService.privKey!!, pin)
-                    )
-            )
-            MozoDatabase.getInstance(MozoSDK.context!!).profile().save(profile)
-
-            // TODO Send the wallet to server
-
-            launch(UI) {
-                Toast.makeText(MozoSDK.context, "Your new wallet has been created", Toast.LENGTH_SHORT).show()
-            }
+            val profile2 = mozoDB.profile().getCurrentUserProfile()
+            profile2.toString().logAsError("after")
         }
     }
 
     companion object {
-        const val ETH_FIRST_ADDRESS_PATH = "M/44H/60H/0H/0/0"
-
         @Volatile
         private var INSTANCE: WalletService? = null
 

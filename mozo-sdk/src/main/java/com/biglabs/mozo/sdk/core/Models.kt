@@ -34,11 +34,11 @@ object Models {
             val userId: String,
             val status: String? = null,
             @Embedded
-            val exchangeInfo: ExchangeInfo? = null,
+            var exchangeInfo: ExchangeInfo? = null,
             @Embedded
             val settings: Settings? = null,
             @Embedded
-            val walletInfo: WalletInfo? = null
+            var walletInfo: WalletInfo? = null
     )
 
     data class ExchangeInfo(
@@ -55,8 +55,8 @@ object Models {
 
     @Suppress("SpellCheckingInspection")
     data class WalletInfo(
-            val encryptSeedPhrase: String,
-            val offchainAddress: String? = null,
-            val privateKey: String? = null
+            var encryptSeedPhrase: String? = null,
+            var offchainAddress: String? = null,
+            var privateKey: String? = null
     )
 }
