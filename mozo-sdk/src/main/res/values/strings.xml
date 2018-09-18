@@ -4,6 +4,8 @@
     <string name="mozo_dialog_loading_msg">Creating Interface</string>
 
     <string name="mozo_button_deposit">Deposit</string>
+    <string name="mozo_button_login">Sign in with Mozo</string>
+    <string name="mozo_button_logout">Sign out</string>
     <string name="mozo_button_transfer">Transfer</string>
     <string name="mozo_button_withdraw">Withdraw</string>
 

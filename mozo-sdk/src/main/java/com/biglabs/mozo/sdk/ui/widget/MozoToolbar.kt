@@ -1,4 +1,4 @@
-package com.biglabs.mozo.sdk.ui.views
+package com.biglabs.mozo.sdk.ui.widget
 
 import android.app.Activity
 import android.content.Context

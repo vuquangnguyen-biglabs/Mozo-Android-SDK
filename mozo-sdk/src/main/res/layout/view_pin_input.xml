@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
 
-    <com.biglabs.mozo.sdk.ui.views.MozoToolbar
+    <com.biglabs.mozo.sdk.ui.widget.MozoToolbar
         android:id="@+id/pin_toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
         app:layout_constraintTop_toBottomOf="@id/text_content_pin"
         app:layout_constraintVertical_bias="0.8" />
 
-    <com.biglabs.mozo.sdk.ui.views.PinEntryEditText
+    <com.biglabs.mozo.sdk.ui.widget.PinEntryEditText
         android:id="@+id/input_pin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
         tools:text="000000">
 
         <requestFocus />
-    </com.biglabs.mozo.sdk.ui.views.PinEntryEditText>
+    </com.biglabs.mozo.sdk.ui.widget.PinEntryEditText>
 
     <View
         android:id="@+id/input_pin_checker_status"

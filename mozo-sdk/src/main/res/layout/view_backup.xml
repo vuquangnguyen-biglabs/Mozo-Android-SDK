@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.biglabs.mozo.sdk.ui.views.MozoToolbar
+    <com.biglabs.mozo.sdk.ui.widget.MozoToolbar
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -107,7 +107,6 @@
 
     <Button
         android:id="@+id/button_continue"
-        style="@style/MozoTheme.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
