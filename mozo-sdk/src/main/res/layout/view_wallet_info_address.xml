@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:background="@drawable/mozo_bg_component"
+    tools:parentTag="android.support.constraint.ConstraintLayout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:text="@string/mozo_view_address_title"
+        android:textColor="@color/mozo_color_action_text"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/mozo_wallet_address"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22sp"
+        android:ellipsize="end"
+        android:hint="@string/mozo_view_text_hint"
+        android:lines="1"
+        android:textColor="@color/mozo_color_title"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="0x97309d360C015695cf50892f035E516ccA1898F0" />
+
+    <Button
+        android:id="@+id/mozo_wallet_btn_show_qr"
+        style="@style/MozoButtonStyle.WalletInfo"
+        android:layout_width="0dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="12dp"
+        android:text="@string/mozo_button_show_qr_code"
+        app:layout_constraintEnd_toStartOf="@id/mozo_wallet_btn_copy"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mozo_wallet_address" />
+
+    <Button
+        android:id="@+id/mozo_wallet_btn_copy"
+        style="@style/MozoButtonStyle.WalletInfo"
+        android:layout_width="0dp"
+        android:text="@string/mozo_button_copy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/mozo_wallet_btn_show_qr"
+        app:layout_constraintTop_toTopOf="@id/mozo_wallet_btn_show_qr" />
+</merge>

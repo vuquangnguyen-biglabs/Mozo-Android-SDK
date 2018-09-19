@@ -52,6 +52,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="MozoButtonStyle.WalletInfo">
+        <item name="android:background">@drawable/mozo_bg_border_primary</item>
+        <item name="android:textColor">@color/mozo_color_primary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:layout_height">37dp</item>
+    </style>
+
     <style name="MozoTextViewStyle" parent="Base.TextAppearance.AppCompat">
         <item name="android:textSize">@dimen/mozo_text_size</item>
         <item name="android:textColor">@color/mozo_color_content</item>

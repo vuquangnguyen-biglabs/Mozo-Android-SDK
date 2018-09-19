@@ -21,9 +21,9 @@ internal class WalletService private constructor() {
 
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
 
-    var seed: String? = null
-    var address: String? = null
-    var privateKey: String? = null
+    private var seed: String? = null
+    private var address: String? = null
+    private var privateKey: String? = null
 
     fun initWallet() {
         MozoSDK.context?.let {
@@ -119,7 +119,6 @@ internal class WalletService private constructor() {
                             CryptoUtils.getFirstAddressPrivateKey(decrypted!!),
                             pin
                     )
-                    profile.toString().logAsError("\n\nupdate private key \n\n")
                     mozoDB.profile().save(profile)
                 }
                 isCorrect
@@ -139,6 +138,10 @@ internal class WalletService private constructor() {
             val profile2 = mozoDB.profile().getCurrentUserProfile()
             profile2.toString().logAsError("after")
         }
+    }
+
+    fun getAddress() = async {
+        return@async mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
     }
 
     companion object {

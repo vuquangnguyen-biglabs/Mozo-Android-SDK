@@ -22,4 +22,14 @@
         <attr name="buttonBack" format="boolean" />
         <attr name="buttonClose" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="WalletInfoView">
+        <attr name="viewMode" format="enum">
+            <enum name="addressAndBalance" value="0" />
+            <enum name="onlyAddress" value="1" />
+            <enum name="onlyBalance" value="2" />
+        </attr>
+        <attr name="showCopy" format="boolean" />
+        <attr name="showQRCode" format="boolean" />
+    </declare-styleable>
 </resources>
