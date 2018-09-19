@@ -50,9 +50,10 @@ dependencies {
     // Other
     implementation "android.arch.persistence.room:runtime:1.1.1"
     kapt "android.arch.persistence.room:compiler:1.1.1"
-    implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'com.estimote:proximity-sdk:1.0.2'
     implementation 'org.bitcoinj:bitcoinj-core:0.14.7'
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'org.cryptonode.jncryptor:jncryptor:1.2.0'
     implementation 'org.web3j:core:3.5.0'
     implementation 'net.openid:appauth:0.7.1'
 

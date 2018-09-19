@@ -11,9 +11,6 @@ import com.biglabs.mozo.sdk.utils.PreferenceUtils
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import org.bitcoinj.crypto.HDUtils
-import org.bitcoinj.wallet.DeterministicKeyChain
-import org.bitcoinj.wallet.DeterministicSeed
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.Credentials
@@ -116,9 +113,12 @@ internal class WalletService private constructor() {
             if (encryptSeedPhrase.isNullOrEmpty() || pin.isEmpty()) return@async false
             else return@async try {
                 val decrypted = CryptoUtils.decrypt(encryptSeedPhrase!!, pin)
-                val isCorrect = decrypted.isNotEmpty() && MnemonicUtils.validateMnemonic(decrypted)
+                val isCorrect = !decrypted.isNullOrEmpty() && MnemonicUtils.validateMnemonic(decrypted)
                 if (isCorrect) {
-                    privateKey = CryptoUtils.getFirstAddressPrivateKey(decrypted)
+                    privateKey = CryptoUtils.encrypt(
+                            CryptoUtils.getFirstAddressPrivateKey(decrypted!!),
+                            pin
+                    )
                     profile.toString().logAsError("\n\nupdate private key \n\n")
                     mozoDB.profile().save(profile)
                 }
