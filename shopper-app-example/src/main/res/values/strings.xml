@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Shopper App Example</string>
+    <string name="activity_wallet_info_title">Wallet Info</string>
 </resources>

@@ -17,6 +17,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".WalletInfoActivity"
+            android:label="@string/activity_wallet_info_title"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

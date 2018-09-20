@@ -52,12 +52,23 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="MozoButtonStyle.WalletInfo">
+    <style name="MozoWalletInfoButton">
+        <item name="android:layout_height">37dp</item>
         <item name="android:background">@drawable/mozo_bg_border_primary</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="MozoWalletInfoButtonText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/mozo_color_primary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:layout_height">37dp</item>
     </style>
 
     <style name="MozoTextViewStyle" parent="Base.TextAppearance.AppCompat">

@@ -1,8 +1,11 @@
 package com.biglabs.mozo.sdk.utils
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Resources
+import android.support.annotation.IdRes
 import android.support.annotation.IntegerRes
 import android.support.annotation.StringRes
 import android.text.Editable
@@ -13,9 +16,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import com.biglabs.mozo.sdk.BuildConfig
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import com.biglabs.mozo.sdk.R
 
 internal fun Activity.setMatchParent() {
     val attrs = window.attributes
@@ -24,17 +28,37 @@ internal fun Activity.setMatchParent() {
     window.attributes = attrs
 }
 
-internal fun String.logAsError(prefix: String? = null) {
-    if (BuildConfig.DEBUG) {
-        Log.e("MozoSDK", (if (prefix != null) "$prefix: " else "") + this)
+internal fun Context.clipboard(): ClipboardManager = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+internal fun Context.copyText(text: String?) = apply {
+    text?.let {
+        clipboard().primaryClip = ClipData.newPlainText("mozo_wallet_text", it)
     }
 }
 
-internal fun View.onClick(action: suspend () -> Unit) {
-    setOnClickListener {
-        launch(UI) {
-            action()
-        }
+internal fun Context.copyWithToast(text: String?) = apply {
+    text?.let {
+        clipboard().primaryClip = ClipData.newPlainText("mozo_wallet_text", it)
+        Toast.makeText(this, R.string.mozo_dialog_copied_msg, Toast.LENGTH_SHORT).show()
+    }
+}
+
+/**
+ * Extension method to Get Integer resource for Context.
+ */
+internal fun Context.getInteger(@IntegerRes id: Int) = resources.getInteger(id)
+
+internal fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): String {
+    return if (idRef != 0) getString(id, string(idRef)) else getString(id)
+}
+
+internal fun Resources.dp2Px(value: Float): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics)
+}
+
+internal fun String.logAsError(prefix: String? = null) {
+    if (BuildConfig.DEBUG) {
+        Log.e("MozoSDK", (if (prefix != null) "$prefix: " else "") + this)
     }
 }
 
@@ -65,18 +89,18 @@ internal fun View.hideKeyboard(): Boolean {
  */
 internal fun <T : View> T.click(block: (T) -> Unit) = setOnClickListener { block(it as T) }
 
-internal fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): String {
-    return if (idRef != 0) getString(id, string(idRef)) else getString(id)
+internal inline fun <reified T : View> View.find(@IdRes id: Int): T? = findViewById(id) as? T
+
+internal fun View.visible() {
+    visibility = View.VISIBLE
 }
 
-/**
- * Extension method to Get Integer resource for Context.
- */
-internal fun Context.getInteger(@IntegerRes id: Int) = resources.getInteger(id)
-
-internal fun Resources.dp2Px(value: Float): Float {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics)
+internal fun View.gone() {
+    visibility = View.GONE
 }
+
+internal fun TextView.copyText() = apply { context.copyText(text.toString()) }
+internal fun TextView.copyWithToast() = apply { context.copyWithToast(text.toString()) }
 
 internal fun EditText.onTextChanged(block: (s: CharSequence?) -> Unit) {
     addTextChangedListener(object : TextWatcher {

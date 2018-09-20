@@ -2,9 +2,10 @@
     <string name="mozo_dialog_storage_permission_title">Storage Access</string>
     <string name="mozo_dialog_storage_permission_msg">Storage permission is required for this feature.</string>
     <string name="mozo_dialog_loading_msg">Creating Interface</string>
+    <string name="mozo_dialog_copied_msg">Copied!</string>
 
     <string name="mozo_button_deposit">Deposit</string>
-    <string name="mozo_button_login">Sign in with Mozo</string>
+    <string name="mozo_button_login">Sign In to Mozo</string>
     <string name="mozo_button_logout">Sign out</string>
     <string name="mozo_button_transfer">Transfer</string>
     <string name="mozo_button_withdraw">Withdraw</string>

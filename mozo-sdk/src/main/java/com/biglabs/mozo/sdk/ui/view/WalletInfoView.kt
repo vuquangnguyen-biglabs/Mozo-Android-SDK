@@ -1,11 +1,14 @@
 package com.biglabs.mozo.sdk.ui.view
 
 import android.content.Context
+import android.support.annotation.IntDef
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
+import android.view.View
+import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.services.WalletService
-import kotlinx.android.synthetic.main.view_wallet_info_address.view.*
+import com.biglabs.mozo.sdk.utils.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
@@ -14,6 +17,10 @@ class WalletInfoView : ConstraintLayout {
     private var mViewMode: Int = 0
     private var mShowQRCode = true
     private var mShowCopy = true
+
+    private var mAddress: String? = null
+
+    private var mWalletAddressView: TextView? = null
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -28,27 +35,84 @@ class WalletInfoView : ConstraintLayout {
             }
         }
 
+        setBackgroundResource(R.drawable.mozo_bg_component)
+        minWidth = resources.getDimensionPixelSize(R.dimen.mozo_view_min_width)
+        minHeight = resources.getDimensionPixelSize(R.dimen.mozo_view_min_height)
+
+        inflateLayout()
+
+        launch(UI) {
+            mAddress = WalletService.getInstance().getAddress().await()
+            mWalletAddressView?.text = mAddress
+        }
+    }
+
+    private fun inflateLayout() {
+        removeAllViews()
         when (mViewMode) {
             MODE_ONLY_ADDRESS -> inflate(context, R.layout.view_wallet_info_address, this)
             MODE_ONLY_BALANCE -> inflate(context, R.layout.view_wallet_info_balance, this)
             else -> inflate(context, R.layout.view_wallet_info, this)
         }
 
-        when {
-            mViewMode != MODE_ONLY_BALANCE -> {
-                launch(UI) {
-                    mozo_wallet_address.text = WalletService.getInstance().getAddress().await()
-                }
+        updateUI()
+    }
+
+    private fun updateUI() {
+        val balanceRate: TextView?
+
+        if (mViewMode == MODE_ONLY_BALANCE) {
+            balanceRate = find(R.id.mozo_wallet_balance_rate_side)
+
+        } else {
+            mWalletAddressView = find(R.id.mozo_wallet_address)
+            mAddress?.let { mWalletAddressView?.text = it }
+
+            balanceRate = find(R.id.mozo_wallet_balance_rate_bottom)
+            find<View>(R.id.mozo_wallet_btn_show_qr)?.apply {
+                if (mShowQRCode) {
+                    visible()
+                    click { }
+                } else gone()
+            }
+
+            find<View>(R.id.mozo_wallet_btn_copy)?.apply {
+                if (mShowCopy) {
+                    visible()
+                    click { context.copyWithToast(mAddress) }
+                } else gone()
             }
         }
 
-        setBackgroundResource(R.drawable.mozo_bg_component)
-        minWidth = resources.getDimensionPixelSize(R.dimen.mozo_view_min_width)
-        minHeight = resources.getDimensionPixelSize(R.dimen.mozo_view_min_height)
+        balanceRate?.apply {
+            visible()
+            text = "₩000"
+        }
+    }
 
+
+    fun setViewMode(@ViewMode mode: Int) {
+        if (mViewMode != mode) {
+            mViewMode = mode
+            inflateLayout()
+        }
+    }
+
+    fun setShowQRCode(isShow: Boolean) {
+        mShowQRCode = isShow
+        updateUI()
+    }
+
+    fun setShowCopy(isShow: Boolean) {
+        mShowCopy = isShow
+        updateUI()
     }
 
     companion object {
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(MODE_ADDRESS_BALANCE, MODE_ONLY_ADDRESS, MODE_ONLY_BALANCE)
+        annotation class ViewMode
+
         const val MODE_ADDRESS_BALANCE = 0
         const val MODE_ONLY_ADDRESS = 1
         const val MODE_ONLY_BALANCE = 2
