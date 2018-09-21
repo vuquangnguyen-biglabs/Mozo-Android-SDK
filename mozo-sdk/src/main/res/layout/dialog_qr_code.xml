@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     tools:ignore="UseCompoundDrawables">
+
+    <ProgressBar
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center" />
 
     <ImageView
         android:id="@+id/image_qr_code"
@@ -15,12 +19,15 @@
     <TextView
         android:id="@+id/button_close"
         android:layout_width="220dp"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="200dp"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_horizontal"
         android:includeFontPadding="false"
+        android:padding="10dp"
         android:text="@string/mozo_button_close"
         android:textColor="@color/mozo_color_primary"
         android:textSize="@dimen/mozo_text_size" />
-</LinearLayout>
+</FrameLayout>

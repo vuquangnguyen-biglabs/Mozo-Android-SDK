@@ -31,10 +31,12 @@ class QRCodeDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         rawValue?.let {
-            launch(UI) {
+            launch {
                 val size = resources.getDimensionPixelSize(R.dimen.mozo_qr_large_size)
                 val qrImage = Support.generateQRCode(it, size)
-                image_qr_code.setImageBitmap(qrImage)
+                launch(UI) {
+                    image_qr_code.setImageBitmap(qrImage)
+                }
             }
         }
 
