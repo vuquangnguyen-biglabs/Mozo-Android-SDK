@@ -23,8 +23,10 @@ class WalletInfoView : ConstraintLayout {
     private var mShowCopy = true
 
     private var mAddress: String? = null
+    private var mBalance: String? = null
 
     private var mWalletAddressView: TextView? = null
+    private var mWalletBalanceView: TextView? = null
     private var fragmentManager: FragmentManager? = null
 
     constructor(context: Context) : this(context, null, 0)
@@ -46,9 +48,18 @@ class WalletInfoView : ConstraintLayout {
 
         inflateLayout()
 
-        launch(UI) {
+        launch {
             mAddress = WalletService.getInstance().getAddress().await()
-            mWalletAddressView?.text = mAddress
+            launch(UI) {
+                mWalletAddressView?.text = mAddress
+            }
+        }
+
+        launch {
+            mBalance = WalletService.getInstance().getBalance().await()
+            launch(UI) {
+                mWalletBalanceView?.text = mBalance
+            }
         }
 
         if (context is FragmentActivity) {
@@ -94,6 +105,9 @@ class WalletInfoView : ConstraintLayout {
                 } else gone()
             }
         }
+
+        mWalletBalanceView = find(R.id.mozo_wallet_balance_value)
+        mBalance?.let { mWalletBalanceView?.text = it }
 
         balanceRate?.apply {
             visible()

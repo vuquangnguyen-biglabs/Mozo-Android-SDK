@@ -20,6 +20,9 @@ import android.widget.TextView
 import android.widget.Toast
 import com.biglabs.mozo.sdk.BuildConfig
 import com.biglabs.mozo.sdk.R
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.NumberFormat
 
 internal fun Activity.setMatchParent() {
     val attrs = window.attributes
@@ -112,4 +115,12 @@ internal fun EditText.onTextChanged(block: (s: CharSequence?) -> Unit) {
             block(s)
         }
     })
+}
+
+fun BigDecimal.trailingZeros(scale: Int): BigDecimal {
+    return setScale(scale, RoundingMode.HALF_UP).stripTrailingZeros()
+}
+
+fun BigDecimal?.displayString(scale: Int = 6): String {
+    return NumberFormat.getIntegerInstance().format(if (this == null) BigDecimal.ZERO else trailingZeros(scale))
 }

@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
+import java.math.BigDecimal
 
 object Models {
 
@@ -59,4 +60,14 @@ object Models {
             var offchainAddress: String? = null,
             var privateKey: String? = null
     )
+
+    data class BalanceInfo(
+            val balance: BigDecimal,
+            val symbol: String?,
+            val decimals: Int,
+            val contractAddress: String?
+    ) {
+        fun balanceDisplay(): BigDecimal =
+                balance.divide(Math.pow(10.0, decimals.toDouble()).toBigDecimal())
+    }
 }

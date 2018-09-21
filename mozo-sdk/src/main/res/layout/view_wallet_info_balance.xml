@@ -22,20 +22,23 @@
         android:background="@drawable/ic_mozo_offchain"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/mozo_wallet_balance_value"
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:layout_marginEnd="20dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
+        android:ellipsize="end"
         android:fontFamily="sans-serif-medium"
         android:gravity="start|center_vertical"
         android:hint="@string/mozo_view_text_hint"
         android:includeFontPadding="false"
-        android:text="7.020.020.030"
+        android:lines="1"
         android:textColor="@color/mozo_color_primary"
         android:textSize="20sp"
+        app:autoSizeMinTextSize="14sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintEnd_toStartOf="@id/mozo_wallet_balance_rate_side"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

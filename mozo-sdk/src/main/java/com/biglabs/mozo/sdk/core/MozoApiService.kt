@@ -11,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
+import retrofit2.http.Path
 
 
 interface MozoApiService {
@@ -54,4 +55,7 @@ interface MozoApiService {
 
     @PUT("user-profile/wallet")
     fun saveWallet(@Body walletInfo: Models.WalletInfo): Deferred<Response<Models.Profile>>
+
+    @GET("solo/contract/solo-token/balance/{address}")
+    fun getBalance(@Path("address") address: String): Deferred<Response<Models.BalanceInfo>>
 }

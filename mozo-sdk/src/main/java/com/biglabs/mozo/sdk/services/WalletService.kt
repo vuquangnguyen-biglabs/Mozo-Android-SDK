@@ -8,6 +8,7 @@ import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PreferenceUtils
+import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -112,7 +113,7 @@ internal class WalletService private constructor() {
         profile?.walletInfo?.run {
             if (encryptSeedPhrase.isNullOrEmpty() || pin.isEmpty()) return@async false
             else return@async try {
-                val decrypted = CryptoUtils.decrypt(encryptSeedPhrase!!, pin)
+                var decrypted = CryptoUtils.decrypt(encryptSeedPhrase!!, pin)
                 val isCorrect = !decrypted.isNullOrEmpty() && MnemonicUtils.validateMnemonic(decrypted)
                 if (isCorrect) {
                     privateKey = CryptoUtils.encrypt(
@@ -121,6 +122,9 @@ internal class WalletService private constructor() {
                     )
                     mozoDB.profile().save(profile)
                 }
+                decrypted?.logAsError("mnemonic")
+                @Suppress("UNUSED_VALUE")
+                decrypted = null
                 isCorrect
             } catch (ex: Exception) {
                 false
@@ -142,6 +146,13 @@ internal class WalletService private constructor() {
 
     fun getAddress() = async {
         return@async mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
+    }
+
+    fun getBalance() = async {
+        getAddress().await()?.let {
+            val balanceInfo = MozoApiService.create().getBalance(it).await()
+            return@async balanceInfo.body()?.balanceDisplay().displayString(12)
+        }
     }
 
     companion object {
