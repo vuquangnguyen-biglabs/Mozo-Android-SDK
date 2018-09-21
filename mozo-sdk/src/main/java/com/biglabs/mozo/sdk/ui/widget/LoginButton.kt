@@ -5,9 +5,12 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.Button
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.services.AuthService
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
-final class LoginButton : Button {
+class LoginButton : Button {
 
     private val newWidth: Int
     private val newHeight: Int
@@ -15,15 +18,18 @@ final class LoginButton : Button {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, R.attr.buttonStyle)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
-        super.setText(R.string.mozo_button_login)
         super.setTextColor(Color.WHITE)
         super.setBackgroundResource(R.drawable.mozo_dr_btn)
         super.setOnClickListener {
-            AuthService.getInstance().signIn()
+            AuthService.getInstance().run {
+                if (isSignedIn()) signOut() else signIn()
+            }
         }
 
         newWidth = resources.getDimensionPixelSize(R.dimen.mozo_btn_width)
         newHeight = resources.getDimensionPixelSize(R.dimen.mozo_btn_height)
+
+        updateUI()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -37,6 +43,26 @@ final class LoginButton : Button {
 
         width = newWidth
         height = newHeight
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        EventBus.getDefault().unregister(this)
+    }
+
+    @Subscribe
+    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
+        updateUI()
+    }
+
+    private fun updateUI() {
+        val textId = if (AuthService.getInstance().isSignedIn()) R.string.mozo_button_logout else R.string.mozo_button_login
+        super.setText(textId)
     }
 
 //    override fun setOnClickListener(l: OnClickListener?) {

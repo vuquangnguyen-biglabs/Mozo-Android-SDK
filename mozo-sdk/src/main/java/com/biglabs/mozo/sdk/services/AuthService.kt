@@ -1,6 +1,5 @@
 package com.biglabs.mozo.sdk.services
 
-import android.widget.Toast
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.auth.AuthenticationListener
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -16,24 +15,27 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
+@Suppress("RedundantSuspendModifier", "unused")
 class AuthService private constructor() {
 
     private val wallet: WalletService by lazy { WalletService.getInstance() }
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
+    private val authStateManager: AuthStateManager by lazy { AuthStateManager.getInstance(MozoSDK.context!!) }
 
     private var mAuthListener: AuthenticationListener? = null
+//    private var mUserInfo: Models.UserInfo? = null
 
     init {
         launch {
-            val isSigned = isSignedIn()
-            if (!isSigned) {
+            val isSignedIn = isSignedIn()
+            if (!isSignedIn) {
                 val anonymousUser = initAnonymousUser()
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             }
 
             launch(UI) {
-                mAuthListener?.onChanged(isSigned)
+                mAuthListener?.onChanged(isSignedIn)
             }
         }
     }
@@ -48,46 +50,34 @@ class AuthService private constructor() {
         }
     }
 
-    private fun isSignedIn(): Boolean {
-        return if (MozoSDK.context != null) {
-            mozoDB.userInfo().get() != null
-        } else false
-    }
+    fun isSignedIn() = authStateManager.current.isAuthorized
 
     fun signOut() {
-        // TODO delete userInfo first
-        MozoDatabase.destroyInstance()
+        launch {
+            mozoDB.userInfo().delete()
 
-        MozoSDK.context?.let {
-            val mStateManager = AuthStateManager.getInstance(it)
-            val currentState = mStateManager.current
+            val currentState = authStateManager.current
             val clearedState = AuthState(currentState.authorizationServiceConfiguration!!)
             if (currentState.lastRegistrationResponse != null) {
                 clearedState.update(currentState.lastRegistrationResponse)
             }
-            mStateManager.replace(clearedState)
-        }
+            authStateManager.replace(clearedState)
 
-        mAuthListener?.onChanged(false)
-    }
-
-    @Subscribe
-    internal fun onReceivePin(event: MessageEvent.Pin) {
-        EventBus.getDefault().unregister(this@AuthService)
-        launch(UI) {
-            // TODO try to load wallet info from DB by pin
-            // verify PIN
-
-            Toast.makeText(MozoSDK.context!!, "receive pin in Auth", Toast.LENGTH_SHORT).show()
+            launch(UI) {
+                EventBus.getDefault().post(MessageEvent.Auth(authStateManager.current, null))
+                mAuthListener?.onChanged(false)
+            }
         }
     }
 
     @Subscribe
-    internal fun onAuthorized(auth: MessageEvent.Auth) {
+    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
         EventBus.getDefault().unregister(this@AuthService)
+
         auth.authState.accessToken?.logAsError("\n\nAccessToken")
         auth.authState.refreshToken?.logAsError("\n\nRefreshToken")
 
+        /* notify for caller */
         mAuthListener?.onChanged(true)
 
         wallet.initWallet()

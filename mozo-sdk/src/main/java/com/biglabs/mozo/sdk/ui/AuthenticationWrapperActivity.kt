@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.Toast
 import com.biglabs.mozo.sdk.R
@@ -117,8 +116,13 @@ class AuthenticationWrapperActivity : FragmentActivity() {
     private fun warmUpBrowser() {
         mAuthIntentLatch = CountDownLatch(1)
         val intentBuilder = mAuthService!!.createCustomTabsIntentBuilder(mAuthRequest.get().toUri())
-        intentBuilder.setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
-        mAuthIntent.set(intentBuilder.build())
+        val customTabs = intentBuilder
+                .setShowTitle(true)
+                .setInstantAppsEnabled(false)
+                .build()
+        customTabs.intent.putExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false)
+        customTabs.intent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_MENU_ITEMS, null)
+        mAuthIntent.set(customTabs)
         mAuthIntentLatch.countDown()
     }
 
