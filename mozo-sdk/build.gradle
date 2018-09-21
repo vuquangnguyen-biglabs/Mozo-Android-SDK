@@ -34,6 +34,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     // Android support
     implementation "com.android.support:appcompat-v7:$android_support_version"
+    implementation "com.android.support:support-v4:$android_support_version"
+    implementation "com.android.support:support-media-compat:$android_support_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_layout_version"
     implementation 'com.google.android:flexbox:1.0.0'
 
@@ -51,6 +53,7 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.1.1"
     kapt "android.arch.persistence.room:compiler:1.1.1"
     implementation 'com.estimote:proximity-sdk:1.0.2'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation 'org.bitcoinj:bitcoinj-core:0.14.7'
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation 'org.cryptonode.jncryptor:jncryptor:1.2.0'

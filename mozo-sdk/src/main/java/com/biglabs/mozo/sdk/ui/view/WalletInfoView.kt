@@ -3,11 +3,15 @@ package com.biglabs.mozo.sdk.ui.view
 import android.content.Context
 import android.support.annotation.IntDef
 import android.support.constraint.ConstraintLayout
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
+import android.support.v4.app.FragmentManager
 import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.services.WalletService
+import com.biglabs.mozo.sdk.ui.dialog.QRCodeDialog
 import com.biglabs.mozo.sdk.utils.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -21,6 +25,7 @@ class WalletInfoView : ConstraintLayout {
     private var mAddress: String? = null
 
     private var mWalletAddressView: TextView? = null
+    private var fragmentManager: FragmentManager? = null
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -44,6 +49,12 @@ class WalletInfoView : ConstraintLayout {
         launch(UI) {
             mAddress = WalletService.getInstance().getAddress().await()
             mWalletAddressView?.text = mAddress
+        }
+
+        if (context is FragmentActivity) {
+            fragmentManager = context.supportFragmentManager
+        } else if (context is Fragment) {
+            fragmentManager = context.fragmentManager
         }
     }
 
@@ -72,7 +83,7 @@ class WalletInfoView : ConstraintLayout {
             find<View>(R.id.mozo_wallet_btn_show_qr)?.apply {
                 if (mShowQRCode) {
                     visible()
-                    click { }
+                    click { showQRCodeDialog() }
                 } else gone()
             }
 
@@ -87,6 +98,14 @@ class WalletInfoView : ConstraintLayout {
         balanceRate?.apply {
             visible()
             text = "₩000"
+        }
+    }
+
+    private fun showQRCodeDialog() {
+        if (fragmentManager != null) {
+            QRCodeDialog.show(mAddress!!, fragmentManager!!)
+        } else {
+            "Cannot show QR Code dialog on this context".logAsError("WalletInfoView")
         }
     }
 

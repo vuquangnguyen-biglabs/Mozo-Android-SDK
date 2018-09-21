@@ -1,0 +1,57 @@
+package com.biglabs.mozo.sdk.ui.dialog
+
+import android.os.Bundle
+import android.support.v4.app.DialogFragment
+import android.support.v4.app.FragmentManager
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.utils.Support
+import com.biglabs.mozo.sdk.utils.click
+import kotlinx.android.synthetic.main.dialog_qr_code.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+
+
+class QRCodeDialog : DialogFragment() {
+
+    private var rawValue: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.run {
+            rawValue = getString(KEY_RAW_VALUE)
+            if (rawValue.isNullOrEmpty()) dismiss()
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
+            inflater.inflate(R.layout.dialog_qr_code, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        rawValue?.let {
+            launch(UI) {
+                val size = resources.getDimensionPixelSize(R.dimen.mozo_qr_large_size)
+                val qrImage = Support.generateQRCode(it, size)
+                image_qr_code.setImageBitmap(qrImage)
+            }
+        }
+
+        button_close.click { dismiss() }
+    }
+
+    companion object {
+        private const val KEY_RAW_VALUE = "KEY_RAW_VALUE"
+
+        fun show(rawValue: String, fragmentManager: FragmentManager) {
+            val bundle = Bundle()
+            bundle.putString(KEY_RAW_VALUE, rawValue)
+
+            QRCodeDialog().apply {
+                arguments = bundle
+                show(fragmentManager, QRCodeDialog::class.java.simpleName)
+            }
+        }
+    }
+}
