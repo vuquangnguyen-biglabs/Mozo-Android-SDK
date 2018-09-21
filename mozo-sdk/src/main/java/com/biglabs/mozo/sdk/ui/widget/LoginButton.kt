@@ -55,6 +55,7 @@ class LoginButton : Button {
         EventBus.getDefault().unregister(this)
     }
 
+    @Suppress("unused")
     @Subscribe
     internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
         updateUI()
@@ -65,9 +66,9 @@ class LoginButton : Button {
         super.setText(textId)
     }
 
-//    override fun setOnClickListener(l: OnClickListener?) {
-//        // ignore
-//    }
+    override fun setOnClickListener(l: OnClickListener?) {
+        // ignore
+    }
 //
 //    override fun setBackground(background: Drawable?) {
 //        // ignore

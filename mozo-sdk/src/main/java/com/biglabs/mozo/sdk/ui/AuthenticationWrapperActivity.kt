@@ -120,8 +120,13 @@ class AuthenticationWrapperActivity : FragmentActivity() {
                 .setShowTitle(true)
                 .setInstantAppsEnabled(false)
                 .build()
-        customTabs.intent.putExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false)
-        customTabs.intent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_MENU_ITEMS, null)
+
+        val extras = Bundle()
+        extras.putBinder(CustomTabsIntent.EXTRA_SESSION, null)
+        extras.putBoolean(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false)
+        extras.putParcelableArrayList(CustomTabsIntent.EXTRA_MENU_ITEMS, null)
+        customTabs.intent.putExtras(extras)
+
         mAuthIntent.set(customTabs)
         mAuthIntentLatch.countDown()
     }
