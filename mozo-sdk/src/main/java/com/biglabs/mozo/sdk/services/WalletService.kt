@@ -8,7 +8,6 @@ import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PreferenceUtils
-import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -18,6 +17,7 @@ import org.web3j.crypto.Credentials
 import org.web3j.crypto.MnemonicUtils
 import java.security.SecureRandom
 
+@Suppress("unused")
 internal class WalletService private constructor() {
 
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
@@ -99,7 +99,7 @@ internal class WalletService private constructor() {
 
     private fun syncWalletInfo(walletInfo: Models.WalletInfo) = async {
         MozoSDK.context?.let {
-            val response = MozoApiService.create().saveWallet(walletInfo).await()
+            val response = MozoApiService.getInstance(MozoSDK.context!!).saveWallet(walletInfo).await()
             response.body()?.toString()?.logAsError("wallet response")
             PreferenceUtils.getInstance(it).setFlag(
                     PreferenceUtils.FLAG_SYNC_WALLET_INFO,
@@ -148,20 +148,13 @@ internal class WalletService private constructor() {
         return@async mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
     }
 
-    fun getBalance() = async {
-        getAddress().await()?.let {
-            val balanceInfo = MozoApiService.create().getBalance(it).await()
-            return@async balanceInfo.body()?.balanceDisplay().displayString(12)
-        }
-    }
-
     companion object {
         @Volatile
-        private var INSTANCE: WalletService? = null
+        private var instance: WalletService? = null
 
-        fun getInstance() = INSTANCE ?: synchronized(this) {
-            if (INSTANCE == null) INSTANCE = WalletService()
-            INSTANCE
+        fun getInstance() = instance ?: synchronized(this) {
+            if (instance == null) instance = WalletService()
+            instance
         }!!
     }
 }

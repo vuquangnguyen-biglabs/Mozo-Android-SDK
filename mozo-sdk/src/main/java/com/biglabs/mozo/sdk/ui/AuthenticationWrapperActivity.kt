@@ -212,7 +212,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         launch {
             val currentAuth = mAuthStateManager!!.current
             if (exception == null) {
-                val response = MozoApiService.create().fetchProfile().await()
+                val response = MozoApiService.getInstance(this@AuthenticationWrapperActivity).fetchProfile().await()
                 val serverProfile = response.body()
 
                 if (response.isSuccessful && serverProfile != null) {

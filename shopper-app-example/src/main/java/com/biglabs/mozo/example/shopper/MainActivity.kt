@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.auth.AuthenticationListener
+import com.biglabs.mozo.sdk.services.AuthService
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +25,12 @@ class MainActivity : AppCompatActivity() {
         viewWalletInfoButton.setOnClickListener {
             startActivity(Intent(this, WalletInfoActivity::class.java))
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val isSigned = AuthService.getInstance().isSignedIn()
+        updateUI(isSigned)
     }
 
     private fun updateUI(isSinged: Boolean) {

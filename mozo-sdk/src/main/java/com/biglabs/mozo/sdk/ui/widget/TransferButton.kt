@@ -7,22 +7,61 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.Button
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.utils.logAsError
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
-final class TransferButton : Button {
+class TransferButton : Button {
 
     private val newWidth: Int
     private val newHeight: Int
 
+    private var needToContinue = false
+
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, R.attr.buttonStyle)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
-
-        setText(R.string.mozo_button_transfer)
-        setTextColor(Color.WHITE)
-        setBackgroundResource(R.drawable.mozo_dr_btn)
+        super.setText(R.string.mozo_button_transfer)
+        super.setTextColor(Color.WHITE)
+        super.setBackgroundResource(R.drawable.mozo_dr_btn)
+        super.setOnClickListener {
+            AuthService.getInstance().run {
+                if (isSignedIn())
+                    doTransfer()
+                else {
+                    needToContinue = true
+                    signIn()
+                }
+            }
+        }
 
         newWidth = resources.getDimensionPixelSize(R.dimen.mozo_btn_width)
         newHeight = resources.getDimensionPixelSize(R.dimen.mozo_btn_height)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        EventBus.getDefault().unregister(this)
+    }
+
+    @Suppress("unused")
+    @Subscribe
+    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
+        if (needToContinue) {
+            needToContinue = false
+            doTransfer()
+        }
+    }
+
+    private fun doTransfer() {
+        "do transfer".logAsError()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -38,5 +77,7 @@ final class TransferButton : Button {
         height = newHeight
     }
 
-    // TODO override onCLick event
+    override fun setOnClickListener(l: OnClickListener?) {
+        // ignore
+    }
 }

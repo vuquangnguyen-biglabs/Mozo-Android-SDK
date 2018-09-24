@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.services.WalletService
+import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.ui.dialog.QRCodeDialog
 import com.biglabs.mozo.sdk.utils.*
 import kotlinx.coroutines.experimental.android.UI
@@ -56,7 +57,7 @@ class WalletInfoView : ConstraintLayout {
         }
 
         launch {
-            mBalance = WalletService.getInstance().getBalance().await()
+            mBalance = MozoTrans.getInstance().getBalance().await()
             launch(UI) {
                 mWalletBalanceView?.text = mBalance
             }

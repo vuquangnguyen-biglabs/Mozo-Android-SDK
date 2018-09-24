@@ -74,8 +74,8 @@ class AuthService private constructor() {
     internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
         EventBus.getDefault().unregister(this@AuthService)
 
-        auth.authState.accessToken?.logAsError("\n\nAccessToken")
-        auth.authState.refreshToken?.logAsError("\n\nRefreshToken")
+        auth.authState.accessToken?.logAsError("\n\nAccessToken\n")
+        auth.authState.refreshToken?.logAsError("\n\nRefreshToken\n")
 
         /* notify for caller */
         mAuthListener?.onChanged(true)
@@ -103,7 +103,7 @@ class AuthService private constructor() {
         @Volatile
         private var INSTANCE: AuthService? = null
 
-        internal fun getInstance(): AuthService =
+        fun getInstance(): AuthService =
                 INSTANCE ?: synchronized(this) {
                     INSTANCE = AuthService()
                     INSTANCE!!
