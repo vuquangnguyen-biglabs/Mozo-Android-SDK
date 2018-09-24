@@ -155,7 +155,7 @@
 
                 <TextView
                     style="@style/MozoWalletInfoButtonText"
-                    android:drawableStart="@drawable/ic_action_qr_code"
+                    android:drawableStart="@drawable/ic_user"
                     android:text="@string/mozo_address_book_title" />
             </LinearLayout>
 
@@ -171,7 +171,7 @@
 
                 <TextView
                     style="@style/MozoWalletInfoButtonText"
-                    android:drawableStart="@drawable/ic_action_copy"
+                    android:drawableStart="@drawable/ic_action_scan"
                     android:text="@string/mozo_button_scan_qr_code" />
             </LinearLayout>
 

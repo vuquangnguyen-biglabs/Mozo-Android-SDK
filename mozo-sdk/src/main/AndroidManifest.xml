@@ -10,7 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <application>
+    <application android:hardwareAccelerated="true">
         <activity
             android:name=".ui.AuthenticationWrapperActivity"
             android:excludeFromRecents="true"
@@ -70,5 +70,10 @@
                 <data android:scheme="@string/redirect_url_scheme" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
     </application>
 </manifest>

@@ -53,6 +53,11 @@ internal class SecurityActivity : AppCompatActivity() {
         input_pin?.hideKeyboard()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mPIN = ""
+    }
+
     private fun showBackupUI(seed: String) {
         setContentView(R.layout.view_backup)
 
@@ -192,7 +197,8 @@ internal class SecurityActivity : AppCompatActivity() {
                     showPinCreatedUI()
                 }
                 KEY_ENTER_PIN -> {
-                    val isCorrect = WalletService.getInstance().validatePin(input_pin.text.toString()).await()
+                    mPIN = input_pin.text.toString()
+                    val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
                     initRestoreUI(!isCorrect)
                     if (isCorrect) showPinInputCorrectUI()
                     else {
