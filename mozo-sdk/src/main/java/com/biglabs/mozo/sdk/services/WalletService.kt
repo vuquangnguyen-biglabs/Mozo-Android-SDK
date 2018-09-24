@@ -57,7 +57,6 @@ internal class WalletService private constructor() {
 
     private fun clearVariables() {
         this@WalletService.seed = null
-        this@WalletService.address = null
         this@WalletService.privateKey = null
     }
 
@@ -145,7 +144,10 @@ internal class WalletService private constructor() {
     }
 
     fun getAddress() = async {
-        return@async mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
+        if (address == null) {
+            address = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
+        }
+        return@async address
     }
 
     companion object {

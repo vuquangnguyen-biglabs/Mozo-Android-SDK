@@ -17,7 +17,7 @@ interface MozoApiService {
         private const val BASE_URL = "http://18.136.55.245:8080/solomon/api/"
 
         @Volatile
-        internal var instance: MozoApiService? = null
+        private var instance: MozoApiService? = null
 
         fun getInstance(context: Context) = instance ?: synchronized(this) {
             if (instance == null) instance = createService(context)
@@ -30,17 +30,17 @@ interface MozoApiService {
                 val original = it.request()
                 val request = original.newBuilder()
                         .header("Authorization", "Bearer $accessToken")
-                        .header("Content-Type", "application/problem+json")
+                        .header("Content-Type", "application/json")
                         .method(original.method(), original.body())
                         .build()
                 it.proceed(request)
             }
 
             return Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .client(client.build())
                     .addCallAdapterFactory(CoroutineCallAdapterFactory())
                     .addConverterFactory(GsonConverterFactory.create())
-                    .client(client.build())
-                    .baseUrl(BASE_URL)
                     .build()
                     .create(MozoApiService::class.java)
         }

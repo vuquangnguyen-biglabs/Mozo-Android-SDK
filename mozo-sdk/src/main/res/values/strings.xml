@@ -1,4 +1,6 @@
 <resources>
+    <string name="mozo_address_book_title">Address Book</string>
+
     <string name="mozo_dialog_storage_permission_title">Storage Access</string>
     <string name="mozo_dialog_storage_permission_msg">Storage permission is required for this feature.</string>
     <string name="mozo_dialog_loading_msg">Creating Interface</string>
@@ -13,6 +15,7 @@
     <string name="mozo_button_back">Back</string>
     <string name="mozo_button_close">Close</string>
     <string name="mozo_button_continue">Continue</string>
+    <string name="mozo_button_scan_qr_code">Scan QR Code</string>
     <string name="mozo_button_show_qr_code">Show QR Code</string>
     <string name="mozo_button_copy">Copy</string>
 
@@ -32,6 +35,14 @@
     <string name="mozo_pin_msg_create_success">Create Security PIN successful</string>
     <string name="mozo_pin_msg_enter_correct">Security PIN is correct</string>
     <string name="mozo_pin_msg_enter_incorrect">You entered an incorrect PIN</string>
+
+    <string name="mozo_transfer_title">Send Mozo Offchain</string>
+    <string name="mozo_transfer_from">From Mozo Offchain Wallet</string>
+    <string name="mozo_transfer_receiver_address">Receiver Address</string>
+    <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address or Mozo ID</string>
+    <string name="mozo_transfer_amount">Amount</string>
+    <string name="mozo_transfer_amount_hint">Mozo amount</string>
+    <string name="mozo_transfer_spendable">Spendable: %s Mozo (Offchain)</string>
 
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>

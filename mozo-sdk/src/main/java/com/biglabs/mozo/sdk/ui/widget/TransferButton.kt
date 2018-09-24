@@ -9,7 +9,7 @@ import android.widget.Button
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.services.AuthService
-import com.biglabs.mozo.sdk.utils.logAsError
+import com.biglabs.mozo.sdk.trans.MozoTrans
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -61,7 +61,7 @@ class TransferButton : Button {
     }
 
     private fun doTransfer() {
-        "do transfer".logAsError()
+        MozoTrans.getInstance().transfer()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

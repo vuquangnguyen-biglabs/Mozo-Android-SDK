@@ -75,22 +75,23 @@ object Models {
                 balance.divide(Math.pow(10.0, decimals.toDouble()).toBigDecimal())
     }
 
-    open class TransactionAddress(
+    class TransactionAddress(
             val addresses: ArrayList<String> = arrayListOf()
     )
 
     class TransactionAddressOutput(
-            val value: Int = 0
-    ) : TransactionAddress()
+            val addresses: ArrayList<String> = arrayListOf(),
+            val value: BigDecimal
+    )
 
     data class TransactionRequest(
-            val input: ArrayList<TransactionAddress> = arrayListOf(),
+            val inputs: ArrayList<TransactionAddress> = arrayListOf(),
             val outputs: ArrayList<TransactionAddressOutput> = arrayListOf()
     )
 
     data class TransactionResponseData(
             val fees: Double,
-            val input: ArrayList<TransactionAddress>,
+            val inputs: ArrayList<TransactionAddress>,
             val outputs: ArrayList<TransactionAddressOutput>,
             val data: String,
             @SerializedName("double_spend")

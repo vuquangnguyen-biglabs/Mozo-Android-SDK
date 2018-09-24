@@ -34,6 +34,13 @@
             android:windowSoftInputMode="adjustResize|adjustPan" />
 
         <activity
+            android:name=".ui.TransferActivity"
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/MozoTheme"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+
+        <activity
             android:name="net.openid.appauth.AuthorizationManagementActivity"
             android:exported="false"
             android:launchMode="singleTask"
