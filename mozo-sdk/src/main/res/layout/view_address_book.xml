@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.biglabs.mozo.sdk.ui.widget.MozoToolbar
+        android:id="@+id/address_book_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:buttonClose="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/mozo_address_book_title" />
+
+
+</android.support.constraint.ConstraintLayout>

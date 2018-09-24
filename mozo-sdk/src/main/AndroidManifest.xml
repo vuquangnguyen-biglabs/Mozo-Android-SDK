@@ -12,6 +12,13 @@
 
     <application android:hardwareAccelerated="true">
         <activity
+            android:name=".ui.AddressBookActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop"
+            android:theme="@style/MozoTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
             android:name=".ui.AuthenticationWrapperActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"

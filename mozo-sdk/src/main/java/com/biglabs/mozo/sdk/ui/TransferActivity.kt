@@ -25,6 +25,7 @@ class TransferActivity : AppCompatActivity() {
             }
         }
 
+        button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
         button_scan_qr.click {
             IntentIntegrator(this)
                     .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
@@ -45,16 +46,25 @@ class TransferActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (data != null) {
-            IntentIntegrator
-                    .parseActivityResult(requestCode, resultCode, data)
-                    .contents?.let {
-                input_receiver_address.setText(it)
+        if (resultCode != RESULT_OK) return
+
+        when {
+            requestCode == KEY_PICK_ADDRESS -> {
+                // TODO read picked address
             }
-        } else super.onActivityResult(requestCode, resultCode, data)
+            data != null -> {
+                IntentIntegrator
+                        .parseActivityResult(requestCode, resultCode, data)
+                        .contents?.let {
+                    input_receiver_address.setText(it)
+                }
+            }
+        }
     }
 
     companion object {
+        private const val KEY_PICK_ADDRESS = 0x0021
+
         fun start(context: Context) {
             val starter = Intent(context, TransferActivity::class.java)
             starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
