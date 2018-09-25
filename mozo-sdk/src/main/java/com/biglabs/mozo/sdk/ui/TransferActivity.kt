@@ -11,6 +11,7 @@ import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.view_transfer.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import org.web3j.crypto.WalletUtils
 
 class TransferActivity : AppCompatActivity() {
 
@@ -56,7 +57,11 @@ class TransferActivity : AppCompatActivity() {
                 IntentIntegrator
                         .parseActivityResult(requestCode, resultCode, data)
                         .contents?.let {
-                    input_receiver_address.setText(it)
+                    if (WalletUtils.isValidAddress(it)) {
+                        input_receiver_address.setText(it)
+                    } else {
+                        // TODO show warning message
+                    }
                 }
             }
         }
