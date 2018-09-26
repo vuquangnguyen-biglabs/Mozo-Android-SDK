@@ -102,11 +102,14 @@ object Models {
             val gasLimit: Double
     )
 
+    @Suppress("SpellCheckingInspection")
     data class TransactionResponse(
             val tx: TransactionResponseData,
-            @Suppress("SpellCheckingInspection")
             @SerializedName("tosign")
             val toSign: ArrayList<String>,
+            val signatures: ArrayList<String>,
+            @SerializedName("pubkeys")
+            val publicKeys: ArrayList<String>,
             val nonce: Long
     )
 }

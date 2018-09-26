@@ -5,8 +5,8 @@ import org.bitcoinj.crypto.HDUtils
 import org.bitcoinj.wallet.DeterministicKeyChain
 import org.bitcoinj.wallet.DeterministicSeed
 import org.cryptonode.jncryptor.AES256JNCryptor
-import java.security.MessageDigest
-import kotlin.experimental.and
+import org.web3j.crypto.Sign
+import org.web3j.utils.Numeric
 
 internal class CryptoUtils {
     companion object {
@@ -34,17 +34,6 @@ internal class CryptoUtils {
             )
         }
 
-        @JvmStatic
-        @Throws(Throwable::class)
-        fun hashSHA(value: String): String? {
-            val bytes = MessageDigest.getInstance("SHA-512").digest(value.toByteArray())
-            val sb = StringBuilder()
-            for (i in bytes.indices) {
-                sb.append(Integer.toString((bytes[i].and(0xff.toByte())) + 0x100, 16).substring(1))
-            }
-            return sb.toString()
-        }
-
         private const val ETH_FIRST_ADDRESS_PATH = "M/44H/60H/0H/0/0"
         @JvmStatic
         fun getFirstAddressPrivateKey(mnemonic: String): String {
@@ -54,6 +43,31 @@ internal class CryptoUtils {
                     .build()
                     .getKeyByPath(HDUtils.parsePath(ETH_FIRST_ADDRESS_PATH), true)
             return key.privKey.toString(16)
+        }
+
+        @JvmStatic
+        fun serializeSignature(signature: Sign.SignatureData): String {
+            val totalLength = 6 + signature.r.size + signature.s.size
+            val result = ByteArray(totalLength)
+
+            result[0] = 0x30
+            result[1] = (totalLength - 2).toByte()
+            result[2] = 0x02
+            result[3] = signature.r.size.toByte()
+
+            signature.r.mapIndexed { index, byte ->
+                result[index + 4] = byte
+            }
+
+            val offset = signature.r.size + 4
+            result[offset] = 0x02
+            result[offset + 1] = signature.s.size.toByte()
+
+            signature.s.mapIndexed { index, byte ->
+                result[offset + 2 + index] = byte
+            }
+
+            return Numeric.toHexString(result)
         }
     }
 }
