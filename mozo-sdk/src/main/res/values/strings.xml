@@ -18,6 +18,7 @@
     <string name="mozo_button_scan_qr_code">Scan QR Code</string>
     <string name="mozo_button_show_qr_code">Show QR Code</string>
     <string name="mozo_button_copy">Copy</string>
+    <string name="mozo_button_send">Send</string>
 
     <string name="mozo_backup_title">Back up Wallet</string>
     <string name="mozo_backup_sub_title">Store Recovery Phrase</string>
@@ -37,6 +38,7 @@
     <string name="mozo_pin_msg_enter_incorrect">You entered an incorrect PIN</string>
 
     <string name="mozo_transfer_title">Send Mozo Offchain</string>
+    <string name="mozo_transfer_confirmation">Confirmation</string>
     <string name="mozo_transfer_from">From Mozo Offchain Wallet</string>
     <string name="mozo_transfer_receiver_address">Receiver Address</string>
     <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address or Mozo ID</string>

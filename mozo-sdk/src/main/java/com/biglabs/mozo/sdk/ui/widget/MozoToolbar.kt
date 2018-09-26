@@ -2,13 +2,18 @@ package com.biglabs.mozo.sdk.ui.widget
 
 import android.app.Activity
 import android.content.Context
+import android.support.annotation.StringRes
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.view.View
+import android.widget.TextView
 import com.biglabs.mozo.sdk.R
-import kotlinx.android.synthetic.main.view_toolbar.view.*
 
 internal class MozoToolbar : ConstraintLayout {
+
+    private var viewScreenTitle: TextView? = null
+    private var viewButtonBack: View? = null
+    private var viewButtonClose: View? = null
 
     private var mTitle: String? = null
     private var mShowBack = false
@@ -31,18 +36,49 @@ internal class MozoToolbar : ConstraintLayout {
         }
 
         inflate(context, R.layout.view_toolbar, this)
+        viewScreenTitle = findViewById(R.id.screen_title)
+        viewButtonBack = findViewById(R.id.button_back)
+        viewButtonClose = findViewById(R.id.button_close)
 
-        screen_title.text = mTitle
-        button_back.visibility = if (mShowBack) View.VISIBLE else View.GONE
-        button_close.visibility = if (mShowClose) View.VISIBLE else View.GONE
+        updateUI()
 
-        button_back.setOnClickListener {
+        viewButtonBack?.setOnClickListener {
             if (onBackPress != null) onBackPress
             else (context as? Activity)?.onBackPressed()
         }
-        button_close.setOnClickListener {
+        viewButtonClose?.setOnClickListener {
             if (onClosePress != null) onClosePress
             else (context as? Activity)?.finish()
         }
+
+        if (isInEditMode) {
+            maxHeight = 100
+        }
+    }
+
+    private fun updateUI() {
+        viewScreenTitle?.text = mTitle
+        viewButtonBack?.visibility = if (mShowBack) View.VISIBLE else View.GONE
+        viewButtonClose?.visibility = if (mShowClose) View.VISIBLE else View.GONE
+    }
+
+    fun showBackButton(isShow: Boolean) {
+        mShowBack = isShow
+        updateUI()
+    }
+
+    fun showCloseButton(isShow: Boolean) {
+        mShowClose = isShow
+        updateUI()
+    }
+
+    fun setTitle(title: String?) {
+        mTitle = title
+        updateUI()
+    }
+
+    fun setTitle(@StringRes id: Int) {
+        mTitle = context.getString(id)
+        updateUI()
     }
 }

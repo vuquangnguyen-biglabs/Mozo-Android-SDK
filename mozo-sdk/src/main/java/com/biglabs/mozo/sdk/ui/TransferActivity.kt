@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.utils.click
+import com.biglabs.mozo.sdk.utils.gone
+import com.biglabs.mozo.sdk.utils.onTextChanged
+import com.biglabs.mozo.sdk.utils.visible
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.view_transfer.*
 import kotlinx.coroutines.experimental.android.UI
@@ -19,31 +22,10 @@ class TransferActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_transfer)
 
-        launch {
-            val balance = MozoTrans.getInstance().getBalance().await()
-            launch(UI) {
-                mozo_wallet_balance_value?.text = balance
-            }
-        }
+        initUI()
+        showInputUI()
 
-        button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
-        button_scan_qr.click {
-            IntentIntegrator(this)
-                    .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-                    .setPrompt("")
-                    .initiateScan()
-        }
-
-        input_receiver_address.setText("0x327b993ce7201a6e8b1df02256910c9ea6bc4865")
-        input_amount.setText("1")
         mozo_wallet_balance_rate_side.text = "₩102.230"
-
-        button_continue.isEnabled = true
-        button_continue.click {
-            val input = input_receiver_address.text.toString()
-            val amount = input_amount.text.toString()
-            MozoTrans.getInstance().createTransaction(input, amount)
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -65,6 +47,62 @@ class TransferActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun initUI() {
+        launch {
+            val balance = MozoTrans.getInstance().getBalance().await()
+            launch(UI) {
+                mozo_wallet_balance_value?.text = balance
+            }
+        }
+
+        val onTextChanged: (s: CharSequence?) -> Unit = {
+            button_submit.isEnabled = input_receiver_address.length() > 0 && input_amount.length() > 0
+        }
+        input_receiver_address.onTextChanged(onTextChanged)
+        input_amount.onTextChanged(onTextChanged)
+
+        transfer_toolbar.onBackPress = { showInputUI() }
+        button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
+        button_scan_qr.click {
+            IntentIntegrator(this)
+                    .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+                    .setPrompt("")
+                    .initiateScan()
+        }
+        button_submit.click {
+            if (input_receiver_address.isEnabled) {
+                showConfirmationUI()
+            } else {
+                val input = input_receiver_address.text.toString()
+                val amount = input_amount.text.toString()
+                MozoTrans.getInstance().createTransaction(input, amount)
+            }
+        }
+    }
+
+    private fun showInputUI() {
+        input_receiver_address.isEnabled = true
+        button_address_book.visible()
+        button_scan_qr.visible()
+        input_amount.isEnabled = true
+
+        transfer_toolbar.setTitle(R.string.mozo_transfer_title)
+        transfer_toolbar.showBackButton(false)
+        button_submit.setText(R.string.mozo_button_continue)
+    }
+
+    private fun showConfirmationUI() {
+        input_receiver_address.isEnabled = false
+        button_address_book.gone()
+        button_scan_qr.gone()
+        input_amount.isEnabled = false
+
+        transfer_toolbar.setTitle(R.string.mozo_transfer_confirmation)
+        transfer_toolbar.showBackButton(true)
+        button_submit.setText(R.string.mozo_button_send)
+
     }
 
     companion object {
