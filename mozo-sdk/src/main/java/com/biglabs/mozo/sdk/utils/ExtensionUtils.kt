@@ -55,6 +55,18 @@ internal fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): Stri
     return if (idRef != 0) getString(id, string(idRef)) else getString(id)
 }
 
+internal fun visible(views: Array<View>) {
+    views.map {
+        it.visible()
+    }
+}
+
+internal fun gone(views: Array<View>) {
+    views.map {
+        it.gone()
+    }
+}
+
 internal fun Resources.dp2Px(value: Float): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics)
 }

@@ -49,6 +49,12 @@ class TransferActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (input_receiver_address.isEnabled) {
+            super.onBackPressed()
+        } else showInputUI()
+    }
+
     private fun initUI() {
         launch {
             val balance = MozoTrans.getInstance().getBalance().await()
@@ -84,9 +90,17 @@ class TransferActivity : AppCompatActivity() {
 
     private fun showInputUI() {
         input_receiver_address.isEnabled = true
-        button_address_book.visible()
-        button_scan_qr.visible()
         input_amount.isEnabled = true
+        input_amount_label.setText(R.string.mozo_transfer_amount)
+        visible(arrayOf(
+                input_receiver_address_underline,
+                button_address_book,
+                button_scan_qr,
+                input_amount,
+                input_amount_underline,
+                text_spendable
+        ))
+        input_amount_preview_container.gone()
 
         transfer_toolbar.setTitle(R.string.mozo_transfer_title)
         transfer_toolbar.showBackButton(false)
@@ -95,14 +109,22 @@ class TransferActivity : AppCompatActivity() {
 
     private fun showConfirmationUI() {
         input_receiver_address.isEnabled = false
-        button_address_book.gone()
-        button_scan_qr.gone()
         input_amount.isEnabled = false
+        input_amount_label.setText(R.string.mozo_transfer_amount_offchain)
+        gone(arrayOf(
+                input_receiver_address_underline,
+                button_address_book,
+                button_scan_qr,
+                input_amount,
+                input_amount_underline,
+                text_spendable
+        ))
+        text_preview_amount.text = input_amount.text
+        input_amount_preview_container.visible()
 
         transfer_toolbar.setTitle(R.string.mozo_transfer_confirmation)
         transfer_toolbar.showBackButton(true)
         button_submit.setText(R.string.mozo_button_send)
-
     }
 
     companion object {

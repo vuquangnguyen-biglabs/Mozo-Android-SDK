@@ -6,19 +6,16 @@ import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.services.WalletService
-import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.ui.TransferActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
-import com.google.gson.Gson
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import org.web3j.crypto.*
-import org.web3j.protocol.Web3j
-import org.web3j.protocol.core.methods.response.EthSendTransaction
+import org.web3j.crypto.Credentials
+import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
 
 class MozoTrans private constructor() {

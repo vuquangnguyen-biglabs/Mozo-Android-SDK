@@ -36,18 +36,18 @@ internal class MozoToolbar : ConstraintLayout {
         }
 
         inflate(context, R.layout.view_toolbar, this)
-        viewScreenTitle = findViewById(R.id.screen_title)
-        viewButtonBack = findViewById(R.id.button_back)
-        viewButtonClose = findViewById(R.id.button_close)
+        viewScreenTitle = this.findViewById(R.id.screen_title)
+        viewButtonBack = this.findViewById(R.id.button_back)
+        viewButtonClose = this.findViewById(R.id.button_close)
 
         updateUI()
 
         viewButtonBack?.setOnClickListener {
-            if (onBackPress != null) onBackPress
+            if (onBackPress != null) onBackPress?.invoke()
             else (context as? Activity)?.onBackPressed()
         }
         viewButtonClose?.setOnClickListener {
-            if (onClosePress != null) onClosePress
+            if (onClosePress != null) onClosePress?.invoke()
             else (context as? Activity)?.finish()
         }
 

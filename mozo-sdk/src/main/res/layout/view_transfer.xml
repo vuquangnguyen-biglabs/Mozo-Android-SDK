@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true">
+    android:fitsSystemWindows="true">
 
     <com.biglabs.mozo.sdk.ui.widget.MozoToolbar
         android:id="@+id/transfer_toolbar"
@@ -17,24 +17,25 @@
         app:title="@string/mozo_transfer_title" />
 
     <android.support.v4.widget.NestedScrollView
-        android:id="@+id/scroll_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/button_continue"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/transfer_toolbar">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:paddingBottom="@dimen/mozo_screen_padding">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="30dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:text="@string/mozo_transfer_from"
                 android:textColor="@color/mozo_color_content"
                 android:textSize="12sp"
@@ -46,14 +47,14 @@
             <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="50dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:background="#f2f2f2"
-                android:paddingBottom="10dp"
-                android:paddingEnd="16dp"
                 android:paddingStart="16dp"
                 android:paddingTop="10dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -68,8 +69,8 @@
                     android:id="@+id/mozo_wallet_balance_value"
                     android:layout_width="0dp"
                     android:layout_height="24dp"
-                    android:layout_marginEnd="20dp"
                     android:layout_marginStart="32dp"
+                    android:layout_marginEnd="20dp"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-medium"
                     android:gravity="start|center_vertical"
@@ -92,19 +93,17 @@
                     android:includeFontPadding="false"
                     android:textColor="@color/mozo_color_un_active"
                     android:textSize="@dimen/mozo_text_size"
-                    android:visibility="gone"
                     app:layout_constraintBaseline_toBaselineOf="@id/mozo_wallet_balance_value"
                     app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="₩102.230"
-                    tools:visibility="visible" />
+                    tools:text="₩102.230" />
             </android.support.constraint.ConstraintLayout>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="130dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:text="@string/mozo_transfer_receiver_address"
                 android:textColor="@color/mozo_color_content"
                 android:textSize="12sp"
@@ -117,9 +116,10 @@
                 android:id="@+id/input_receiver_address"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="144dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
+                android:autofillHints="@string/mozo_transfer_receiver_address_hint"
                 android:background="@android:color/transparent"
                 android:hint="@string/mozo_transfer_receiver_address_hint"
                 android:inputType="textNoSuggestions"
@@ -128,13 +128,15 @@
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:targetApi="o" />
 
             <View
+                android:id="@+id/input_receiver_address_underline"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:background="@color/mozo_color_disable"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -144,9 +146,9 @@
                 android:id="@+id/button_address_book"
                 style="@style/MozoWalletInfoButton"
                 android:layout_width="0dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="15dp"
+                android:layout_marginEnd="10dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toStartOf="@id/button_scan_qr"
                 app:layout_constraintStart_toStartOf="parent"
@@ -176,11 +178,12 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/input_amount_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="28dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:text="@string/mozo_transfer_amount"
                 android:textColor="@color/mozo_color_content"
                 android:textSize="12sp"
@@ -193,45 +196,90 @@
                 android:id="@+id/input_amount"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="42dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
+                android:autofillHints="@string/mozo_transfer_amount_hint"
                 android:background="@android:color/transparent"
                 android:hint="@string/mozo_transfer_amount_hint"
-                android:inputType="textNoSuggestions"
+                android:inputType="number"
                 android:textColor="@color/mozo_color_title"
                 android:textColorHint="@color/mozo_color_un_active"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/button_address_book" />
+                app:layout_constraintTop_toBottomOf="@id/button_address_book"
+                tools:targetApi="o" />
 
             <View
+                android:id="@+id/input_amount_underline"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:background="@color/mozo_color_disable"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/input_amount" />
 
             <TextView
+                android:id="@+id/text_spendable"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:text="@string/mozo_transfer_spendable"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/input_amount" />
+
+            <LinearLayout
+                android:id="@+id/input_amount_preview_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/mozo_screen_margin"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="@dimen/mozo_screen_margin"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/input_amount_label">
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@drawable/ic_mozo_offchain"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/text_preview_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:layout_marginEnd="7dp"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/mozo_color_primary"
+                    android:textSize="@dimen/mozo_text_size"
+                    android:textStyle="bold"
+                    tools:text="200" />
+
+                <TextView
+                    android:id="@+id/text_preview_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="(₩0)"
+                    android:textColor="@color/mozo_color_un_active"
+                    android:textSize="@dimen/mozo_text_size" />
+            </LinearLayout>
         </android.support.constraint.ConstraintLayout>
     </android.support.v4.widget.NestedScrollView>
 
     <Button
-        android:id="@+id/button_continue"
+        android:id="@+id/button_submit"
         style="@style/MozoButtonStyle"
         android:layout_width="0dp"
         android:layout_height="65dp"
@@ -240,6 +288,5 @@
         android:text="@string/mozo_button_continue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scroll_content" />
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>
