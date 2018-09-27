@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:includeFontPadding="false"
+        android:tag="@string/tag_show_always"
         android:text="@string/mozo_view_address_title"
         android:textColor="@color/mozo_color_action_text"
         android:textSize="12sp" />
@@ -27,15 +28,14 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="0x97309d360C015695cf50892f035E516ccA1898F0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/mozo_wallet_btn_show_qr"
         style="@style/MozoWalletInfoButton"
         android:layout_width="0dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginTop="12dp"
+        android:layout_marginEnd="10dp"
         android:orientation="horizontal"
         android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@id/mozo_wallet_btn_copy"
@@ -67,4 +67,13 @@
             android:drawableStart="@drawable/ic_action_copy"
             android:text="@string/mozo_button_copy" />
     </LinearLayout>
+
+    <include
+        android:id="@+id/mozo_wallet_login_require"
+        layout="@layout/view_wallet_info_login_require"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="22sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
 </merge>

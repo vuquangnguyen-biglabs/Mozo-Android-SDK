@@ -10,12 +10,16 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.services.AuthService
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.ui.dialog.QRCodeDialog
 import com.biglabs.mozo.sdk.utils.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 
 class WalletInfoView : ConstraintLayout {
 
@@ -29,6 +33,9 @@ class WalletInfoView : ConstraintLayout {
     private var mWalletAddressView: TextView? = null
     private var mWalletBalanceView: TextView? = null
     private var fragmentManager: FragmentManager? = null
+
+    private val mTagShowAlways: String
+    private val mTagLoginRequire: String
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -46,10 +53,44 @@ class WalletInfoView : ConstraintLayout {
         setBackgroundResource(R.drawable.mozo_bg_component)
         minWidth = resources.getDimensionPixelSize(R.dimen.mozo_view_min_width)
         minHeight = resources.getDimensionPixelSize(R.dimen.mozo_view_min_height)
+        mTagShowAlways = resources.getString(R.string.tag_show_always)
+        mTagLoginRequire = resources.getString(R.string.tag_login_require)
 
         inflateLayout()
 
         if (!isInEditMode) {
+            fetchData()
+
+            if (context is FragmentActivity) {
+                fragmentManager = context.supportFragmentManager
+            } else if (context is Fragment) {
+                fragmentManager = context.fragmentManager
+            }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (!isInEditMode) {
+            EventBus.getDefault().register(this)
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (!isInEditMode) {
+            EventBus.getDefault().unregister(this)
+        }
+    }
+
+    @Suppress("unused")
+    @Subscribe
+    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
+        fetchData()
+    }
+
+    private fun fetchData() {
+        if (AuthService.getInstance().isSignedIn()) {
             launch {
                 mAddress = WalletService.getInstance().getAddress().await()
                 launch(UI) {
@@ -64,12 +105,9 @@ class WalletInfoView : ConstraintLayout {
                 }
             }
 
-            if (context is FragmentActivity) {
-                fragmentManager = context.supportFragmentManager
-            } else if (context is Fragment) {
-                fragmentManager = context.fragmentManager
-            }
-        }
+            showDetailUI()
+        } else
+            showLoginRequireUI()
     }
 
     private fun inflateLayout() {
@@ -112,10 +150,45 @@ class WalletInfoView : ConstraintLayout {
 
         mWalletBalanceView = find(R.id.mozo_wallet_balance_value)
         mBalance?.let { mWalletBalanceView?.text = it }
+        find<View>(R.id.button_login)?.click {
+            AuthService.getInstance().signIn()
+        }
 
         balanceRate?.apply {
             visible()
             text = "₩000"
+        }
+    }
+
+    private fun showDetailUI() {
+        for (i in 0 until childCount) {
+            getChildAt(i)?.let {
+                val tag = (it.tag ?: "").toString()
+                when (tag) {
+                    mTagLoginRequire -> it.gone()
+                    mTagShowAlways -> it.visible()
+                    else -> {
+                        if (it.visibility != View.GONE)
+                            it.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showLoginRequireUI() {
+        for (i in 0 until childCount) {
+            getChildAt(i)?.let {
+                val tag = (it.tag ?: "").toString()
+                when (tag) {
+                    mTagLoginRequire -> it.visible()
+                    mTagShowAlways -> it.visible()
+                    else -> {
+                        if (it.visibility != View.GONE)
+                            it.visibility = View.INVISIBLE
+                    }
+                }
+            }
         }
     }
 
@@ -132,6 +205,7 @@ class WalletInfoView : ConstraintLayout {
         if (mViewMode != mode) {
             mViewMode = mode
             inflateLayout()
+            fetchData()
         }
     }
 
