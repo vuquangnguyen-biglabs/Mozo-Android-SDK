@@ -49,24 +49,26 @@ class WalletInfoView : ConstraintLayout {
 
         inflateLayout()
 
-        launch {
-            mAddress = WalletService.getInstance().getAddress().await()
-            launch(UI) {
-                mWalletAddressView?.text = mAddress
+        if (!isInEditMode) {
+            launch {
+                mAddress = WalletService.getInstance().getAddress().await()
+                launch(UI) {
+                    mWalletAddressView?.text = mAddress
+                }
             }
-        }
 
-        launch {
-            mBalance = MozoTrans.getInstance().getBalance().await()
-            launch(UI) {
-                mWalletBalanceView?.text = mBalance
+            launch {
+                mBalance = MozoTrans.getInstance().getBalance().await()
+                launch(UI) {
+                    mWalletBalanceView?.text = mBalance
+                }
             }
-        }
 
-        if (context is FragmentActivity) {
-            fragmentManager = context.supportFragmentManager
-        } else if (context is Fragment) {
-            fragmentManager = context.fragmentManager
+            if (context is FragmentActivity) {
+                fragmentManager = context.supportFragmentManager
+            } else if (context is Fragment) {
+                fragmentManager = context.fragmentManager
+            }
         }
     }
 
@@ -82,6 +84,7 @@ class WalletInfoView : ConstraintLayout {
     }
 
     private fun updateUI() {
+        if (isInEditMode) return
         val balanceRate: TextView?
 
         if (mViewMode == MODE_ONLY_BALANCE) {
