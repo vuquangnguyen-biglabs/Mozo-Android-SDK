@@ -1,38 +1,25 @@
 package com.biglabs.mozo.sdk.trans
 
 import com.biglabs.mozo.sdk.MozoSDK
-import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
-import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.ui.TransferActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
 
 class MozoTrans private constructor() {
 
-    private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
-    private var mCurrentAddress: String? = null
-
-    init {
-        launch {
-            mCurrentAddress = WalletService.getInstance().getAddress().await()
-        }
-    }
-
     fun getBalance() = async {
+        val address = WalletService.getInstance().getAddress().await()
         val balanceInfo = MozoApiService
                 .getInstance(MozoSDK.context!!)
-                .getBalance(mCurrentAddress!!)
+                .getBalance(address)
                 .await()
         return@async balanceInfo.body()?.balanceDisplay().displayString(12)
     }
@@ -47,63 +34,59 @@ class MozoTrans private constructor() {
         }
     }
 
-    internal fun createTransaction(input: String, amount: String) {
-        /*
-        if (!EventBus.getDefault().isRegistered(this@MozoTrans)) {
-            EventBus.getDefault().register(this@MozoTrans)
-        }
-        SecurityActivity.start(MozoSDK.context!!, requestCode = SecurityActivity.KEY_ENTER_PIN)
-*/
-        mCurrentAddress?.let {
-            val inAdds = arrayListOf(Models.TransactionAddress(arrayListOf(input)))
-            val outAdds = arrayListOf(Models.TransactionAddressOutput(arrayListOf(input), amount.toBigDecimal()))
-            launch {
-                val response = MozoApiService
-                        .getInstance(MozoSDK.context!!)
-                        .createTransaction(
-                                Models.TransactionRequest(inAdds, outAdds)
-                        )
-                        .await()
-                if (response.isSuccessful && response.body() != null) {
-                    response.body().toString().logAsError()
+    internal fun createTransaction(input: String, amount: String, pin: String) = async {
+        val myAddress = WalletService.getInstance().getAddress().await()
+        val response = MozoApiService
+                .getInstance(MozoSDK.context!!)
+                .createTransaction(
+                        prepareRequest(input, myAddress, amount)
+                )
+                .await()
+        if (response.isSuccessful && response.body() != null) {
+            val txResponse = response.body()!!
+            txResponse.toString().logAsError()
 
-                    val toSign = response.body()!!.toSign[0]
-                    val private = "B663C243251CDECC0BAA7056A6A1BB9ECB499C5503EDC2CC79A3553C49C5C5B1"
+            val privateKeyEncrypted = WalletService.getInstance().getPrivateKeyEncrypted().await()
+            val privateKey = CryptoUtils.decrypt(privateKeyEncrypted, pin)
+            privateKey?.logAsError("privateKey")
 
-                    val credentials = Credentials.create(private)
-                    val signatureData = Sign.signMessage(Numeric.hexStringToByteArray(toSign), credentials.ecKeyPair, false)
+            val toSign = txResponse.toSign[0]
 
-                    val signature = CryptoUtils.serializeSignature(signatureData)
-                    signature.logAsError("final")
+            val credentials = Credentials.create(privateKey)
+            val signatureData = Sign.signMessage(Numeric.hexStringToByteArray(toSign), credentials.ecKeyPair, false)
 
-                    val pubKey = Numeric.toHexStringWithPrefixSafe(credentials.ecKeyPair.publicKey)
-                    pubKey.logAsError("publicKey")
+            val signature = CryptoUtils.serializeSignature(signatureData)
+            val pubKey = Numeric.toHexStringWithPrefixSafe(credentials.ecKeyPair.publicKey)
 
-                } else {
-                    response.message().toString().logAsError()
-                }
-            }
+            txResponse.signatures = arrayListOf(signature)
+            txResponse.publicKeys = arrayListOf(pubKey)
+
+            return@async sendTransaction(txResponse).await()
+        } else {
+            response.message().toString().logAsError("create TX")
+            return@async null
         }
     }
 
-    @Subscribe
-    fun onReceivePin(event: MessageEvent.Pin) {
-        EventBus.getDefault().unregister(this@MozoTrans)
+    private fun sendTransaction(request: Models.TransactionResponse) = async {
+        val txSentResponse = MozoApiService
+                .getInstance(MozoSDK.context!!)
+                .sendTransaction(request)
+                .await()
 
-        launch {
-
-            mozoDB.profile().getCurrentUserProfile()?.run {
-                val privateKey = CryptoUtils.decrypt(walletInfo?.privateKey!!, event.pin)
-                privateKey?.logAsError("privateKey")
-
-
-            }
+        if (txSentResponse.isSuccessful && txSentResponse.body() != null) {
+            return@async txSentResponse.body()
+        } else {
+            txSentResponse.message().toString().logAsError("send TX")
+            return@async null
         }
-
     }
 
-    internal fun sendTransaction() {
-
+    private fun prepareRequest(inAdd: String, outAdd: String, amount: String): Models.TransactionRequest {
+        return Models.TransactionRequest(
+                arrayListOf(Models.TransactionAddress(arrayListOf(inAdd))),
+                arrayListOf(Models.TransactionAddressOutput(arrayListOf(outAdd), amount.toBigDecimal()))
+        )
     }
 
     companion object {

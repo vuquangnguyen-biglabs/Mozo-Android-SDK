@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@android:id/icon"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:contentDescription="@string/mozo_transfer_send_complete"
+        android:src="@drawable/ic_action_scan"
+        app:layout_constraintBottom_toTopOf="@android:id/text1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mozo_transfer_send_complete"
+        app:layout_constraintBottom_toTopOf="@android:id/text2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@android:id/icon" />
+
+    <TextView
+        android:id="@android:id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mozo_transfer_send_complete"
+        app:layout_constraintBottom_toTopOf="@+id/button_save_address"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@android:id/text1" />
+
+    <LinearLayout
+        android:id="@+id/button_save_address"
+        style="@style/MozoWalletInfoButton"
+        android:layout_width="0dp"
+        android:layout_marginStart="@dimen/mozo_screen_margin"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_transaction_detail"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@android:id/text2"
+        app:layout_goneMarginEnd="0dp">
+
+        <TextView
+            style="@style/MozoWalletInfoButtonText"
+            android:drawableStart="@drawable/ic_user"
+            android:text="@string/mozo_address_book_title" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button_transaction_detail"
+        style="@style/MozoWalletInfoButton"
+        android:layout_width="0dp"
+        android:layout_marginEnd="@dimen/mozo_screen_margin"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_save_address"
+        app:layout_constraintTop_toTopOf="@id/button_save_address">
+
+        <TextView
+            style="@style/MozoWalletInfoButtonText"
+            android:drawableStart="@drawable/ic_action_scan"
+            android:text="@string/mozo_button_scan_qr_code" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

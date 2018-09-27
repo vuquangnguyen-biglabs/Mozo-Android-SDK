@@ -3,11 +3,17 @@ package com.biglabs.mozo.sdk
 import android.annotation.SuppressLint
 import android.content.Context
 import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.services.WalletService
 
 class MozoSDK private constructor() {
 
     val auth: AuthService by lazy { AuthService.getInstance() }
     //val beacon: BeaconService by lazy { BeaconService.getInstance() }
+
+    init {
+        /* initialize Wallet Service */
+        WalletService.getInstance()
+    }
 
     companion object {
         @SuppressLint("StaticFieldLeak")

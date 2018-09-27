@@ -64,4 +64,7 @@ interface MozoApiService {
 
     @POST("solo/contract/solo-token/transfer")
     fun createTransaction(@Body request: Models.TransactionRequest): Deferred<Response<Models.TransactionResponse>>
+
+    @POST("solo/contract/solo-token/send-signed-tx")
+    fun sendTransaction(@Body request: Models.TransactionResponse): Deferred<Response<Models.TransactionResponse>>
 }

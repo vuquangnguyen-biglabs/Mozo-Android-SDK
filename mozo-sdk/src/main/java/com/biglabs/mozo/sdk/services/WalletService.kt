@@ -25,6 +25,11 @@ internal class WalletService private constructor() {
     private var seed: String? = null
     private var address: String? = null
     private var privateKey: String? = null
+    private var privateKeyEncrypted: String? = null
+
+    init {
+        getAddress()
+    }
 
     fun initWallet() {
         MozoSDK.context?.let {
@@ -146,8 +151,16 @@ internal class WalletService private constructor() {
     fun getAddress() = async {
         if (address == null) {
             address = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
+            privateKeyEncrypted = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.privateKey
         }
-        return@async address
+        return@async address!!
+    }
+
+    internal fun getPrivateKeyEncrypted() = async {
+        if (privateKeyEncrypted == null) {
+            privateKeyEncrypted = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.privateKey
+        }
+        return@async privateKeyEncrypted!!
     }
 
     companion object {

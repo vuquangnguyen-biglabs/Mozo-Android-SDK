@@ -90,6 +90,7 @@ object Models {
     )
 
     data class TransactionResponseData(
+            val hash: String? = null,
             val fees: Double,
             val inputs: ArrayList<TransactionAddress>,
             val outputs: ArrayList<TransactionAddressOutput>,
@@ -107,9 +108,9 @@ object Models {
             val tx: TransactionResponseData,
             @SerializedName("tosign")
             val toSign: ArrayList<String>,
-            val signatures: ArrayList<String>,
+            var signatures: ArrayList<String>,
             @SerializedName("pubkeys")
-            val publicKeys: ArrayList<String>,
+            var publicKeys: ArrayList<String>,
             val nonce: Long
     )
 }

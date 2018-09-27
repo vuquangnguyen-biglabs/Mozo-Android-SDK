@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.utils.click
 import com.biglabs.mozo.sdk.utils.gone
@@ -13,9 +15,13 @@ import com.biglabs.mozo.sdk.utils.visible
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.view_transfer.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.WalletUtils
 
+@Suppress("unused")
 class TransferActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +32,11 @@ class TransferActivity : AppCompatActivity() {
         showInputUI()
 
         mozo_wallet_balance_rate_side.text = "₩102.230"
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -81,9 +92,10 @@ class TransferActivity : AppCompatActivity() {
             if (input_receiver_address.isEnabled) {
                 showConfirmationUI()
             } else {
-                val input = input_receiver_address.text.toString()
-                val amount = input_amount.text.toString()
-                MozoTrans.getInstance().createTransaction(input, amount)
+                if (!EventBus.getDefault().isRegistered(this)) {
+                    EventBus.getDefault().register(this)
+                }
+                SecurityActivity.start(this, requestCode = SecurityActivity.KEY_ENTER_PIN)
             }
         }
     }
@@ -125,6 +137,29 @@ class TransferActivity : AppCompatActivity() {
         transfer_toolbar.setTitle(R.string.mozo_transfer_confirmation)
         transfer_toolbar.showBackButton(true)
         button_submit.setText(R.string.mozo_button_send)
+    }
+
+    private fun showResultUI(txResponse: Models.TransactionResponse?) = async(UI) {
+        if (txResponse != null) {
+            // complete UI
+            setContentView(R.layout.view_transfer_complete)
+        } else {
+            // failed UI
+        }
+    }
+
+    @Subscribe
+    fun onReceivePin(event: MessageEvent.Pin) {
+        EventBus.getDefault().unregister(this)
+
+        val input = input_receiver_address.text.toString()
+        val amount = input_amount.text.toString()
+        launch {
+            //val txResponse = MozoTrans.getInstance().createTransaction(input, amount, event.pin).await()
+            //showResultUI(txResponse)
+        }
+
+        setContentView(R.layout.view_transfer_complete)
     }
 
     companion object {
