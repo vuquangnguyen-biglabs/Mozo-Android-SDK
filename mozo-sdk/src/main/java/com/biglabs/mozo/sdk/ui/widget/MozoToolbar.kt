@@ -5,9 +5,12 @@ import android.content.Context
 import android.support.annotation.StringRes
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
+import android.view.WindowInsets
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.utils.click
 
 internal class MozoToolbar : ConstraintLayout {
 
@@ -36,24 +39,39 @@ internal class MozoToolbar : ConstraintLayout {
         }
 
         inflate(context, R.layout.view_toolbar, this)
-        viewScreenTitle = this.findViewById(R.id.screen_title)
-        viewButtonBack = this.findViewById(R.id.button_back)
-        viewButtonClose = this.findViewById(R.id.button_close)
-
-        updateUI()
-
-        viewButtonBack?.setOnClickListener {
-            if (onBackPress != null) onBackPress?.invoke()
-            else (context as? Activity)?.onBackPressed()
-        }
-        viewButtonClose?.setOnClickListener {
-            if (onClosePress != null) onClosePress?.invoke()
-            else (context as? Activity)?.finish()
-        }
 
         if (isInEditMode) {
             maxHeight = 100
+        } else {
+            viewScreenTitle = this.findViewById(R.id.screen_title)
+            viewButtonBack = this.findViewById(R.id.button_back)
+            viewButtonClose = this.findViewById(R.id.button_close)
+
+            viewButtonBack?.click {
+                if (onBackPress != null) onBackPress?.invoke()
+                else (context as? Activity)?.onBackPressed()
+            }
+            viewButtonClose?.click {
+                if (onClosePress != null) onClosePress?.invoke()
+                else (context as? Activity)?.finish()
+            }
+            updateUI()
         }
+    }
+
+    override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
+        parentForAccessibility?.let {
+            if (!(it as View).fitsSystemWindows) {
+                val inset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
+                setPaddingRelative(
+                        paddingStart,
+                        (paddingTop + inset).toInt(),
+                        paddingEnd,
+                        paddingBottom
+                )
+            }
+        }
+        return super.onApplyWindowInsets(insets)
     }
 
     private fun updateUI() {
