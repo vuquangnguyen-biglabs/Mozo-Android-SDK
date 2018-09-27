@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -18,11 +17,6 @@ class LoginButton : BaseButton {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, R.attr.buttonStyle)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
-        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
-        super.setPaddingRelative(padding, padding, padding, padding)
-        val drawablePadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
-        super.setCompoundDrawablePadding(drawablePadding)
-
         icSignIn = ContextCompat.getDrawable(context, R.drawable.ic_btn_sign_in)
         icSignOut = ContextCompat.getDrawable(context, R.drawable.ic_btn_sign_out)
 

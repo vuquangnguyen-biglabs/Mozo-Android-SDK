@@ -22,6 +22,11 @@ open class BaseButton : Button {
         super.setTypeface(Typeface.DEFAULT_BOLD)
         super.setBackgroundResource(R.drawable.mozo_dr_btn)
         super.setOnClickListener { onClick(it) }
+
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+        super.setPaddingRelative(padding, padding, padding, padding)
+        val drawablePadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+        super.setCompoundDrawablePadding(drawablePadding)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

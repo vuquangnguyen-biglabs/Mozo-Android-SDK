@@ -7,7 +7,6 @@ import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-import android.view.WindowInsets
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.utils.click
@@ -21,6 +20,7 @@ internal class MozoToolbar : ConstraintLayout {
     private var mTitle: String? = null
     private var mShowBack = false
     private var mShowClose = false
+    private var mPaddingTop = -1
 
     var onBackPress: (() -> Unit)? = null
     var onClosePress: (() -> Unit)? = null
@@ -59,19 +59,20 @@ internal class MozoToolbar : ConstraintLayout {
         }
     }
 
-    override fun onApplyWindowInsets(insets: WindowInsets?): WindowInsets {
-        parentForAccessibility?.let {
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (mPaddingTop == -1) mPaddingTop = paddingTop
+        parent?.let {
             if (!(it as View).fitsSystemWindows) {
                 val inset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, resources.displayMetrics)
                 setPaddingRelative(
                         paddingStart,
-                        (paddingTop + inset).toInt(),
+                        (mPaddingTop + inset).toInt(),
                         paddingEnd,
                         paddingBottom
                 )
             }
         }
-        return super.onApplyWindowInsets(insets)
     }
 
     private fun updateUI() {

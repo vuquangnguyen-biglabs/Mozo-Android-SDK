@@ -9,7 +9,7 @@
     <string name="mozo_button_deposit">Deposit</string>
     <string name="mozo_button_login">Sign In to Mozo</string>
     <string name="mozo_button_logout">Log Out Mozo</string>
-    <string name="mozo_button_transfer">Transfer</string>
+    <string name="mozo_button_transfer">Send Mozo</string>
     <string name="mozo_button_withdraw">Withdraw</string>
 
     <string name="mozo_button_back">Back</string>
