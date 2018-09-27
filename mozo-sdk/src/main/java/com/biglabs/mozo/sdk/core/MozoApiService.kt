@@ -1,10 +1,12 @@
 package com.biglabs.mozo.sdk.core
 
 import android.content.Context
+import com.biglabs.mozo.sdk.BuildConfig
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import kotlinx.coroutines.experimental.Deferred
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -34,6 +36,11 @@ interface MozoApiService {
                         .method(original.method(), original.body())
                         .build()
                 it.proceed(request)
+            }
+            if (BuildConfig.DEBUG) {
+                val logging = HttpLoggingInterceptor()
+                        .setLevel(HttpLoggingInterceptor.Level.BODY)
+                client.addInterceptor(logging)
             }
 
             return Retrofit.Builder()

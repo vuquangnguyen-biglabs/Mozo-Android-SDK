@@ -19,6 +19,7 @@
     <string name="mozo_button_show_qr_code">Show QR Code</string>
     <string name="mozo_button_copy">Copy</string>
     <string name="mozo_button_send">Send</string>
+    <string name="mozo_button_save_address">Save Address</string>
 
     <string name="mozo_backup_title">Back up Wallet</string>
     <string name="mozo_backup_sub_title">Store Recovery Phrase</string>
@@ -47,6 +48,9 @@
     <string name="mozo_transfer_amount_hint">Mozo amount</string>
     <string name="mozo_transfer_spendable">Spendable: %s Mozo (Offchain)</string>
     <string name="mozo_transfer_send_complete">Send Complete</string>
+    <string name="mozo_transfer_send_complete_msg">You sent {%s} Mozo Offchain to address:\n%s</string>
+
+    <string name="mozo_transaction_detail_title">Transaction detail</string>
 
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>

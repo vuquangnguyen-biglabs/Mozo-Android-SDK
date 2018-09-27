@@ -16,7 +16,7 @@ import org.web3j.utils.Numeric
 class MozoTrans private constructor() {
 
     fun getBalance() = async {
-        val address = WalletService.getInstance().getAddress().await()
+        val address = WalletService.getInstance().getAddress().await() ?: return@async null
         val balanceInfo = MozoApiService
                 .getInstance(MozoSDK.context!!)
                 .getBalance(address)
@@ -35,7 +35,7 @@ class MozoTrans private constructor() {
     }
 
     internal fun createTransaction(input: String, amount: String, pin: String) = async {
-        val myAddress = WalletService.getInstance().getAddress().await()
+        val myAddress = WalletService.getInstance().getAddress().await() ?: return@async null
         val response = MozoApiService
                 .getInstance(MozoSDK.context!!)
                 .createTransaction(
@@ -44,20 +44,19 @@ class MozoTrans private constructor() {
                 .await()
         if (response.isSuccessful && response.body() != null) {
             val txResponse = response.body()!!
-            txResponse.toString().logAsError()
 
             val privateKeyEncrypted = WalletService.getInstance().getPrivateKeyEncrypted().await()
             val privateKey = CryptoUtils.decrypt(privateKeyEncrypted, pin)
-            privateKey?.logAsError("privateKey")
+            privateKey?.logAsError("raw privateKey")
 
             val toSign = txResponse.toSign[0]
-
             val credentials = Credentials.create(privateKey)
             val signatureData = Sign.signMessage(Numeric.hexStringToByteArray(toSign), credentials.ecKeyPair, false)
 
             val signature = CryptoUtils.serializeSignature(signatureData)
+            signature.logAsError("signature")
             val pubKey = Numeric.toHexStringWithPrefixSafe(credentials.ecKeyPair.publicKey)
-
+            pubKey.logAsError("pubKey")
             txResponse.signatures = arrayListOf(signature)
             txResponse.publicKeys = arrayListOf(pubKey)
 

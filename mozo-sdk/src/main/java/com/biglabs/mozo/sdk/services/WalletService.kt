@@ -104,7 +104,6 @@ internal class WalletService private constructor() {
     private fun syncWalletInfo(walletInfo: Models.WalletInfo) = async {
         MozoSDK.context?.let {
             val response = MozoApiService.getInstance(MozoSDK.context!!).saveWallet(walletInfo).await()
-            response.body()?.toString()?.logAsError("wallet response")
             PreferenceUtils.getInstance(it).setFlag(
                     PreferenceUtils.FLAG_SYNC_WALLET_INFO,
                     !response.isSuccessful
@@ -141,11 +140,9 @@ internal class WalletService private constructor() {
     @Subscribe
     fun onReceivePin(event: MessageEvent.Pin) {
         EventBus.getDefault().unregister(this@WalletService)
-
-        launch {
-            val profile2 = mozoDB.profile().getCurrentUserProfile()
-            profile2.toString().logAsError("after")
-        }
+        /* load data to variables */
+        getAddress()
+        address?.logAsError("address after synchronize")
     }
 
     fun getAddress() = async {
@@ -153,7 +150,7 @@ internal class WalletService private constructor() {
             address = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.offchainAddress
             privateKeyEncrypted = mozoDB.profile().getCurrentUserProfile()?.walletInfo?.privateKey
         }
-        return@async address!!
+        return@async address
     }
 
     internal fun getPrivateKeyEncrypted() = async {

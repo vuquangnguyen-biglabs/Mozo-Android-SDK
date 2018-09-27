@@ -60,7 +60,7 @@ class WalletInfoView : ConstraintLayout {
             launch {
                 mBalance = MozoTrans.getInstance().getBalance().await()
                 launch(UI) {
-                    mWalletBalanceView?.text = mBalance
+                    mWalletBalanceView?.text = mBalance ?: "0"
                 }
             }
 
