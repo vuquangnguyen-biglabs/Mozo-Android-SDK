@@ -1,10 +1,13 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package com.biglabs.mozo.sdk.ui.widget
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.ViewGroup
 import android.widget.Button
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -13,18 +16,21 @@ import com.biglabs.mozo.sdk.trans.MozoTrans
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class TransferButton : Button {
+class SendButton : Button {
 
-    private val newWidth: Int
-    private val newHeight: Int
+    private val icSignIn: Drawable?
+    private val icSignOut: Drawable?
 
     private var needToContinue = false
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, R.attr.buttonStyle)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
-        super.setText(R.string.mozo_button_transfer)
+        super.setAllCaps(false)
         super.setTextColor(Color.WHITE)
+        super.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+        super.setTypeface(Typeface.DEFAULT_BOLD)
+        super.setText(R.string.mozo_button_transfer)
         super.setBackgroundResource(R.drawable.mozo_dr_btn)
         super.setOnClickListener {
             AuthService.getInstance().run {
@@ -36,19 +42,35 @@ class TransferButton : Button {
                 }
             }
         }
+        val padding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+        super.setPaddingRelative(padding, padding, padding, padding)
+        val drawablePadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+        super.setCompoundDrawablePadding(drawablePadding)
 
-        newWidth = resources.getDimensionPixelSize(R.dimen.mozo_btn_width)
-        newHeight = resources.getDimensionPixelSize(R.dimen.mozo_btn_height)
+        icSignIn = ContextCompat.getDrawable(context, R.drawable.ic_btn_sign_in)
+        icSignOut = ContextCompat.getDrawable(context, R.drawable.ic_btn_sign_out)
+
+        if (isInEditMode) {
+            super.setCompoundDrawablesWithIntrinsicBounds(icSignIn, null, null, null)
+        } //else updateUI()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(measuredWidth, measuredHeight)
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        EventBus.getDefault().register(this)
+        if (!isInEditMode) {
+            EventBus.getDefault().register(this)
+        }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        EventBus.getDefault().unregister(this)
+        if (!isInEditMode) {
+            EventBus.getDefault().unregister(this)
+        }
     }
 
     @Suppress("unused")
@@ -62,19 +84,6 @@ class TransferButton : Button {
 
     private fun doTransfer() {
         MozoTrans.getInstance().transfer()
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        width = newWidth
-        height = newHeight
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-
-        width = newWidth
-        height = newHeight
     }
 
     override fun setOnClickListener(l: OnClickListener?) {

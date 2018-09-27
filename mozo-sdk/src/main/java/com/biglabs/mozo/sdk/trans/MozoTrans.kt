@@ -34,12 +34,12 @@ class MozoTrans private constructor() {
         }
     }
 
-    internal fun createTransaction(input: String, amount: String, pin: String) = async {
+    internal fun createTransaction(output: String, amount: String, pin: String) = async {
         val myAddress = WalletService.getInstance().getAddress().await() ?: return@async null
         val response = MozoApiService
                 .getInstance(MozoSDK.context!!)
                 .createTransaction(
-                        prepareRequest(input, myAddress, amount)
+                        prepareRequest(myAddress, output, amount)
                 )
                 .await()
         if (response.isSuccessful && response.body() != null) {

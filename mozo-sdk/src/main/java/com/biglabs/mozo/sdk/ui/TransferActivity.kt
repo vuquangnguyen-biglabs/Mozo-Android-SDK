@@ -57,7 +57,7 @@ class TransferActivity : AppCompatActivity() {
                         .parseActivityResult(requestCode, resultCode, data)
                         .contents?.let {
                     if (WalletUtils.isValidAddress(it)) {
-                        input_receiver_address.setText(it)
+                        output_receiver_address.setText(it)
                     } else {
                         // TODO show warning message
                     }
@@ -67,7 +67,7 @@ class TransferActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (input_receiver_address.isEnabled) {
+        if (output_receiver_address.isEnabled) {
             super.onBackPressed()
         } else showInputUI()
     }
@@ -81,10 +81,10 @@ class TransferActivity : AppCompatActivity() {
         }
 
         val onTextChanged: (s: CharSequence?) -> Unit = {
-            button_submit.isEnabled = input_receiver_address.length() > 0 && input_amount.length() > 0
+            button_submit.isEnabled = output_receiver_address.length() > 0 && output_amount.length() > 0
         }
-        input_receiver_address.onTextChanged(onTextChanged)
-        input_amount.onTextChanged(onTextChanged)
+        output_receiver_address.onTextChanged(onTextChanged)
+        output_amount.onTextChanged(onTextChanged)
 
         transfer_toolbar.onBackPress = { showInputUI() }
         button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
@@ -95,7 +95,7 @@ class TransferActivity : AppCompatActivity() {
                     .initiateScan()
         }
         button_submit.click {
-            if (input_receiver_address.isEnabled) {
+            if (output_receiver_address.isEnabled) {
                 showConfirmationUI()
             } else {
                 if (!EventBus.getDefault().isRegistered(this)) {
@@ -107,18 +107,18 @@ class TransferActivity : AppCompatActivity() {
     }
 
     private fun showInputUI() {
-        input_receiver_address.isEnabled = true
-        input_amount.isEnabled = true
-        input_amount_label.setText(R.string.mozo_transfer_amount)
+        output_receiver_address.isEnabled = true
+        output_amount.isEnabled = true
+        output_amount_label.setText(R.string.mozo_transfer_amount)
         visible(arrayOf(
-                input_receiver_address_underline,
+                output_receiver_address_underline,
                 button_address_book,
                 button_scan_qr,
-                input_amount,
-                input_amount_underline,
+                output_amount,
+                output_amount_underline,
                 text_spendable
         ))
-        input_amount_preview_container.gone()
+        output_amount_preview_container.gone()
 
         transfer_toolbar.setTitle(R.string.mozo_transfer_title)
         transfer_toolbar.showBackButton(false)
@@ -126,19 +126,19 @@ class TransferActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationUI() {
-        input_receiver_address.isEnabled = false
-        input_amount.isEnabled = false
-        input_amount_label.setText(R.string.mozo_transfer_amount_offchain)
+        output_receiver_address.isEnabled = false
+        output_amount.isEnabled = false
+        output_amount_label.setText(R.string.mozo_transfer_amount_offchain)
         gone(arrayOf(
-                input_receiver_address_underline,
+                output_receiver_address_underline,
                 button_address_book,
                 button_scan_qr,
-                input_amount,
-                input_amount_underline,
+                output_amount,
+                output_amount_underline,
                 text_spendable
         ))
-        text_preview_amount.text = input_amount.text
-        input_amount_preview_container.visible()
+        text_preview_amount.text = output_amount.text
+        output_amount_preview_container.visible()
 
         transfer_toolbar.setTitle(R.string.mozo_transfer_confirmation)
         transfer_toolbar.showBackButton(true)
@@ -175,11 +175,11 @@ class TransferActivity : AppCompatActivity() {
     fun onReceivePin(event: MessageEvent.Pin) {
         EventBus.getDefault().unregister(this)
 
-        val input = input_receiver_address.text.toString()
-        val amount = input_amount.text.toString()
+        val output = output_receiver_address.text.toString()
+        val amount = output_amount.text.toString()
         launch {
-            val txResponse = MozoTrans.getInstance().createTransaction(input, amount, event.pin).await()
-            lastSentAddress = input
+            val txResponse = MozoTrans.getInstance().createTransaction(output, amount, event.pin).await()
+            lastSentAddress = output
             lastSentAmount = amount
             lastSentTime = Calendar.getInstance().timeInMillis
             showResultUI(txResponse)

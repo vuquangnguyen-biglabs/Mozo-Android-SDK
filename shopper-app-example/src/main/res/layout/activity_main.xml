@@ -9,11 +9,11 @@
     tools:context=".MainActivity">
 
     <com.biglabs.mozo.sdk.ui.widget.LoginButton
-        android:layout_width="200dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp" />
 
-    <com.biglabs.mozo.sdk.ui.widget.TransferButton
+    <com.biglabs.mozo.sdk.ui.widget.SendButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
