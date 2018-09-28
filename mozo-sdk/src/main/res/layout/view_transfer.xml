@@ -195,20 +195,22 @@
             <EditText
                 android:id="@+id/output_amount"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
-                android:layout_marginTop="42dp"
                 android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:autofillHints="@string/mozo_transfer_amount_hint"
                 android:background="@android:color/transparent"
                 android:hint="@string/mozo_transfer_amount_hint"
-                android:inputType="number"
+                android:inputType="numberDecimal"
+                android:lines="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="50dp"
                 android:textColor="@color/mozo_color_title"
                 android:textColorHint="@color/mozo_color_un_active"
-                android:textSize="12sp"
+                android:textSize="@dimen/mozo_text_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/button_address_book"
+                app:layout_constraintTop_toBottomOf="@id/output_amount_label"
                 tools:targetApi="o" />
 
             <View
@@ -216,24 +218,25 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
+                android:layout_marginTop="36dp"
                 android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:background="@color/mozo_color_disable"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/output_amount" />
+                app:layout_constraintTop_toBottomOf="@id/output_amount_label" />
 
             <TextView
                 android:id="@+id/text_spendable"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="9dp"
                 android:layout_marginEnd="@dimen/mozo_screen_margin"
                 android:text="@string/mozo_transfer_spendable"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/output_amount" />
+                app:layout_constraintTop_toBottomOf="@id/output_amount_underline" />
 
             <LinearLayout
                 android:id="@+id/output_amount_preview_container"

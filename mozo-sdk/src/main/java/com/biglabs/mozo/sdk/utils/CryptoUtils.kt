@@ -7,6 +7,7 @@ import org.bitcoinj.wallet.DeterministicSeed
 import org.cryptonode.jncryptor.AES256JNCryptor
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
+import kotlin.experimental.and
 
 internal class CryptoUtils {
     companion object {
@@ -47,27 +48,47 @@ internal class CryptoUtils {
 
         @JvmStatic
         fun serializeSignature(signature: Sign.SignatureData): String {
-            val totalLength = 6 + signature.r.size + signature.s.size
+
+            val r = canonicalize(signature.r)
+            val s = canonicalize(signature.s)
+
+            val totalLength = 6 + r.size + s.size
             val result = ByteArray(totalLength)
 
             result[0] = 0x30
             result[1] = (totalLength - 2).toByte()
             result[2] = 0x02
-            result[3] = signature.r.size.toByte()
+            result[3] = r.size.toByte()
 
-            signature.r.mapIndexed { index, byte ->
+            r.mapIndexed { index, byte ->
                 result[index + 4] = byte
             }
 
-            val offset = signature.r.size + 4
+            val offset = r.size + 4
             result[offset] = 0x02
-            result[offset + 1] = signature.s.size.toByte()
+            result[offset + 1] = s.size.toByte()
 
-            signature.s.mapIndexed { index, byte ->
+            s.mapIndexed { index, byte ->
                 result[offset + 2 + index] = byte
             }
 
             return Numeric.toHexString(result)
+        }
+
+        private fun canonicalize(bytes: ByteArray): ByteArray {
+            var b = bytes
+            if (b.isEmpty()) {
+                b = byteArrayOf(0x00)
+            }
+            if ((b[0].and(0x80.toByte())) != 0x00.toByte()) {
+                val paddedBytes = ByteArray(b.size + 1)
+                paddedBytes[0] = 0x00
+                b.mapIndexed { index, byte ->
+                    paddedBytes[index + 1] = byte
+                }
+                b = paddedBytes
+            }
+            return b
         }
     }
 }

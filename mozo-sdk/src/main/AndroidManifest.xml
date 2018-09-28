@@ -46,7 +46,7 @@
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
             android:theme="@style/MozoTheme"
-            android:windowSoftInputMode="stateAlwaysVisible" />
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.TransferActivity"
