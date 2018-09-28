@@ -190,7 +190,8 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/button_address_book" />
+                app:layout_constraintTop_toBottomOf="@id/button_address_book"
+                app:layout_goneMarginTop="27dp" />
 
             <EditText
                 android:id="@+id/output_amount"

@@ -6,6 +6,7 @@ import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.ui.TransferActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
+import com.biglabs.mozo.sdk.utils.PreferenceUtils
 import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
@@ -21,6 +22,8 @@ class MozoTrans private constructor() {
                 .getInstance(MozoSDK.context!!)
                 .getBalance(address)
                 .await()
+        PreferenceUtils.getInstance(MozoSDK.context!!)
+                .setDecimal(balanceInfo.body()?.decimals ?: -1)
         return@async balanceInfo.body()?.balanceDisplay().displayString(12)
     }
 

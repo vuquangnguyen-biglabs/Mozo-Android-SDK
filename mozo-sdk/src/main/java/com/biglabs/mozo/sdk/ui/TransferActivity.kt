@@ -1,9 +1,11 @@
 package com.biglabs.mozo.sdk.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.SpannableString
 import android.text.style.StyleSpan
@@ -22,6 +24,8 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.WalletUtils
 import java.util.*
+import android.text.InputFilter
+
 
 @Suppress("unused")
 class TransferActivity : AppCompatActivity() {
@@ -56,11 +60,7 @@ class TransferActivity : AppCompatActivity() {
                 IntentIntegrator
                         .parseActivityResult(requestCode, resultCode, data)
                         .contents?.let {
-                    if (WalletUtils.isValidAddress(it)) {
-                        output_receiver_address.setText(it)
-                    } else {
-                        // TODO show warning message
-                    }
+                    output_receiver_address.setText(it)
                 }
             }
         }
@@ -86,6 +86,9 @@ class TransferActivity : AppCompatActivity() {
         output_receiver_address.onTextChanged(onTextChanged)
         output_amount.onTextChanged(onTextChanged)
 
+        val decimal = PreferenceUtils.getInstance(this).getDecimal()
+        output_amount.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(12, decimal))
+
         transfer_toolbar.onBackPress = { showInputUI() }
         button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
         button_scan_qr.click {
@@ -96,7 +99,7 @@ class TransferActivity : AppCompatActivity() {
         }
         button_submit.click {
             if (output_receiver_address.isEnabled) {
-                showConfirmationUI()
+                if (validateInput()) showConfirmationUI()
             } else {
                 if (!EventBus.getDefault().isRegistered(this)) {
                     EventBus.getDefault().register(this)
@@ -169,6 +172,19 @@ class TransferActivity : AppCompatActivity() {
             // TODO show send Tx failed UI
             "send Tx failed UI".logAsError()
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun validateInput(): Boolean {
+        val address = output_receiver_address.text.toString()
+        if (!WalletUtils.isValidAddress(address)) {
+            AlertDialog.Builder(this).setMessage("The Receiver Address is not valid!").show()
+            return false
+        }
+        if (output_amount.text.startsWith(".")) {
+            output_amount.setText("0${output_amount.text}")
+        }
+        return true
     }
 
     @Subscribe

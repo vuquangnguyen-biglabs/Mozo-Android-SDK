@@ -134,5 +134,5 @@ fun BigDecimal.trailingZeros(scale: Int): BigDecimal {
 }
 
 fun BigDecimal?.displayString(scale: Int = 6): String {
-    return NumberFormat.getIntegerInstance().format(if (this == null) BigDecimal.ZERO else trailingZeros(scale))
+    return NumberFormat.getNumberInstance().format(if (this == null) BigDecimal.ZERO else trailingZeros(scale))
 }
