@@ -26,13 +26,13 @@ public class FastScrollRecyclerView extends RecyclerView {
     private boolean mEnabled = true;
 
     public int setIndexTextSize = 12;
-    public float mIndexbarWidth = 20;
-    public float mIndexbarMargin = 5;
-    public int mPreviewPadding = 5;
+    public float mIndexBarWidth = 20;
+    public float mIndexBarMargin = 5;
+    public float mPreviewPadding = 5;
     public int mIndexBarCornerRadius = 5;
     public float mIndexBarTransparentValue = (float) 0.6;
     public @ColorInt
-    int mIndexbarBackgroudColor = Color.BLACK;
+    int mIndexbarBackgroudColor = Color.TRANSPARENT;
     public @ColorInt
     int mIndexbarTextColor = Color.WHITE;
     public @ColorInt
@@ -67,30 +67,22 @@ public class FastScrollRecyclerView extends RecyclerView {
             if (typedArray != null) {
                 try {
                     setIndexTextSize = typedArray.getInt(R.styleable.FastScrollRecyclerView_setIndexTextSize, setIndexTextSize);
-                    mIndexbarWidth = typedArray.getFloat(R.styleable.FastScrollRecyclerView_setIndexbarWidth, mIndexbarWidth);
-                    mIndexbarMargin = typedArray.getFloat(R.styleable.FastScrollRecyclerView_setIndexbarMargin, mIndexbarMargin);
-                    mPreviewPadding = typedArray.getInt(R.styleable.FastScrollRecyclerView_setPreviewPadding, mPreviewPadding);
+                    mIndexBarWidth = typedArray.getDimension(R.styleable.FastScrollRecyclerView_setIndexBarWidth, mIndexBarWidth);
+                    mIndexBarMargin = typedArray.getDimension(R.styleable.FastScrollRecyclerView_setIndexBarMargin, mIndexBarMargin);
+                    mPreviewPadding = typedArray.getDimension(R.styleable.FastScrollRecyclerView_setPreviewPadding, mPreviewPadding);
                     mIndexBarCornerRadius = typedArray.getInt(R.styleable.FastScrollRecyclerView_setIndexBarCornerRadius, mIndexBarCornerRadius);
                     mIndexBarTransparentValue = typedArray.getFloat(R.styleable.FastScrollRecyclerView_setIndexBarTransparentValue, mIndexBarTransparentValue);
 
                     if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarColor)) {
-                        mIndexbarBackgroudColor = Color.parseColor(typedArray.getString(R.styleable.FastScrollRecyclerView_setIndexBarColor));
+                        mIndexbarBackgroudColor = typedArray.getColor(R.styleable.FastScrollRecyclerView_setIndexBarColor, mIndexbarBackgroudColor);
                     }
 
                     if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarTextColor)) {
-                        mIndexbarTextColor = Color.parseColor(typedArray.getString(R.styleable.FastScrollRecyclerView_setIndexBarTextColor));
+                        mIndexbarTextColor = typedArray.getColor(R.styleable.FastScrollRecyclerView_setIndexBarTextColor, mIndexbarTextColor);
                     }
 
                     if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarHighlightTextColor)) {
                         mIndexbarHighLateTextColor = Color.parseColor(typedArray.getString(R.styleable.FastScrollRecyclerView_setIndexBarHighlightTextColor));
-                    }
-
-                    if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarColorRes)) {
-                        mIndexbarBackgroudColor = typedArray.getColor(R.styleable.FastScrollRecyclerView_setIndexBarColorRes, mIndexbarBackgroudColor);
-                    }
-
-                    if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarTextColorRes)) {
-                        mIndexbarTextColor = typedArray.getColor(R.styleable.FastScrollRecyclerView_setIndexBarTextColorRes, mIndexbarTextColor);
                     }
 
                     if (typedArray.hasValue(R.styleable.FastScrollRecyclerView_setIndexBarHighlightTextColorRes)) {
@@ -181,15 +173,15 @@ public class FastScrollRecyclerView extends RecyclerView {
     /**
      * @param value float to set the width of the index bar
      */
-    public void setIndexbarWidth(float value) {
-        mScroller.setIndexbarWidth(value);
+    public void setIndexBarWidth(float value) {
+        mScroller.setIndexBarWidth(value);
     }
 
     /**
      * @param value float to set the margin of the index bar
      */
-    public void setIndexbarMargin(float value) {
-        mScroller.setIndexbarMargin(value);
+    public void setIndexBarMargin(float value) {
+        mScroller.setIndexBarMargin(value);
     }
 
     /**

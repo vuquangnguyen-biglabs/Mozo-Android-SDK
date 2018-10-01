@@ -35,20 +35,19 @@
 
     <declare-styleable name="FastScrollRecyclerView">
         <attr name="setIndexTextSize" format="integer" />
-        <attr name="setIndexbarWidth" format="float" />
-        <attr name="setIndexbarMargin" format="float" />
-        <attr name="setPreviewPadding" format="integer" />
+        <attr name="setIndexBarWidth" format="dimension" />
+        <attr name="setIndexBarMargin" format="dimension" />
+
+        <attr name="setPreviewPadding" format="dimension" />
         <attr name="setPreviewTextSize" format="integer" />
         <attr name="setPreviewColor" format="color" />
         <attr name="setPreviewTextColor" format="color" />
         <attr name="setPreviewTransparentValue" format="float" />
         <attr name="setIndexBarCornerRadius" format="integer" />
         <attr name="setIndexBarTransparentValue" format="float" />
-        <attr name="setIndexBarColor" format="string" />
-        <attr name="setIndexBarTextColor" format="string" />
+        <attr name="setIndexBarColor" format="color" />
+        <attr name="setIndexBarTextColor" format="color" />
         <attr name="setIndexBarHighlightTextColor" format="string" />
-        <attr name="setIndexBarColorRes" format="color" />
-        <attr name="setIndexBarTextColorRes" format="color" />
         <attr name="setIndexBarHighlightTextColorRes" format="color" />
     </declare-styleable>
 </resources>

@@ -17,7 +17,6 @@ import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.SectionIndexer;
@@ -25,8 +24,8 @@ import android.widget.SectionIndexer;
 public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver {
 
     private final int WHAT_FADE_PREVIEW = 1;
-    private float mIndexbarWidth;
-    private float mIndexbarMargin;
+    private float mIndexBarWidth;
+    private float mIndexBarMargin;
     private float mPreviewPadding;
     private float mDensity;
     private float mScaledDensity;
@@ -40,9 +39,6 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
     private RectF mIndexbarRect;
 
     private int setIndexTextSize;
-    private float setIndexbarWidth;
-    private float setIndexbarMargin;
-    private int setPreviewPadding;
     private boolean previewVisibility = true;
     private int setIndexBarCornerRadius;
     private Typeface setTypeface = null;
@@ -63,15 +59,13 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
     private int previewBackgroudAlpha;
     private int indexbarBackgroudAlpha;
 
-    private int indexPaintPaintColor = Color.WHITE;
-    AttributeSet attrs;
-
     public FastScrollRecyclerSection(Context context, FastScrollRecyclerView rv) {
 
         setIndexTextSize = rv.setIndexTextSize;
-        setIndexbarWidth = rv.mIndexbarWidth;
-        setIndexbarMargin = rv.mIndexbarMargin;
-        setPreviewPadding = rv.mPreviewPadding;
+        mIndexBarWidth = rv.mIndexBarWidth;
+        mIndexBarMargin = rv.mIndexBarMargin;
+        mPreviewPadding = rv.mPreviewPadding;
+
         setPreviewTextSize = rv.mPreviewTextSize;
         previewBackgroundColor = rv.mPreviewBackgroudColor;
         previewTextColor = rv.mPreviewTextColor;
@@ -88,21 +82,17 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
         mScaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
         mRecyclerView = rv;
         setAdapter(mRecyclerView.getAdapter());
-
-        mIndexbarWidth = setIndexbarWidth * mDensity;
-        mIndexbarMargin = setIndexbarMargin * mDensity;
-        mPreviewPadding = setPreviewPadding * mDensity;
     }
 
     public void draw(Canvas canvas) {
 
         if (setIndexBarVisibility) {
 
-            Paint indexbarPaint = new Paint();
-            indexbarPaint.setColor(indexbarBackgroudColor);
-            indexbarPaint.setAlpha(indexbarBackgroudAlpha);
-            indexbarPaint.setAntiAlias(true);
-            canvas.drawRoundRect(mIndexbarRect, setIndexBarCornerRadius * mDensity, setIndexBarCornerRadius * mDensity, indexbarPaint);
+//            Paint indexbarPaint = new Paint();
+//            //indexbarPaint.setColor(indexbarBackgroudColor);
+//            indexbarPaint.setAlpha(indexbarBackgroudAlpha);
+//            indexbarPaint.setAntiAlias(true);
+//            canvas.drawRoundRect(mIndexbarRect, setIndexBarCornerRadius * mDensity, setIndexBarCornerRadius * mDensity, indexbarPaint);
 
             if (mSections != null && mSections.length > 0) {
                 // Preview is shown when mCurrentSection is set
@@ -139,7 +129,7 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
                 indexPaint.setTextSize(setIndexTextSize * mScaledDensity);
                 indexPaint.setTypeface(setTypeface);
 
-                float sectionHeight = (mIndexbarRect.height() - 2 * mIndexbarMargin) / mSections.length;
+                float sectionHeight = (mIndexbarRect.height() - 2 * mIndexBarMargin) / mSections.length;
                 float paddingTop = (sectionHeight - (indexPaint.descent() - indexPaint.ascent())) / 2;
                 for (int i = 0; i < mSections.length; i++) {
 
@@ -154,15 +144,15 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
                             indexPaint.setTextSize(setIndexTextSize * mScaledDensity);
                             indexPaint.setColor(indexbarTextColor);
                         }
-                        float paddingLeft = (mIndexbarWidth - indexPaint.measureText(mSections[i])) / 2;
+                        float paddingLeft = (mIndexBarWidth - indexPaint.measureText(mSections[i])) / 2;
                         canvas.drawText(mSections[i], mIndexbarRect.left + paddingLeft
-                                , mIndexbarRect.top + mIndexbarMargin + sectionHeight * i + paddingTop - indexPaint.ascent(), indexPaint);
+                                , mIndexbarRect.top + mIndexBarMargin + sectionHeight * i + paddingTop - indexPaint.ascent(), indexPaint);
 
 
                     } else {
-                        float paddingLeft = (mIndexbarWidth - indexPaint.measureText(mSections[i])) / 2;
+                        float paddingLeft = (mIndexBarWidth - indexPaint.measureText(mSections[i])) / 2;
                         canvas.drawText(mSections[i], mIndexbarRect.left + paddingLeft
-                                , mIndexbarRect.top + mIndexbarMargin + sectionHeight * i + paddingTop - indexPaint.ascent(), indexPaint);
+                                , mIndexbarRect.top + mIndexBarMargin + sectionHeight * i + paddingTop - indexPaint.ascent(), indexPaint);
                     }
 
                 }
@@ -223,10 +213,10 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
         mListViewWidth = w;
         mListViewHeight = h;
-        mIndexbarRect = new RectF(w - mIndexbarMargin - mIndexbarWidth
-                , mIndexbarMargin
-                , w - mIndexbarMargin
-                , h - mIndexbarMargin);
+        mIndexbarRect = new RectF(w - mIndexBarMargin - mIndexBarWidth
+                , mIndexBarMargin
+                , w - mIndexBarMargin
+                , h - mIndexBarMargin);
     }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
@@ -251,11 +241,11 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
     private int getSectionByPoint(float y) {
         if (mSections == null || mSections.length == 0)
             return 0;
-        if (y < mIndexbarRect.top + mIndexbarMargin)
+        if (y < mIndexbarRect.top + mIndexBarMargin)
             return 0;
-        if (y >= mIndexbarRect.top + mIndexbarRect.height() - mIndexbarMargin)
+        if (y >= mIndexbarRect.top + mIndexbarRect.height() - mIndexBarMargin)
             return mSections.length - 1;
-        return (int) ((y - mIndexbarRect.top - mIndexbarMargin) / ((mIndexbarRect.height() - 2 * mIndexbarMargin) / mSections.length));
+        return (int) ((y - mIndexbarRect.top - mIndexBarMargin) / ((mIndexbarRect.height() - 2 * mIndexBarMargin) / mSections.length));
     }
 
     private Runnable mLastFadeRunnable = null;
@@ -304,22 +294,22 @@ public class FastScrollRecyclerSection extends RecyclerView.AdapterDataObserver 
     /**
      * @param value float to set the width of the index bar
      */
-    public void setIndexbarWidth(float value) {
-        mIndexbarWidth = value;
+    public void setIndexBarWidth(float value) {
+        mIndexBarWidth = value;
     }
 
     /**
      * @param value float to set the margin of the index bar
      */
-    public void setIndexbarMargin(float value) {
-        mIndexbarMargin = value;
+    public void setIndexBarMargin(float value) {
+        mIndexBarMargin = value;
     }
 
     /**
      * @param value int to set preview padding
      */
     public void setPreviewPadding(int value) {
-        setPreviewPadding = value;
+        mPreviewPadding = value;
     }
 
     /**

@@ -32,6 +32,14 @@ class AuthService private constructor() {
                 val anonymousUser = initAnonymousUser()
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
+            } else {
+                /*
+                TODO try request (getUserInfo)
+                if != 401 -> check expired time < 60000 -> do refresh token ( let additionalParams = [ "grant_type" : @"refresh_token"; ] )
+
+                else -> signOut -> call https://dev.keycloak.mozocoin.io/auth/realms/mozo/protocol/openid-connect/logout
+
+                 */
             }
 
             launch(UI) {

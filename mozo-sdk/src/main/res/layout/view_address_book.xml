@@ -67,5 +67,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/input_search"
+        app:setIndexBarColor="@android:color/transparent"
+        app:setIndexBarMargin="0dp"
+        app:setIndexBarTextColor="@color/mozo_color_primary"
+        app:setIndexBarWidth="20dp"
+        app:setIndexTextSize="12"
         tools:listitem="@layout/item_contact" />
 </android.support.constraint.ConstraintLayout>
