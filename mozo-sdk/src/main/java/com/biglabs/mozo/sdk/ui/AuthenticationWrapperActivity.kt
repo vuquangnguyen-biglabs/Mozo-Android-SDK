@@ -14,12 +14,10 @@ import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
-import com.biglabs.mozo.sdk.utils.AuthStateManager
-import com.biglabs.mozo.sdk.utils.logAsError
-import com.biglabs.mozo.sdk.utils.setMatchParent
-import com.biglabs.mozo.sdk.utils.string
+import com.biglabs.mozo.sdk.utils.*
 import kotlinx.android.synthetic.main.view_loading.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import net.openid.appauth.*
 import org.greenrobot.eventbus.EventBus
@@ -51,7 +49,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
             return
         }
 
-        displayLoading()
+        showLoading()
         initializeAppAuth()
     }
 
@@ -72,7 +70,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
             return
         }
 
-        displayLoading()
+        showLoading()
 
         AuthorizationServiceConfiguration.fetchFromUrl(
                 Uri.parse(string(R.string.auth_discovery_uri))
@@ -171,7 +169,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
     }
 
     private fun exchangeAuthorizationCode(response: AuthorizationResponse) {
-        displayLoading()
+        showLoading()
         performTokenRequest(response.createTokenExchangeRequest(), AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
             mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
             doResponseAndFinish(exception = authException)
@@ -191,7 +189,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
     }
 
     private fun refreshAccessToken() {
-        displayLoading()
+        showLoading()
         performTokenRequest(
                 mAuthStateManager!!.current.createTokenRefreshRequest(),
                 AuthorizationService.TokenResponseCallback { tokenResponse, authException -> this.handleAccessTokenResponse(tokenResponse, authException) })
@@ -202,10 +200,8 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         Toast.makeText(this, "refreshAccessToken DONE", Toast.LENGTH_SHORT).show()
     }
 
-    private fun displayLoading() {
-        launch(UI) {
-            loading_container.visibility = View.VISIBLE
-        }
+    private fun showLoading() = async(UI) {
+        loading_container.visible()
     }
 
     private fun doResponseAndFinish(exception: Exception? = null) {
@@ -234,7 +230,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
 
             launch(UI) {
                 EventBus.getDefault().post(MessageEvent.Auth(currentAuth, exception))
-                finish()
+                finishAndRemoveTask()
             }
         }
     }
@@ -244,10 +240,11 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         private const val RC_AUTH = 100
 
         fun start(context: Context) {
-            val starter = Intent(context, AuthenticationWrapperActivity::class.java)
-            starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            starter.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(starter)
+            Intent(context, AuthenticationWrapperActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                context.startActivity(this)
+            }
         }
     }
 }

@@ -222,11 +222,12 @@ internal class SecurityActivity : AppCompatActivity() {
         const val KEY_ENTER_PIN = 0x002
 
         fun start(context: Context, seed: String? = null, requestCode: Int) {
-            val intent = Intent(context, SecurityActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.putExtra(KEY_SEED_WORDS, seed)
-            intent.putExtra(KEY_REQUEST_CODE, requestCode)
-            context.startActivity(intent)
+            Intent(context, SecurityActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                putExtra(KEY_SEED_WORDS, seed)
+                putExtra(KEY_REQUEST_CODE, requestCode)
+                context.startActivity(this)
+            }
         }
     }
 }

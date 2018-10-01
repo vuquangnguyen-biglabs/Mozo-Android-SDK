@@ -153,7 +153,7 @@ class TransferActivity : AppCompatActivity() {
     private fun showResultUI(txResponse: Models.TransactionResponse?) = async(UI) {
         if (txResponse != null) {
             setContentView(R.layout.view_transfer_complete)
-            button_close_transfer.click { finish() }
+            button_close_transfer.click { finishAndRemoveTask() }
 
             val msg = SpannableString(getString(R.string.mozo_transfer_send_complete_msg, lastSentAmount, lastSentAddress))
             msg.setSpan(
@@ -176,6 +176,14 @@ class TransferActivity : AppCompatActivity() {
         }
     }
 
+    private fun showLoading() = async(UI) {
+        loading_container.show()
+    }
+
+    private fun hideLoading() = async(UI) {
+        loading_container.hide()
+    }
+
     @SuppressLint("SetTextI18n")
     private fun validateInput(): Boolean {
         val address = output_receiver_address.text.toString()
@@ -196,11 +204,13 @@ class TransferActivity : AppCompatActivity() {
         val output = output_receiver_address.text.toString()
         val amount = output_amount.text.toString()
         launch {
+            showLoading()
             val txResponse = MozoTrans.getInstance().createTransaction(output, amount, event.pin).await()
             lastSentAddress = output
             lastSentAmount = amount
             lastSentTime = Calendar.getInstance().timeInMillis
             showResultUI(txResponse)
+            hideLoading()
         }
     }
 
