@@ -51,10 +51,12 @@ class TransferActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != RESULT_OK) return
-
         when {
             requestCode == KEY_PICK_ADDRESS -> {
-                // TODO read picked address
+                data?.run {
+                    val address = getStringExtra(AddressBookActivity.KEY_SELECTED_ADDRESS)
+                    output_receiver_address.setText(address)
+                }
             }
             data != null -> {
                 IntentIntegrator
@@ -206,10 +208,11 @@ class TransferActivity : AppCompatActivity() {
         private const val KEY_PICK_ADDRESS = 0x0021
 
         fun start(context: Context) {
-            val starter = Intent(context, TransferActivity::class.java)
-            starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            starter.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            context.startActivity(starter)
+            Intent(context, TransferActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                context.startActivity(this)
+            }
         }
     }
 }

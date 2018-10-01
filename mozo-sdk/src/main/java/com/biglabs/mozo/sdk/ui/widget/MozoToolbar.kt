@@ -53,7 +53,7 @@ internal class MozoToolbar : ConstraintLayout {
             }
             viewButtonClose?.click {
                 if (onClosePress != null) onClosePress?.invoke()
-                else (context as? Activity)?.finish()
+                else (context as? Activity)?.finishAndRemoveTask()
             }
             updateUI()
         }

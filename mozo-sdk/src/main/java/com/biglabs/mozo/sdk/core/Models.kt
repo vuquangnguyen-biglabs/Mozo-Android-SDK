@@ -65,6 +65,12 @@ object Models {
     )
 
     /* API services models */
+    data class Contact(
+            val id: Long,
+            val name: String,
+            val soloAddress: String
+    )
+
     data class BalanceInfo(
             val balance: BigDecimal,
             val symbol: String?,

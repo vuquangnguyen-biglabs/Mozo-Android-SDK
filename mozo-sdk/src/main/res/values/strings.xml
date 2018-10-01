@@ -55,6 +55,7 @@
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>
     <string name="mozo_view_text_hint">…</string>
+    <string name="mozo_view_text_search">Search</string>
     <string name="mozo_view_text_login_require_prefix">You must</string>
     <string name="mozo_view_text_login_require_btn"><u>Login</u></string>
     <string name="mozo_view_text_login_require_suffix">to use this function</string>

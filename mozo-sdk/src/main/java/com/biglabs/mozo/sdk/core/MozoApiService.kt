@@ -53,7 +53,9 @@ interface MozoApiService {
         }
     }
 
-    /* User Profile */
+    @GET("contacts")
+    fun getContacts(): Deferred<Response<List<Models.Contact>>>
+
     @GET("user-profile")
     fun fetchProfile(): Deferred<Response<Models.Profile>>
 
