@@ -52,7 +52,7 @@ class AddressBookActivity : AppCompatActivity() {
 
             if (response.isSuccessful && response.body() != null) {
                 contacts.clear()
-                contacts.addAll(response.body()!!)
+                contacts.addAll(response.body()!!.sortedBy { it.name })
                 launch(UI) {
                     mAdapter?.notifyDataSetChanged()
                 }

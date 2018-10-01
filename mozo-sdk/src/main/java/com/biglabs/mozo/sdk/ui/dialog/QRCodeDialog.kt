@@ -10,6 +10,7 @@ import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.utils.Support
 import com.biglabs.mozo.sdk.utils.click
 import kotlinx.android.synthetic.main.dialog_qr_code.*
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
@@ -17,6 +18,8 @@ import kotlinx.coroutines.experimental.launch
 class QRCodeDialog : DialogFragment() {
 
     private var rawValue: String? = null
+
+    private var generateQRJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,16 +29,21 @@ class QRCodeDialog : DialogFragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        generateQRJob?.cancel()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
             inflater.inflate(R.layout.dialog_qr_code, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         rawValue?.let {
-            launch {
+            generateQRJob = launch {
                 val size = resources.getDimensionPixelSize(R.dimen.mozo_qr_large_size)
                 val qrImage = Support.generateQRCode(it, size)
                 launch(UI) {
-                    image_qr_code.setImageBitmap(qrImage)
+                    image_qr_code?.setImageBitmap(qrImage)
                 }
             }
         }
