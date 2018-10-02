@@ -4,6 +4,7 @@ import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.auth.AuthenticationListener
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
+import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
 import com.biglabs.mozo.sdk.ui.AuthenticationWrapperActivity
 import com.biglabs.mozo.sdk.utils.AuthStateManager
@@ -11,6 +12,7 @@ import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import net.openid.appauth.AuthState
+import net.openid.appauth.AuthorizationService
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
@@ -23,7 +25,6 @@ class AuthService private constructor() {
     private val authStateManager: AuthStateManager by lazy { AuthStateManager.getInstance(MozoSDK.context!!) }
 
     private var mAuthListener: AuthenticationListener? = null
-//    private var mUserInfo: Models.UserInfo? = null
 
     init {
         launch {
@@ -33,13 +34,19 @@ class AuthService private constructor() {
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             } else {
-                /*
-                TODO try request (getUserInfo)
-                if != 401 -> check expired time < 60000 -> do refresh token ( let additionalParams = [ "grant_type" : @"refresh_token"; ] )
-
-                else -> signOut -> call https://dev.keycloak.mozocoin.io/auth/realms/mozo/protocol/openid-connect/logout
-
-                 */
+                val response = MozoApiService.getInstance(MozoSDK.context!!).fetchProfile().await()
+                if (response.code() == 401) {
+                    signOut()
+                    // call https://dev.keycloak.mozocoin.io/auth/realms/mozo/protocol/openid-connect/logout
+                    return@launch
+                } else {
+                    response.body()?.run {
+                        mozoDB.profile().save(this)
+                    }
+                    if (authStateManager.current.needsTokenRefresh) {
+                        doRefreshToken()
+                    }
+                }
             }
 
             launch(UI) {
@@ -78,6 +85,10 @@ class AuthService private constructor() {
         }
     }
 
+    fun setAuthenticationListener(listener: AuthenticationListener) {
+        this.mAuthListener = listener
+    }
+
     @Subscribe
     internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
         EventBus.getDefault().unregister(this@AuthService)
@@ -100,8 +111,22 @@ class AuthService private constructor() {
         return anonymousUser
     }
 
-    fun setAuthenticationListener(listener: AuthenticationListener) {
-        this.mAuthListener = listener
+    private fun doRefreshToken() {
+        try {
+            AuthorizationService(MozoSDK.context!!).performTokenRequest(
+                    authStateManager.current.createTokenRefreshRequest(),
+                    authStateManager.current.clientAuthentication) { response, ex ->
+                authStateManager.updateAfterTokenResponse(response, ex)
+                response?.run {
+                    "Refresh token successful: $accessToken".logAsError()
+                }
+                ex?.run {
+                    "Refresh token failed: $message".logAsError()
+                }
+            }
+        } catch (ex: Exception) {
+            "Fail to refresh token: ${ex.message}".logAsError("AuthService")
+        }
     }
 
     companion object {

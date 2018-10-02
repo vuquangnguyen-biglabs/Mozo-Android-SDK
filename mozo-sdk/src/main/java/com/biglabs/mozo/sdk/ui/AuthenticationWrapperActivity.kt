@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.FragmentActivity
-import android.view.View
 import android.widget.Toast
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -63,7 +62,10 @@ class AuthenticationWrapperActivity : FragmentActivity() {
      * static values or by retrieving an OpenID discovery document.
      */
     private fun initializeAppAuth() {
-        recreateAuthorizationService()
+        mAuthService?.dispose()
+        mAuthService = AuthorizationService(this)
+        mAuthRequest.set(null)
+        mAuthIntent.set(null)
 
         if (mAuthStateManager!!.current.authorizationServiceConfiguration != null) {
             initializeAuthRequest()
@@ -74,7 +76,15 @@ class AuthenticationWrapperActivity : FragmentActivity() {
 
         AuthorizationServiceConfiguration.fetchFromUrl(
                 Uri.parse(string(R.string.auth_discovery_uri))
-        ) { config, ex -> this.handleConfigurationRetrievalResult(config, ex) }
+        ) { config, ex ->
+            if (config == null) {
+                doResponseAndFinish(exception = ex)
+                return@fetchFromUrl
+            }
+
+            mAuthStateManager!!.replace(AuthState(config))
+            initializeAuthRequest()
+        }
     }
 
     private fun initializeAuthRequest() {
@@ -83,29 +93,13 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         doAuth()
     }
 
-    private fun handleConfigurationRetrievalResult(config: AuthorizationServiceConfiguration?, ex: AuthorizationException?) {
-        if (config == null) {
-            doResponseAndFinish(exception = ex)
-            return
-        }
-
-        mAuthStateManager!!.replace(AuthState(config))
-        initializeAuthRequest()
-    }
-
-    private fun recreateAuthorizationService() {
-        mAuthService?.dispose()
-        mAuthService = AuthorizationService(this)
-        mAuthRequest.set(null)
-        mAuthIntent.set(null)
-    }
-
     private fun createAuthRequest() {
         val authRequestBuilder = AuthorizationRequest.Builder(
                 mAuthStateManager!!.current.authorizationServiceConfiguration!!,
                 string(R.string.auth_client_id),
                 ResponseTypeValues.CODE,
                 Uri.parse(string(R.string.auth_redirect_uri, R.string.redirect_url_scheme)))
+                .setPrompt("login")
                 .setScope("")
 
         mAuthRequest.set(authRequestBuilder.build())
@@ -192,7 +186,10 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         showLoading()
         performTokenRequest(
                 mAuthStateManager!!.current.createTokenRefreshRequest(),
-                AuthorizationService.TokenResponseCallback { tokenResponse, authException -> this.handleAccessTokenResponse(tokenResponse, authException) })
+                AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
+                    this.handleAccessTokenResponse(tokenResponse, authException)
+                }
+        )
     }
 
     private fun handleAccessTokenResponse(tokenResponse: TokenResponse?, authException: AuthorizationException?) {
