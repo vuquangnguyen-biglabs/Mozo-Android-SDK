@@ -27,7 +27,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
-            android:name=".ui.AuthenticationWrapperActivity"
+            android:name=".auth.MozoAuthActivity"
             android:excludeFromRecents="true"
             android:launchMode="singleTop"
             android:theme="@style/MozoTheme.Transparent.Dim"

@@ -1,12 +1,11 @@
-package com.biglabs.mozo.sdk.services
+package com.biglabs.mozo.sdk.auth
 
 import com.biglabs.mozo.sdk.MozoSDK
-import com.biglabs.mozo.sdk.auth.AuthenticationListener
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
-import com.biglabs.mozo.sdk.ui.AuthenticationWrapperActivity
+import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
@@ -18,7 +17,7 @@ import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
 @Suppress("RedundantSuspendModifier", "unused")
-class AuthService private constructor() {
+class MozoAuth private constructor() {
 
     private val wallet: WalletService by lazy { WalletService.getInstance() }
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
@@ -57,10 +56,10 @@ class AuthService private constructor() {
 
     fun signIn() {
         MozoSDK.context?.run {
-            if (!EventBus.getDefault().isRegistered(this@AuthService)) {
-                EventBus.getDefault().register(this@AuthService)
+            if (!EventBus.getDefault().isRegistered(this@MozoAuth)) {
+                EventBus.getDefault().register(this@MozoAuth)
             }
-            AuthenticationWrapperActivity.start(this)
+            MozoAuthActivity.start(this)
             return
         }
     }
@@ -91,7 +90,7 @@ class AuthService private constructor() {
 
     @Subscribe
     internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
-        EventBus.getDefault().unregister(this@AuthService)
+        EventBus.getDefault().unregister(this@MozoAuth)
 
         /* notify for caller */
         mAuthListener?.onChanged(true)
@@ -125,17 +124,17 @@ class AuthService private constructor() {
                 }
             }
         } catch (ex: Exception) {
-            "Fail to refresh token: ${ex.message}".logAsError("AuthService")
+            "Fail to refresh token: ${ex.message}".logAsError("MozoAuth")
         }
     }
 
     companion object {
         @Volatile
-        private var INSTANCE: AuthService? = null
+        private var INSTANCE: MozoAuth? = null
 
-        fun getInstance(): AuthService =
+        fun getInstance(): MozoAuth =
                 INSTANCE ?: synchronized(this) {
-                    INSTANCE = AuthService()
+                    INSTANCE = MozoAuth()
                     INSTANCE!!
                 }
     }

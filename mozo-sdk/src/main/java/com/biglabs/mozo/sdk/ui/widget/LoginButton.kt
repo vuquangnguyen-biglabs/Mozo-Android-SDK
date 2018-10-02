@@ -7,7 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
-import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.auth.MozoAuth
 
 class LoginButton : BaseButton {
 
@@ -31,13 +31,13 @@ class LoginButton : BaseButton {
     }
 
     override fun onClick(view: View) {
-        AuthService.getInstance().run {
+        MozoAuth.getInstance().run {
             if (isSignedIn()) signOut() else signIn()
         }
     }
 
     private fun updateUI() {
-        if (AuthService.getInstance().isSignedIn()) {
+        if (MozoAuth.getInstance().isSignedIn()) {
             super.setCompoundDrawablesWithIntrinsicBounds(icSignOut, null, null, null)
             super.setText(R.string.mozo_button_logout)
         } else {

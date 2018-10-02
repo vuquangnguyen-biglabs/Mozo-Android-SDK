@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
-import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.auth.MozoAuth
 import com.biglabs.mozo.sdk.trans.MozoTrans
 
 class SendButton : BaseButton {
@@ -34,7 +34,7 @@ class SendButton : BaseButton {
     }
 
     override fun onClick(view: View) {
-        AuthService.getInstance().run {
+        MozoAuth.getInstance().run {
             if (isSignedIn())
                 doTransfer()
             else {

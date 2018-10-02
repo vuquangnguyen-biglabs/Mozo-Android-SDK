@@ -2,12 +2,12 @@ package com.biglabs.mozo.sdk
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.auth.MozoAuth
 import com.biglabs.mozo.sdk.services.WalletService
 
 class MozoSDK private constructor() {
 
-    val auth: AuthService by lazy { AuthService.getInstance() }
+    val auth: MozoAuth by lazy { MozoAuth.getInstance() }
     //val beacon: BeaconService by lazy { BeaconService.getInstance() }
 
     init {

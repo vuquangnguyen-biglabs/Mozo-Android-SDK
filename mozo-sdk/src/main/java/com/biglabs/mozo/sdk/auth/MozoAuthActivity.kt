@@ -1,4 +1,4 @@
-package com.biglabs.mozo.sdk.ui
+package com.biglabs.mozo.sdk.auth
 
 import android.app.Activity
 import android.content.Context
@@ -23,7 +23,7 @@ import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 
-class AuthenticationWrapperActivity : FragmentActivity() {
+class MozoAuthActivity : FragmentActivity() {
 
     private var mAuthService: AuthorizationService? = null
     private var mAuthStateManager: AuthStateManager? = null
@@ -205,11 +205,11 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         launch {
             val currentAuth = mAuthStateManager!!.current
             if (exception == null) {
-                val response = MozoApiService.getInstance(this@AuthenticationWrapperActivity).fetchProfile().await()
+                val response = MozoApiService.getInstance(this@MozoAuthActivity).fetchProfile().await()
                 val serverProfile = response.body()
 
                 if (response.isSuccessful && serverProfile != null) {
-                    val mozoDB = MozoDatabase.getInstance(this@AuthenticationWrapperActivity)
+                    val mozoDB = MozoDatabase.getInstance(this@MozoAuthActivity)
                     /* save User info first */
                     mozoDB.userInfo().save(Models.UserInfo(
                             userId = serverProfile.userId,
@@ -237,7 +237,7 @@ class AuthenticationWrapperActivity : FragmentActivity() {
         private const val RC_AUTH = 100
 
         fun start(context: Context) {
-            Intent(context, AuthenticationWrapperActivity::class.java).apply {
+            Intent(context, MozoAuthActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 context.startActivity(this)

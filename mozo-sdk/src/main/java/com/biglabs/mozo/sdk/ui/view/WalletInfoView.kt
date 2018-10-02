@@ -11,7 +11,7 @@ import android.view.View
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
-import com.biglabs.mozo.sdk.services.AuthService
+import com.biglabs.mozo.sdk.auth.MozoAuth
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.ui.dialog.QRCodeDialog
@@ -90,7 +90,7 @@ class WalletInfoView : ConstraintLayout {
     }
 
     private fun fetchData() {
-        if (AuthService.getInstance().isSignedIn()) {
+        if (MozoAuth.getInstance().isSignedIn()) {
             launch {
                 mAddress = WalletService.getInstance().getAddress().await()
                 launch(UI) {
@@ -151,7 +151,7 @@ class WalletInfoView : ConstraintLayout {
         mWalletBalanceView = find(R.id.mozo_wallet_balance_value)
         mBalance?.let { mWalletBalanceView?.text = it }
         find<View>(R.id.button_login)?.click {
-            AuthService.getInstance().signIn()
+            MozoAuth.getInstance().signIn()
         }
 
         balanceRate?.apply {
