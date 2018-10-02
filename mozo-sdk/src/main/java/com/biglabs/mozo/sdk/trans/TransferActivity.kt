@@ -1,4 +1,4 @@
-package com.biglabs.mozo.sdk.ui
+package com.biglabs.mozo.sdk.trans
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,7 +12,6 @@ import android.text.style.StyleSpan
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.trans.MozoTrans
 import com.biglabs.mozo.sdk.utils.*
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.view_transfer.*
@@ -25,10 +24,14 @@ import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.WalletUtils
 import java.util.*
 import android.text.InputFilter
+import com.biglabs.mozo.sdk.ui.AddressAddActivity
+import com.biglabs.mozo.sdk.ui.AddressBookActivity
+import com.biglabs.mozo.sdk.ui.SecurityActivity
+import com.biglabs.mozo.sdk.ui.TransactionDetails
 
 
 @Suppress("unused")
-class TransferActivity : AppCompatActivity() {
+internal class TransferActivity : AppCompatActivity() {
 
     private var lastSentAddress: String? = null
     private var lastSentAmount: String? = null

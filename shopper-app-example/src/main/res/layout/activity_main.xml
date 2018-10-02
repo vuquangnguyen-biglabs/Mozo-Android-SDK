@@ -95,13 +95,17 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <com.biglabs.mozo.sdk.ui.widget.SendButton
+        <com.biglabs.mozo.sdk.ui.widget.TransactionHistoryButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <com.biglabs.mozo.sdk.ui.widget.LoginButton
+        <com.biglabs.mozo.sdk.ui.widget.SendButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp" />
+
+        <com.biglabs.mozo.sdk.ui.widget.LoginButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </ScrollView>

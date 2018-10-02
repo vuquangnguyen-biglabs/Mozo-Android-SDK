@@ -49,11 +49,18 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".ui.TransferActivity"
+            android:name=".trans.TransferActivity"
             android:excludeFromRecents="true"
             android:screenOrientation="portrait"
             android:theme="@style/MozoTheme"
             android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".ui.TransactionHistoryActivity"
+            android:excludeFromRecents="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/MozoTheme"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
 
         <activity
             android:name=".ui.TransactionDetails"
