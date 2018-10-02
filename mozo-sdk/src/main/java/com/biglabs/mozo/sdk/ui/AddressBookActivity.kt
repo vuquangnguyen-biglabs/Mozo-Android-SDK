@@ -11,17 +11,23 @@ import com.biglabs.mozo.sdk.common.ContactRecyclerAdapter
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.utils.click
+import com.biglabs.mozo.sdk.utils.logAsError
 import com.biglabs.mozo.sdk.utils.onTextChanged
 import kotlinx.android.synthetic.main.view_address_book.*
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 class AddressBookActivity : AppCompatActivity() {
 
     private var mAdapter: ContactRecyclerAdapter? = null
     private val contacts: ArrayList<Models.Contact> = arrayListOf()
+    private val contactsBackup: ArrayList<Models.Contact> = arrayListOf()
 
     private var isStartForResult = false
+    private var searchJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +37,7 @@ class AddressBookActivity : AppCompatActivity() {
 
         input_search.onTextChanged {
             button_clear.visibility = if (it?.length ?: 0 == 0) View.GONE else View.VISIBLE
+            searchByName(it.toString())
         }
 
         button_clear.click { input_search.setText("") }
@@ -51,11 +58,30 @@ class AddressBookActivity : AppCompatActivity() {
                     .await()
 
             if (response.isSuccessful && response.body() != null) {
-                contacts.clear()
-                contacts.addAll(response.body()!!.sortedBy { it.name })
+                response.body()!!.sortedBy { it.name }.let {
+                    contacts.clear()
+                    contacts.addAll(it)
+                    contactsBackup.clear()
+                    contactsBackup.addAll(it)
+                }
+
                 launch(UI) {
                     mAdapter?.notifyDataSetChanged()
                 }
+            }
+        }
+    }
+
+    private fun searchByName(name: String) {
+        searchJob?.cancel()
+        searchJob = launch {
+
+            delay(250)
+
+            contacts.clear()
+            contacts.addAll(contactsBackup.filter { it.name.contains(name, ignoreCase = true) })
+            launch(UI) {
+                mAdapter?.notifyDataSetChanged()
             }
         }
     }
