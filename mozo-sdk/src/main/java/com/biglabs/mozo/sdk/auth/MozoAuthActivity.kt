@@ -1,29 +1,24 @@
 package com.biglabs.mozo.sdk.auth
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.FragmentActivity
-import android.widget.Toast
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
-import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.core.MozoApiService
-import com.biglabs.mozo.sdk.core.MozoDatabase
-import com.biglabs.mozo.sdk.utils.*
-import kotlinx.android.synthetic.main.view_loading.*
+import com.biglabs.mozo.sdk.utils.AuthStateManager
+import com.biglabs.mozo.sdk.utils.setMatchParent
+import com.biglabs.mozo.sdk.utils.string
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import net.openid.appauth.*
 import org.greenrobot.eventbus.EventBus
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 
-class MozoAuthActivity : FragmentActivity() {
+internal class MozoAuthActivity : FragmentActivity() {
 
     private var mAuthService: AuthorizationService? = null
     private var mAuthStateManager: AuthStateManager? = null
@@ -32,23 +27,22 @@ class MozoAuthActivity : FragmentActivity() {
     private val mAuthIntent = AtomicReference<CustomTabsIntent>()
     private var mAuthIntentLatch = CountDownLatch(1)
 
+    private var modeSignIn = true
+    private var signOutConfiguration: AuthorizationServiceConfiguration? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_loading)
         setMatchParent()
-        mAuthStateManager = AuthStateManager.getInstance(this)
 
-        if (mAuthStateManager!!.current.isAuthorized) {
+        modeSignIn = intent.getBooleanExtra(FLAG_MODE_SIGN_IN, modeSignIn)
+
+        mAuthStateManager = AuthStateManager.getInstance(this)
+        if (modeSignIn && mAuthStateManager!!.current.isAuthorized) {
             doResponseAndFinish()
             return
         }
 
-        if (intent.getBooleanExtra(EXTRA_FAILED, false)) {
-            finish()
-            return
-        }
-
-        showLoading()
         initializeAppAuth()
     }
 
@@ -67,12 +61,20 @@ class MozoAuthActivity : FragmentActivity() {
         mAuthRequest.set(null)
         mAuthIntent.set(null)
 
-        if (mAuthStateManager!!.current.authorizationServiceConfiguration != null) {
+        if (!modeSignIn) {
+            signOutConfiguration = AuthorizationServiceConfiguration(
+                    Uri.parse(string(R.string.auth_logout_uri)),
+                    Uri.parse(string(R.string.auth_logout_uri)),
+                    null
+            )
             initializeAuthRequest()
             return
         }
 
-        showLoading()
+        if (mAuthStateManager!!.current.authorizationServiceConfiguration != null) {
+            initializeAuthRequest()
+            return
+        }
 
         AuthorizationServiceConfiguration.fetchFromUrl(
                 Uri.parse(string(R.string.auth_discovery_uri))
@@ -95,7 +97,10 @@ class MozoAuthActivity : FragmentActivity() {
 
     private fun createAuthRequest() {
         val authRequestBuilder = AuthorizationRequest.Builder(
-                mAuthStateManager!!.current.authorizationServiceConfiguration!!,
+                if (modeSignIn)
+                    mAuthStateManager!!.current.authorizationServiceConfiguration!!
+                else
+                    signOutConfiguration!!,
                 string(R.string.auth_client_id),
                 ResponseTypeValues.CODE,
                 Uri.parse(string(R.string.auth_redirect_uri, R.string.redirect_url_scheme)))
@@ -134,36 +139,38 @@ class MozoAuthActivity : FragmentActivity() {
         }
 
         val intent = mAuthService!!.getAuthorizationRequestIntent(mAuthRequest.get(), mAuthIntent.get())
-        startActivityForResult(intent, RC_AUTH)
+        startActivityForResult(intent, KEY_DO_AUTHENTICATION)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if (resultCode == Activity.RESULT_CANCELED) {
-            finish()
-            return
-        } else {
-            val response = AuthorizationResponse.fromIntent(data)
-            val ex = AuthorizationException.fromIntent(data)
+        when {
+            requestCode == KEY_DO_AUTHENTICATION && modeSignIn -> {
+                val response = AuthorizationResponse.fromIntent(data)
+                val ex = AuthorizationException.fromIntent(data)
 
-            if (response != null || ex != null) {
-                mAuthStateManager!!.updateAfterAuthorization(response, ex)
-            }
-
-            when {
-                response?.authorizationCode != null -> {
-                    // authorization code exchange is required
+                if (response != null || ex != null) {
                     mAuthStateManager!!.updateAfterAuthorization(response, ex)
-                    exchangeAuthorizationCode(response)
                 }
-                else -> {
-                    doResponseAndFinish(exception = ex)
+
+                when {
+                    response?.authorizationCode != null -> {
+                        // authorization code exchange is required
+                        mAuthStateManager!!.updateAfterAuthorization(response, ex)
+                        exchangeAuthorizationCode(response)
+                    }
+                    else -> {
+                        doResponseAndFinish(exception = ex)
+                    }
                 }
             }
+            !modeSignIn -> {
+                doResponseAndFinish()
+            }
+            else -> doResponseAndFinish(Exception("No Result"))
         }
     }
 
     private fun exchangeAuthorizationCode(response: AuthorizationResponse) {
-        showLoading()
         performTokenRequest(response.createTokenExchangeRequest(), AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
             mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
             doResponseAndFinish(exception = authException)
@@ -182,66 +189,44 @@ class MozoAuthActivity : FragmentActivity() {
         mAuthService!!.performTokenRequest(request, clientAuthentication, callback)
     }
 
-    private fun refreshAccessToken() {
-        showLoading()
-        performTokenRequest(
-                mAuthStateManager!!.current.createTokenRefreshRequest(),
-                AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
-                    this.handleAccessTokenResponse(tokenResponse, authException)
-                }
-        )
-    }
-
-    private fun handleAccessTokenResponse(tokenResponse: TokenResponse?, authException: AuthorizationException?) {
-        mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
-        Toast.makeText(this, "refreshAccessToken DONE", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showLoading() = async(UI) {
-        loading_container.visible()
-    }
-
     private fun doResponseAndFinish(exception: Exception? = null) {
         launch {
-            val currentAuth = mAuthStateManager!!.current
-            if (exception == null) {
-                val response = MozoApiService.getInstance(this@MozoAuthActivity).fetchProfile().await()
-                val serverProfile = response.body()
+            if (!modeSignIn) {
+                signOutCallBack?.invoke()
 
-                if (response.isSuccessful && serverProfile != null) {
-                    val mozoDB = MozoDatabase.getInstance(this@MozoAuthActivity)
-                    /* save User info first */
-                    mozoDB.userInfo().save(Models.UserInfo(
-                            userId = serverProfile.userId,
-                            accessToken = currentAuth.accessToken,
-                            refreshToken = currentAuth.refreshToken
-                    ))
-
-                    /* update local profile to match with server profile */
-                    mozoDB.profile().save(serverProfile)
-                } else {
-                    // TODO handle fetch profile error
-                    "Failed to fetch user profile!!".logAsError()
-                }
+            } else if (exception == null) {
+                MozoAuth.getInstance().saveProfile().await()
             }
 
             launch(UI) {
-                EventBus.getDefault().post(MessageEvent.Auth(currentAuth, exception))
+                EventBus.getDefault().post(MessageEvent.Auth(modeSignIn, exception))
                 finishAndRemoveTask()
             }
         }
     }
 
     companion object {
-        private const val EXTRA_FAILED = "failed"
-        private const val RC_AUTH = 100
+        private const val FLAG_MODE_SIGN_IN = "FLAG_MODE_SIGN_IN"
+        private const val KEY_DO_AUTHENTICATION = 100
 
-        fun start(context: Context) {
+        private var signOutCallBack: (() -> Unit)? = null
+
+        private fun start(context: Context, signIn: Boolean = true) {
             Intent(context, MozoAuthActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                putExtra(FLAG_MODE_SIGN_IN, signIn)
                 context.startActivity(this)
             }
+        }
+
+        fun signIn(context: Context) {
+            start(context)
+        }
+
+        fun signOut(context: Context, callback: (() -> Unit)? = null) {
+            signOutCallBack = callback
+            start(context, signIn = false)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.biglabs.mozo.sdk.auth
 
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
@@ -9,6 +10,7 @@ import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationService
@@ -19,9 +21,12 @@ import java.util.*
 @Suppress("RedundantSuspendModifier", "unused")
 class MozoAuth private constructor() {
 
-    private val wallet: WalletService by lazy { WalletService.getInstance() }
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
+    private val mozoService: MozoApiService by lazy { MozoApiService.getInstance(MozoSDK.context!!) }
+    private val wallet: WalletService by lazy { WalletService.getInstance() }
+
     private val authStateManager: AuthStateManager by lazy { AuthStateManager.getInstance(MozoSDK.context!!) }
+    private val mAuthService: AuthorizationService by lazy { AuthorizationService(MozoSDK.context!!) }
 
     private var mAuthListener: AuthenticationListener? = null
 
@@ -33,10 +38,9 @@ class MozoAuth private constructor() {
                 anonymousUser.toString().logAsError()
                 // TODO authentication with anonymousUser
             } else {
-                val response = MozoApiService.getInstance(MozoSDK.context!!).fetchProfile().await()
+                val response = mozoService.fetchProfile().await()
                 if (response.code() == 401) {
                     signOut()
-                    // call https://dev.keycloak.mozocoin.io/auth/realms/mozo/protocol/openid-connect/logout
                     return@launch
                 } else {
                     response.body()?.run {
@@ -59,7 +63,7 @@ class MozoAuth private constructor() {
             if (!EventBus.getDefault().isRegistered(this@MozoAuth)) {
                 EventBus.getDefault().register(this@MozoAuth)
             }
-            MozoAuthActivity.start(this)
+            MozoAuthActivity.signIn(this)
             return
         }
     }
@@ -67,35 +71,27 @@ class MozoAuth private constructor() {
     fun isSignedIn() = authStateManager.current.isAuthorized
 
     fun signOut() {
-        launch {
-            mozoDB.userInfo().delete()
+        MozoSDK.context?.let {
+            MozoAuthActivity.signOut(it) {
 
-            val currentState = authStateManager.current
-            val clearedState = AuthState(currentState.authorizationServiceConfiguration!!)
-            if (currentState.lastRegistrationResponse != null) {
-                clearedState.update(currentState.lastRegistrationResponse)
-            }
-            authStateManager.replace(clearedState)
-
-            launch(UI) {
-                EventBus.getDefault().post(MessageEvent.Auth(authStateManager.current, null))
                 mAuthListener?.onChanged(false)
+
+                launch {
+                    mozoDB.userInfo().delete()
+
+                    val currentState = authStateManager.current
+                    val clearedState = AuthState(currentState.authorizationServiceConfiguration!!)
+                    if (currentState.lastRegistrationResponse != null) {
+                        clearedState.update(currentState.lastRegistrationResponse)
+                    }
+                    authStateManager.replace(clearedState)
+                }
             }
         }
     }
 
     fun setAuthenticationListener(listener: AuthenticationListener) {
         this.mAuthListener = listener
-    }
-
-    @Subscribe
-    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
-        EventBus.getDefault().unregister(this@MozoAuth)
-
-        /* notify for caller */
-        mAuthListener?.onChanged(true)
-
-        wallet.initWallet()
     }
 
     private suspend fun initAnonymousUser(): AnonymousUserInfo {
@@ -110,9 +106,40 @@ class MozoAuth private constructor() {
         return anonymousUser
     }
 
+    @Subscribe
+    internal fun onAuthorizeChanged(auth: MessageEvent.Auth) {
+        EventBus.getDefault().unregister(this@MozoAuth)
+
+        /* notify for caller */
+        mAuthListener?.onChanged(auth.isSignedIn)
+
+        wallet.initWallet()
+    }
+
+    internal fun saveProfile() = async {
+        val response = mozoService.fetchProfile().await()
+        val serverProfile = response.body()
+
+        if (response.isSuccessful && serverProfile != null) {
+            val currentAuth = authStateManager.current
+            /* save User info first */
+            mozoDB.userInfo().save(Models.UserInfo(
+                    userId = serverProfile.userId,
+                    accessToken = currentAuth.accessToken,
+                    refreshToken = currentAuth.refreshToken
+            ))
+
+            /* update local profile to match with server profile */
+            mozoDB.profile().save(serverProfile)
+        } else {
+            // TODO handle fetch profile error
+            "Failed to fetch user profile!!".logAsError()
+        }
+    }
+
     private fun doRefreshToken() {
         try {
-            AuthorizationService(MozoSDK.context!!).performTokenRequest(
+            mAuthService.performTokenRequest(
                     authStateManager.current.createTokenRefreshRequest(),
                     authStateManager.current.clientAuthentication) { response, ex ->
                 authStateManager.updateAfterTokenResponse(response, ex)
@@ -130,12 +157,12 @@ class MozoAuth private constructor() {
 
     companion object {
         @Volatile
-        private var INSTANCE: MozoAuth? = null
+        private var instance: MozoAuth? = null
 
         fun getInstance(): MozoAuth =
-                INSTANCE ?: synchronized(this) {
-                    INSTANCE = MozoAuth()
-                    INSTANCE!!
+                instance ?: synchronized(this) {
+                    instance = MozoAuth()
+                    instance!!
                 }
     }
 }
