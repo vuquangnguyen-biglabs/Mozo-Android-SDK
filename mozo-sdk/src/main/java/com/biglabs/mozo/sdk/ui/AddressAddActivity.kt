@@ -11,15 +11,20 @@ import com.biglabs.mozo.sdk.utils.*
 import kotlinx.android.synthetic.main.view_address_add_new.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 class AddressAddActivity : AppCompatActivity() {
 
     private val mozoService by lazy { MozoApiService.getInstance(this) }
 
+    private var mShowMessageDuration: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_address_add_new)
+
+        mShowMessageDuration = getInteger(R.integer.security_pin_show_msg_duration)
 
         val address = intent.getStringExtra(FLAG_ADDRESS)
         text_contact_address.text = address
@@ -48,6 +53,9 @@ class AddressAddActivity : AppCompatActivity() {
         input_contact_name.isEnabled = false
         loading_container.hide()
         text_msg_saved.visible()
+
+        delay(mShowMessageDuration)
+        finishAndRemoveTask()
     }
 
     private fun showErrorMsg() = async(UI) {

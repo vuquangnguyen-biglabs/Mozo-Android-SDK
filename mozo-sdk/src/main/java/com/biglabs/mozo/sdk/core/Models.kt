@@ -26,9 +26,7 @@ object Models {
             @NonNull @PrimaryKey var id: Long = 0L,
             val userId: String,
             val phoneNumber: String? = null,
-            val fullName: String? = null,
-            val accessToken: String? = null,
-            val refreshToken: String? = null
+            val fullName: String? = null
     )
 
     @Entity(indices = [Index(value = ["id", "userId"], unique = true)])

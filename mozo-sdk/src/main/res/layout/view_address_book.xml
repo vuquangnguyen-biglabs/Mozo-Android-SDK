@@ -32,7 +32,7 @@
         android:drawablePadding="10dp"
         android:gravity="center_vertical"
         android:hint="@string/mozo_view_text_search"
-        android:imeOptions="actionSearch"
+        android:imeOptions="actionDone"
         android:importantForAutofill="no"
         android:includeFontPadding="true"
         android:inputType="textPersonName"

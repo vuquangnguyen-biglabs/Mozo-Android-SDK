@@ -27,8 +27,8 @@ interface MozoApiService {
         }!!
 
         private fun createService(context: Context): MozoApiService {
-            val accessToken = AuthStateManager.getInstance(context).current.accessToken
             val client = OkHttpClient.Builder().addInterceptor {
+                val accessToken = AuthStateManager.getInstance(context).current.accessToken
                 val original = it.request()
                 val request = original.newBuilder()
                         .header("Authorization", "Bearer $accessToken")

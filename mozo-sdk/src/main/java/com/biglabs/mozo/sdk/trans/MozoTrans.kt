@@ -13,8 +13,18 @@ import kotlinx.coroutines.experimental.async
 import org.web3j.crypto.Credentials
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
+import java.math.BigDecimal
 
 class MozoTrans private constructor() {
+
+    private val mPreferenceUtils: PreferenceUtils by lazy { PreferenceUtils.getInstance(MozoSDK.context!!) }
+
+    private val decimalRate: Double
+
+    init {
+        val decimal = mPreferenceUtils.getDecimal()
+        decimalRate = Math.pow(10.0, decimal.toDouble())
+    }
 
     fun getBalance() = async {
         val address = WalletService.getInstance().getAddress().await() ?: return@async null
@@ -22,8 +32,7 @@ class MozoTrans private constructor() {
                 .getInstance(MozoSDK.context!!)
                 .getBalance(address)
                 .await()
-        PreferenceUtils.getInstance(MozoSDK.context!!)
-                .setDecimal(balanceInfo.body()?.decimals ?: -1)
+        mPreferenceUtils.setDecimal(balanceInfo.body()?.decimals ?: -1)
         return@async balanceInfo.body()?.balanceDisplay().displayString(12)
     }
 
@@ -85,9 +94,10 @@ class MozoTrans private constructor() {
     }
 
     private fun prepareRequest(inAdd: String, outAdd: String, amount: String): Models.TransactionRequest {
+        val finalAmount = amount.toBigDecimal().multiply(BigDecimal.valueOf(decimalRate))
         return Models.TransactionRequest(
                 arrayListOf(Models.TransactionAddress(arrayListOf(inAdd))),
-                arrayListOf(Models.TransactionAddressOutput(arrayListOf(outAdd), amount.toBigDecimal()))
+                arrayListOf(Models.TransactionAddressOutput(arrayListOf(outAdd), finalAmount))
         )
     }
 

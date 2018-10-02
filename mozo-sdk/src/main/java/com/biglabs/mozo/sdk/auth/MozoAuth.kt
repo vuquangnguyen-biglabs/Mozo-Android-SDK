@@ -121,12 +121,9 @@ class MozoAuth private constructor() {
         val serverProfile = response.body()
 
         if (response.isSuccessful && serverProfile != null) {
-            val currentAuth = authStateManager.current
             /* save User info first */
             mozoDB.userInfo().save(Models.UserInfo(
-                    userId = serverProfile.userId,
-                    accessToken = currentAuth.accessToken,
-                    refreshToken = currentAuth.refreshToken
+                    userId = serverProfile.userId
             ))
 
             /* update local profile to match with server profile */
