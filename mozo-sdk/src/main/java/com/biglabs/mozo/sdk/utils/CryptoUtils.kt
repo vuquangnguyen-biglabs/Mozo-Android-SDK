@@ -9,7 +9,7 @@ import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
 import kotlin.experimental.and
 
-internal class CryptoUtils {
+class CryptoUtils {
     companion object {
 
         @JvmStatic
