@@ -12,18 +12,19 @@
 
     <ImageView
         android:id="@+id/image_qr_code"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
+        android:layout_width="@dimen/mozo_qr_large_size"
+        android:layout_height="@dimen/mozo_qr_large_size"
+        android:layout_marginBottom="20dp"
         android:contentDescription="@string/mozo_button_show_qr_code" />
 
     <TextView
         android:id="@+id/button_close"
-        android:layout_width="220dp"
+        android:layout_width="@dimen/mozo_qr_large_size"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginTop="200dp"
         android:clickable="true"
         android:focusable="true"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center_horizontal"
         android:includeFontPadding="false"
         android:padding="10dp"

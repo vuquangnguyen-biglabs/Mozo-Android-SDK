@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="mozo_dialog_corner_radius">20dp</dimen>
+    <dimen name="mozo_dialog_corner_radius">12.5dp</dimen>
 
     <dimen name="mozo_btn_corner_radius">5dp</dimen>
     <dimen name="mozo_btn_width">45dp</dimen>
@@ -13,8 +13,9 @@
 
     <dimen name="mozo_text_size">15sp</dimen>
 
-    <dimen name="mozo_qr_small_size">70sp</dimen>
-    <dimen name="mozo_qr_medium_size">92sp</dimen>
-    <dimen name="mozo_qr_large_size">230sp</dimen>
+    <dimen name="mozo_qr_small_size">70dp</dimen>
+    <dimen name="mozo_qr_medium_size">92dp</dimen>
+    <dimen name="mozo_qr_large_size">250dp</dimen>
 
+    <item name="mozo_background_dim_amount" format="float" type="dimen">0.3</item>
 </resources>

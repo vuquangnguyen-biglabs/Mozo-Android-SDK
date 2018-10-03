@@ -3,6 +3,7 @@ package com.biglabs.mozo.sdk.ui.dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.FragmentManager
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,12 +15,12 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
-
 class QRCodeDialog : DialogFragment() {
 
     private var rawValue: String? = null
 
     private var generateQRJob: Job? = null
+    private var dimAmount = 0.5f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +28,10 @@ class QRCodeDialog : DialogFragment() {
             rawValue = getString(KEY_RAW_VALUE)
             if (rawValue.isNullOrEmpty()) dismiss()
         }
+
+        val value = TypedValue()
+        resources.getValue(R.dimen.mozo_background_dim_amount, value, true)
+        dimAmount = value.float
     }
 
     override fun onStop() {
@@ -38,6 +43,8 @@ class QRCodeDialog : DialogFragment() {
             inflater.inflate(R.layout.dialog_qr_code, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        dialog.window.setBackgroundDrawableResource(R.drawable.mozo_bg_dialog)
+        dialog.window.setDimAmount(dimAmount)
         rawValue?.let {
             generateQRJob = launch {
                 val size = resources.getDimensionPixelSize(R.dimen.mozo_qr_large_size)

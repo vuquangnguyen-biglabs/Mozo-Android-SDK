@@ -10,6 +10,7 @@
         <item name="android:textViewStyle">@style/MozoTextViewStyle</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:backgroundDimAmount">@dimen/mozo_background_dim_amount</item>
     </style>
 
     <style name="MozoTheme.Transparent">

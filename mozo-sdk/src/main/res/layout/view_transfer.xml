@@ -148,6 +148,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="@id/output_receiver_address_label"
                 app:layout_constraintStart_toStartOf="@id/output_receiver_address_label"
                 app:layout_constraintTop_toBottomOf="@id/output_receiver_address_label">

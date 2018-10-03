@@ -12,6 +12,7 @@ import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.setMatchParent
 import com.biglabs.mozo.sdk.utils.string
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import net.openid.appauth.*
 import org.greenrobot.eventbus.EventBus
@@ -55,9 +56,9 @@ internal class MozoAuthActivity : FragmentActivity() {
      * Initializes the authorization service configuration if necessary, either from the local
      * static values or by retrieving an OpenID discovery document.
      */
-    private fun initializeAppAuth() {
+    private fun initializeAppAuth() = async {
         mAuthService?.dispose()
-        mAuthService = AuthorizationService(this)
+        mAuthService = AuthorizationService(this@MozoAuthActivity)
         mAuthRequest.set(null)
         mAuthIntent.set(null)
 
@@ -68,12 +69,12 @@ internal class MozoAuthActivity : FragmentActivity() {
                     null
             )
             initializeAuthRequest()
-            return
+            return@async
         }
 
         if (mAuthStateManager!!.current.authorizationServiceConfiguration != null) {
             initializeAuthRequest()
-            return
+            return@async
         }
 
         AuthorizationServiceConfiguration.fetchFromUrl(
@@ -139,7 +140,9 @@ internal class MozoAuthActivity : FragmentActivity() {
         }
 
         val intent = mAuthService!!.getAuthorizationRequestIntent(mAuthRequest.get(), mAuthIntent.get())
-        startActivityForResult(intent, KEY_DO_AUTHENTICATION)
+        launch(UI) {
+            startActivityForResult(intent, KEY_DO_AUTHENTICATION)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -189,19 +192,17 @@ internal class MozoAuthActivity : FragmentActivity() {
         mAuthService!!.performTokenRequest(request, clientAuthentication, callback)
     }
 
-    private fun doResponseAndFinish(exception: Exception? = null) {
-        launch {
-            if (!modeSignIn) {
-                signOutCallBack?.invoke()
+    private fun doResponseAndFinish(exception: Exception? = null) = async {
+        if (!modeSignIn) {
+            signOutCallBack?.invoke()
 
-            } else if (exception == null) {
-                MozoAuth.getInstance().saveProfile().await()
-            }
+        } else if (exception == null) {
+            MozoAuth.getInstance().saveProfile().await()
+        }
 
-            launch(UI) {
-                EventBus.getDefault().post(MessageEvent.Auth(modeSignIn, exception))
-                finishAndRemoveTask()
-            }
+        launch(UI) {
+            EventBus.getDefault().post(MessageEvent.Auth(modeSignIn, exception))
+            finishAndRemoveTask()
         }
     }
 
