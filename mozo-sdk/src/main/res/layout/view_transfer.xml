@@ -99,6 +99,7 @@
             </android.support.constraint.ConstraintLayout>
 
             <TextView
+                android:id="@+id/output_receiver_address_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/mozo_screen_margin"
@@ -141,6 +142,67 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/output_receiver_address" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/output_receiver_address_user"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                app:layout_constraintEnd_toEndOf="@id/output_receiver_address_label"
+                app:layout_constraintStart_toStartOf="@id/output_receiver_address_label"
+                app:layout_constraintTop_toBottomOf="@id/output_receiver_address_label">
+
+                <View
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/ic_user"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/text_receiver_user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="20dp"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/mozo_color_title"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="An Tran" />
+
+                <TextView
+                    android:id="@+id/text_receiver_user_address"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:textColor="@color/mozo_color_title"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@id/button_clear"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/text_receiver_user_name"
+                    tools:text="0x97309d360C015695cf50892f035E516ccA1898F0" />
+
+                <TextView
+                    android:id="@+id/button_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:paddingStart="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="0dp"
+                    android:paddingBottom="4dp"
+                    android:text="@string/mozo_button_clear"
+                    android:textColor="@color/mozo_color_primary"
+                    android:textSize="12sp"
+                    app:layout_constraintBaseline_toBaselineOf="@id/text_receiver_user_address"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </android.support.constraint.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/button_address_book"

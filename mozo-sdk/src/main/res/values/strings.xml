@@ -26,6 +26,7 @@
     <string name="mozo_button_scan_qr_code">Scan QR Code</string>
     <string name="mozo_button_show_qr_code">Show QR Code</string>
     <string name="mozo_button_copy">Copy</string>
+    <string name="mozo_button_clear">Clear</string>
     <string name="mozo_button_send">Send</string>
     <string name="mozo_button_save">Save</string>
     <string name="mozo_button_save_address">Save Address</string>

@@ -24,6 +24,8 @@ import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.WalletUtils
 import java.util.*
 import android.text.InputFilter
+import android.view.View
+import com.biglabs.mozo.sdk.services.AddressBookService
 import com.biglabs.mozo.sdk.ui.AddressAddActivity
 import com.biglabs.mozo.sdk.ui.AddressBookActivity
 import com.biglabs.mozo.sdk.ui.SecurityActivity
@@ -37,6 +39,8 @@ internal class TransferActivity : AppCompatActivity() {
     private var lastSentAmount: String? = null
     private var lastSentTime: Long = 0
 
+    private var selectedContact: Models.Contact? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_transfer)
@@ -45,6 +49,8 @@ internal class TransferActivity : AppCompatActivity() {
         showInputUI()
 
         mozo_wallet_balance_rate_side.text = "₩102.230"
+
+        AddressBookService.getInstance().fetchData(this)
     }
 
     override fun onDestroy() {
@@ -57,15 +63,22 @@ internal class TransferActivity : AppCompatActivity() {
         when {
             requestCode == KEY_PICK_ADDRESS -> {
                 data?.run {
-                    val address = getStringExtra(AddressBookActivity.KEY_SELECTED_ADDRESS)
-                    output_receiver_address.setText(address)
+                    selectedContact = getParcelableExtra(AddressBookActivity.KEY_SELECTED_ADDRESS)
+                    showContactInfoUI()
                 }
             }
             data != null -> {
                 IntentIntegrator
                         .parseActivityResult(requestCode, resultCode, data)
                         .contents?.let {
-                    output_receiver_address.setText(it)
+                    selectedContact = AddressBookService.getInstance().findByAddress(it)
+
+                    showInputUI()
+                    if (selectedContact == null) {
+                        output_receiver_address.setText(it)
+                        updateSubmitButton()
+                    } else
+                        showContactInfoUI()
                 }
             }
         }
@@ -74,7 +87,10 @@ internal class TransferActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (output_receiver_address.isEnabled) {
             super.onBackPressed()
-        } else showInputUI()
+        } else {
+            showInputUI()
+            showContactInfoUI()
+        }
     }
 
     private fun initUI() {
@@ -85,16 +101,14 @@ internal class TransferActivity : AppCompatActivity() {
             }
         }
 
-        val onTextChanged: (s: CharSequence?) -> Unit = {
-            button_submit.isEnabled = output_receiver_address.length() > 0 && output_amount.length() > 0
-        }
+        val onTextChanged: (s: CharSequence?) -> Unit = { updateSubmitButton() }
         output_receiver_address.onTextChanged(onTextChanged)
         output_amount.onTextChanged(onTextChanged)
 
         val decimal = PreferenceUtils.getInstance(this).getDecimal()
         output_amount.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(12, decimal))
 
-        transfer_toolbar.onBackPress = { showInputUI() }
+        transfer_toolbar.onBackPress = { onBackPressed() }
         button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
         button_scan_qr.click {
             IntentIntegrator(this)
@@ -119,6 +133,7 @@ internal class TransferActivity : AppCompatActivity() {
         output_amount.isEnabled = true
         output_amount_label.setText(R.string.mozo_transfer_amount)
         visible(arrayOf(
+                output_receiver_address,
                 output_receiver_address_underline,
                 button_address_book,
                 button_scan_qr,
@@ -126,11 +141,35 @@ internal class TransferActivity : AppCompatActivity() {
                 output_amount_underline,
                 text_spendable
         ))
-        output_amount_preview_container.gone()
+        gone(arrayOf(
+                output_receiver_address_user,
+                output_amount_preview_container
+        ))
 
         transfer_toolbar.setTitle(R.string.mozo_transfer_title)
         transfer_toolbar.showBackButton(false)
         button_submit.setText(R.string.mozo_button_continue)
+    }
+
+    private fun showContactInfoUI() {
+        updateSubmitButton()
+        selectedContact?.run {
+            output_receiver_address.visibility = View.INVISIBLE
+            output_receiver_address_underline.visibility = View.INVISIBLE
+
+            output_receiver_address_user.visible()
+            text_receiver_user_name.text = name
+            text_receiver_user_address.text = soloAddress
+
+            button_clear.apply {
+                visible()
+                click {
+                    selectedContact = null
+                    showInputUI()
+                    updateSubmitButton()
+                }
+            }
+        }
     }
 
     private fun showConfirmationUI() {
@@ -143,7 +182,8 @@ internal class TransferActivity : AppCompatActivity() {
                 button_scan_qr,
                 output_amount,
                 output_amount_underline,
-                text_spendable
+                text_spendable,
+                button_clear
         ))
         text_preview_amount.text = output_amount.text
         output_amount_preview_container.visible()
@@ -179,6 +219,10 @@ internal class TransferActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateSubmitButton() {
+        button_submit.isEnabled = (selectedContact != null || output_receiver_address.length() > 0) && output_amount.length() > 0
+    }
+
     private fun showLoading() = async(UI) {
         loading_container.show()
     }
@@ -189,7 +233,7 @@ internal class TransferActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun validateInput(): Boolean {
-        val address = output_receiver_address.text.toString()
+        val address = selectedContact?.soloAddress ?: output_receiver_address.text.toString()
         if (!WalletUtils.isValidAddress(address)) {
             AlertDialog.Builder(this).setMessage("The Receiver Address is not valid!").show()
             return false
@@ -204,12 +248,12 @@ internal class TransferActivity : AppCompatActivity() {
     fun onReceivePin(event: MessageEvent.Pin) {
         EventBus.getDefault().unregister(this)
 
-        val output = output_receiver_address.text.toString()
+        val address = selectedContact?.soloAddress ?: output_receiver_address.text.toString()
         val amount = output_amount.text.toString()
         launch {
             showLoading()
-            val txResponse = MozoTrans.getInstance().createTransaction(output, amount, event.pin).await()
-            lastSentAddress = output
+            val txResponse = MozoTrans.getInstance().createTransaction(address, amount, event.pin).await()
+            lastSentAddress = address
             lastSentAmount = amount
             lastSentTime = Calendar.getInstance().timeInMillis
             showResultUI(txResponse)

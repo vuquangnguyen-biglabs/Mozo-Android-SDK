@@ -9,14 +9,12 @@ import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.ContactRecyclerAdapter
 import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.core.MozoApiService
+import com.biglabs.mozo.sdk.services.AddressBookService
 import com.biglabs.mozo.sdk.utils.click
-import com.biglabs.mozo.sdk.utils.logAsError
 import com.biglabs.mozo.sdk.utils.onTextChanged
 import kotlinx.android.synthetic.main.view_address_book.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
@@ -53,21 +51,17 @@ class AddressBookActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         launch {
-            val response = MozoApiService.getInstance(this@AddressBookActivity)
-                    .getContacts()
-                    .await()
+            val addressBookService = AddressBookService.getInstance()
+            addressBookService.fetchData(this@AddressBookActivity).await()
 
-            if (response.isSuccessful && response.body() != null) {
-                response.body()!!.sortedBy { it.name }.let {
-                    contacts.clear()
-                    contacts.addAll(it)
-                    contactsBackup.clear()
-                    contactsBackup.addAll(it)
-                }
+            contacts.clear()
+            contacts.addAll(addressBookService.data)
 
-                launch(UI) {
-                    mAdapter?.notifyDataSetChanged()
-                }
+            contactsBackup.clear()
+            contactsBackup.addAll(addressBookService.data)
+
+            launch(UI) {
+                mAdapter?.notifyDataSetChanged()
             }
         }
     }
@@ -89,9 +83,8 @@ class AddressBookActivity : AppCompatActivity() {
     private val onItemClick = { position: Int ->
         if (position < contacts.size) {
             if (isStartForResult) {
-                val address = contacts[position].soloAddress
                 val result = Intent()
-                result.putExtra(KEY_SELECTED_ADDRESS, address)
+                result.putExtra(KEY_SELECTED_ADDRESS, contacts[position])
 
                 setResult(RESULT_OK, result)
                 finishAndRemoveTask()
