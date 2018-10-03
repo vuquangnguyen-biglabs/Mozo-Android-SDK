@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.biglabs.mozo.sdk.R
@@ -41,7 +42,16 @@ class AddressBookActivity : AppCompatActivity() {
         button_clear.click { input_search.setText("") }
 
         mAdapter = ContactRecyclerAdapter(contacts, onItemClick)
+        list_contacts.setHasFixedSize(true)
         list_contacts.adapter = mAdapter
+
+        list_contacts_refresh?.apply {
+            val offset = resources.getDimensionPixelSize(R.dimen.mozo_refresh_progress_offset)
+            setProgressViewOffset(true, progressViewStartOffset + offset, progressViewEndOffset + offset)
+            setColorSchemeResources(R.color.mozo_color_primary)
+            isRefreshing = true
+            setOnRefreshListener { fetchData() }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -50,6 +60,10 @@ class AddressBookActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        fetchData()
+    }
+
+    private fun fetchData() {
         launch {
             val addressBookService = AddressBookService.getInstance()
             addressBookService.fetchData(this@AddressBookActivity).await()
@@ -61,6 +75,7 @@ class AddressBookActivity : AppCompatActivity() {
             contactsBackup.addAll(addressBookService.data)
 
             launch(UI) {
+                list_contacts_refresh.isRefreshing = false
                 mAdapter?.notifyDataSetChanged()
             }
         }

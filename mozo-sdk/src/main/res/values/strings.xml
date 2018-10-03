@@ -62,6 +62,8 @@
     <string name="mozo_transfer_send_complete_msg">You sent {%s} Mozo Offchain to address:\n%s</string>
 
     <string name="mozo_transaction_detail_title">Transaction detail</string>
+    <string name="mozo_transaction_history_title">Transaction History</string>
+    <string name="mozo_transaction_history_offchain_text">Mozo Offchain Wallet</string>
 
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>
