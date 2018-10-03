@@ -109,7 +109,7 @@ internal class TransferActivity : AppCompatActivity() {
                 if (!EventBus.getDefault().isRegistered(this)) {
                     EventBus.getDefault().register(this)
                 }
-                SecurityActivity.start(this, requestCode = SecurityActivity.KEY_ENTER_PIN)
+                SecurityActivity.start(this, requestCode = SecurityActivity.KEY_VERIFY_PIN)
             }
         }
     }

@@ -41,6 +41,7 @@ internal class SecurityActivity : AppCompatActivity() {
         when {
             seed != null -> showBackupUI(seed)
             mRequestCode == KEY_ENTER_PIN -> showPinInputRestoreUI()
+            mRequestCode == KEY_VERIFY_PIN -> showPinVerifyUI()
             else -> {
                 finish()
                 EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
@@ -96,6 +97,7 @@ internal class SecurityActivity : AppCompatActivity() {
                 if (it?.length == mPINLength) {
                     when {
                         mRequestCode == KEY_ENTER_PIN -> doResponseResult()
+                        mRequestCode == KEY_VERIFY_PIN -> doResponseResult()
                         !mPIN.isEmpty() && TextUtils.equals(input_pin.text, mPIN) -> doResponseResult()
                         !mPIN.isEmpty() && !TextUtils.equals(input_pin.text, mPIN) -> showErrorUI()
                     }
@@ -115,6 +117,11 @@ internal class SecurityActivity : AppCompatActivity() {
         initRestoreUI()
     }
 
+    private fun showPinVerifyUI() {
+        showPinInputUI()
+        initVerifyUI(true)
+    }
+
     private fun initRestoreUI(clearPin: Boolean = false) {
         pin_toolbar.screen_title.setText(R.string.mozo_pin_title_restore)
         sub_title_pin.setText(R.string.mozo_pin_sub_title_restore)
@@ -127,6 +134,12 @@ internal class SecurityActivity : AppCompatActivity() {
         }
 
         hideLoadingUI()
+    }
+
+    private fun initVerifyUI(clearPin: Boolean = false) {
+        initRestoreUI(clearPin)
+        pin_toolbar.screen_title.setText(R.string.mozo_pin_title_verify)
+        sub_title_pin.setText(R.string.mozo_pin_sub_title)
     }
 
     private fun showPinInputConfirmUI() {
@@ -206,6 +219,16 @@ internal class SecurityActivity : AppCompatActivity() {
                         return@launch
                     }
                 }
+                KEY_VERIFY_PIN -> {
+                    mPIN = input_pin.text.toString()
+                    val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
+                    initVerifyUI(!isCorrect)
+                    if (isCorrect) showPinInputCorrectUI()
+                    else {
+                        showErrorUI()
+                        return@launch
+                    }
+                }
             }
             delay(mShowMessageDuration)
 
@@ -220,6 +243,7 @@ internal class SecurityActivity : AppCompatActivity() {
 
         const val KEY_CREATE_PIN = 0x001
         const val KEY_ENTER_PIN = 0x002
+        const val KEY_VERIFY_PIN = 0x003
 
         fun start(context: Context, seed: String? = null, requestCode: Int) {
             Intent(context, SecurityActivity::class.java).apply {

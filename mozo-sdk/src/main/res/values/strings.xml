@@ -38,6 +38,7 @@
 
     <string name="mozo_pin_title">Create Security Pin</string>
     <string name="mozo_pin_title_restore">Restore wallet</string>
+    <string name="mozo_pin_title_verify">Security pin confirm</string>
     <string name="mozo_pin_sub_title">Enter your security pin</string>
     <string name="mozo_pin_sub_title_restore">Enter your security pin\nto restore wallet</string>
     <string name="mozo_pin_content">Security PIN should be 6 di-git numbers</string>
