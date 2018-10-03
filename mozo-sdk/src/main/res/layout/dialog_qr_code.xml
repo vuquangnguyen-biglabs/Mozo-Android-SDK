@@ -24,7 +24,6 @@
         android:layout_gravity="bottom"
         android:clickable="true"
         android:focusable="true"
-        android:fontFamily="sans-serif-medium"
         android:gravity="center_horizontal"
         android:includeFontPadding="false"
         android:padding="10dp"

@@ -7,6 +7,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.NonNull
+import com.biglabs.mozo.sdk.utils.displayString
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
 import kotlin.collections.ArrayList
@@ -102,8 +103,9 @@ object Models {
             val decimals: Int,
             val contractAddress: String?
     ) {
-        fun balanceDisplay(): BigDecimal =
+        fun balanceDisplay(): String =
                 balance.divide(Math.pow(10.0, decimals.toDouble()).toBigDecimal())
+                        .displayString(12)
     }
 
     class TransactionAddress(
@@ -144,4 +146,24 @@ object Models {
             var publicKeys: ArrayList<String>,
             val nonce: Long
     )
+
+    data class TransactionHistory(
+            val txHash: String,
+            val blockHeight: Long,
+            val action: String,
+            val fees: Double,
+            val amount: BigDecimal,
+            val addressFrom: String,
+            val addressTo: String,
+            val contractAddress: String,
+            val symbol: String,
+            val contractAction: String,
+            val decimal: Int
+    ) {
+        fun amountDisplay(): String =
+                amount.divide(Math.pow(10.0, decimal.toDouble()).toBigDecimal())
+                        .displayString(12)
+
+        fun type(address: String?): Boolean = addressFrom.equals(address, ignoreCase = true)
+    }
 }

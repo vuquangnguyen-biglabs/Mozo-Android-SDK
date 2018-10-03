@@ -79,4 +79,11 @@ interface MozoApiService {
 
     @POST("solo/contract/solo-token/send-signed-tx")
     fun sendTransaction(@Body request: Models.TransactionResponse): Deferred<Response<Models.TransactionResponse>>
+
+    @GET("solo/contract/solo-token/txhistory/{address}")
+    fun getTransactionHistory(
+            @Path("address") address: String,
+            @Query("page") page: Int,
+            @Query("size") size: Int
+    ): Deferred<Response<List<Models.TransactionHistory>>>
 }

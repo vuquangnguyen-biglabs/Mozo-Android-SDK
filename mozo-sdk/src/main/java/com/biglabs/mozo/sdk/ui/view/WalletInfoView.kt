@@ -20,12 +20,15 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import android.support.constraint.ConstraintSet
+
 
 class WalletInfoView : ConstraintLayout {
 
     private var mViewMode: Int = 0
-    private var mShowQRCode = true
-    private var mShowCopy = true
+    private var mShowCopyButton = true
+    private var mShowQRCodeButton = true
+    private var mShowQRCodeThumbnail = true
 
     private var mAddress: String? = null
     private var mBalance: String? = null
@@ -43,8 +46,9 @@ class WalletInfoView : ConstraintLayout {
         context.theme.obtainStyledAttributes(attrs, R.styleable.WalletInfoView, defStyleAttr, 0).apply {
             try {
                 mViewMode = getInt(R.styleable.WalletInfoView_viewMode, mViewMode)
-                mShowQRCode = getBoolean(R.styleable.WalletInfoView_showQRCode, mShowQRCode)
-                mShowCopy = getBoolean(R.styleable.WalletInfoView_showCopy, mShowCopy)
+                mShowCopyButton = getBoolean(R.styleable.WalletInfoView_showCopyButton, mShowCopyButton)
+                mShowQRCodeButton = getBoolean(R.styleable.WalletInfoView_showQRCodeButton, mShowQRCodeButton)
+                mShowQRCodeThumbnail = getBoolean(R.styleable.WalletInfoView_showQRCodeThumbnail, mShowQRCodeThumbnail)
             } finally {
                 recycle()
             }
@@ -134,14 +138,14 @@ class WalletInfoView : ConstraintLayout {
 
             balanceRate = find(R.id.mozo_wallet_balance_rate_bottom)
             find<View>(R.id.mozo_wallet_btn_show_qr)?.apply {
-                if (mShowQRCode) {
+                if (mShowQRCodeButton) {
                     visible()
                     click { showQRCodeDialog() }
                 } else gone()
             }
 
             find<View>(R.id.mozo_wallet_btn_copy)?.apply {
-                if (mShowCopy) {
+                if (mShowCopyButton) {
                     visible()
                     click { context.copyWithToast(mAddress) }
                 } else gone()
@@ -150,8 +154,17 @@ class WalletInfoView : ConstraintLayout {
 
         mWalletBalanceView = find(R.id.mozo_wallet_balance_value)
         mBalance?.let { mWalletBalanceView?.text = it }
-        find<View>(R.id.button_login)?.click {
-            MozoAuth.getInstance().signIn()
+
+        find<View>(R.id.button_login)?.apply {
+            click {
+                MozoAuth.getInstance().signIn()
+            }
+
+//            val loginBtnConstraintSet = ConstraintSet()
+//            loginBtnConstraintSet.connect(ConstraintSet.PARENT_ID, ConstraintSet.START, id, ConstraintSet.START)
+//            loginBtnConstraintSet.connect(ConstraintSet.PARENT_ID, ConstraintSet.END, id, ConstraintSet.END)
+//
+//            loginBtnConstraintSet.applyTo(this@WalletInfoView)
         }
 
         balanceRate?.apply {
@@ -210,12 +223,12 @@ class WalletInfoView : ConstraintLayout {
     }
 
     fun setShowQRCode(isShow: Boolean) {
-        mShowQRCode = isShow
+        mShowQRCodeButton = isShow
         updateUI()
     }
 
     fun setShowCopy(isShow: Boolean) {
-        mShowCopy = isShow
+        mShowCopyButton = isShow
         updateUI()
     }
 

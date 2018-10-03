@@ -29,8 +29,9 @@
             <enum name="onlyAddress" value="1" />
             <enum name="onlyBalance" value="2" />
         </attr>
-        <attr name="showCopy" format="boolean" />
-        <attr name="showQRCode" format="boolean" />
+        <attr name="showCopyButton" format="boolean" />
+        <attr name="showQRCodeButton" format="boolean" />
+        <attr name="showQRCodeThumbnail" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="FastScrollRecyclerView">

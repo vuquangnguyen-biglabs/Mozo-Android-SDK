@@ -64,6 +64,7 @@
     <string name="mozo_transaction_detail_title">Transaction detail</string>
     <string name="mozo_transaction_history_title">Transaction History</string>
     <string name="mozo_transaction_history_offchain_text">Mozo Offchain Wallet</string>
+    <string name="mozo_transaction_history_amount_text">%s %s Mozo</string>
 
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>
@@ -72,4 +73,7 @@
     <string name="mozo_view_text_login_require_prefix">You must</string>
     <string name="mozo_view_text_login_require_btn"><u>Login</u></string>
     <string name="mozo_view_text_login_require_suffix">to use this function</string>
+    <string name="mozo_view_text_tx_all">All</string>
+    <string name="mozo_view_text_tx_received">Received</string>
+    <string name="mozo_view_text_tx_sent">Sent</string>
 </resources>

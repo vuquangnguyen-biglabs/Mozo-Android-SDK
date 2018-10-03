@@ -33,7 +33,7 @@ class MozoTrans private constructor() {
                 .getBalance(address)
                 .await()
         mPreferenceUtils.setDecimal(balanceInfo.body()?.decimals ?: -1)
-        return@async balanceInfo.body()?.balanceDisplay().displayString(12)
+        return@async balanceInfo.body()?.balanceDisplay()
     }
 
     fun transfer() {

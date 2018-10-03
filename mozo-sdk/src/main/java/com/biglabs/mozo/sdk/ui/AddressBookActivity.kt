@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DefaultItemAnimator
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.ContactRecyclerAdapter
@@ -16,14 +16,29 @@ import com.biglabs.mozo.sdk.utils.onTextChanged
 import kotlinx.android.synthetic.main.view_address_book.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 class AddressBookActivity : AppCompatActivity() {
 
-    private var mAdapter: ContactRecyclerAdapter? = null
     private val contacts: ArrayList<Models.Contact> = arrayListOf()
     private val contactsBackup: ArrayList<Models.Contact> = arrayListOf()
+    private val onItemClick = { position: Int ->
+        if (position < contacts.size) {
+            if (isStartForResult) {
+                val result = Intent()
+                result.putExtra(KEY_SELECTED_ADDRESS, contacts[position])
+
+                setResult(RESULT_OK, result)
+                finishAndRemoveTask()
+            } else {
+                //TODO open details
+            }
+        }
+    }
+    private var mAdapter = ContactRecyclerAdapter(contacts, onItemClick)
+
 
     private var isStartForResult = false
     private var searchJob: Job? = null
@@ -41,8 +56,8 @@ class AddressBookActivity : AppCompatActivity() {
 
         button_clear.click { input_search.setText("") }
 
-        mAdapter = ContactRecyclerAdapter(contacts, onItemClick)
         list_contacts.setHasFixedSize(true)
+        list_contacts.itemAnimator = DefaultItemAnimator()
         list_contacts.adapter = mAdapter
 
         list_contacts_refresh?.apply {
@@ -63,21 +78,19 @@ class AddressBookActivity : AppCompatActivity() {
         fetchData()
     }
 
-    private fun fetchData() {
-        launch {
-            val addressBookService = AddressBookService.getInstance()
-            addressBookService.fetchData(this@AddressBookActivity).await()
+    private fun fetchData() = async {
+        val addressBookService = AddressBookService.getInstance()
+        addressBookService.fetchData(this@AddressBookActivity).await()
 
-            contacts.clear()
-            contacts.addAll(addressBookService.data)
+        contacts.clear()
+        contacts.addAll(addressBookService.data)
 
-            contactsBackup.clear()
-            contactsBackup.addAll(addressBookService.data)
+        contactsBackup.clear()
+        contactsBackup.addAll(addressBookService.data)
 
-            launch(UI) {
-                list_contacts_refresh.isRefreshing = false
-                mAdapter?.notifyDataSetChanged()
-            }
+        launch(UI) {
+            list_contacts_refresh.isRefreshing = false
+            mAdapter.notifyDataSetChanged()
         }
     }
 
@@ -90,21 +103,7 @@ class AddressBookActivity : AppCompatActivity() {
             contacts.clear()
             contacts.addAll(contactsBackup.filter { it.name.contains(name, ignoreCase = true) })
             launch(UI) {
-                mAdapter?.notifyDataSetChanged()
-            }
-        }
-    }
-
-    private val onItemClick = { position: Int ->
-        if (position < contacts.size) {
-            if (isStartForResult) {
-                val result = Intent()
-                result.putExtra(KEY_SELECTED_ADDRESS, contacts[position])
-
-                setResult(RESULT_OK, result)
-                finishAndRemoveTask()
-            } else {
-                //TODO open details
+                mAdapter.notifyDataSetChanged()
             }
         }
     }

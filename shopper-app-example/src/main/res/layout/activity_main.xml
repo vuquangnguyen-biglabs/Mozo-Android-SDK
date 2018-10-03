@@ -81,8 +81,8 @@
         <com.biglabs.mozo.sdk.ui.view.WalletInfoView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:showCopy="false"
-            app:showQRCode="false"
+            app:showCopyButton="false"
+            app:showQRCodeButton="false"
             app:viewMode="addressAndBalance" />
 
         <TextView
