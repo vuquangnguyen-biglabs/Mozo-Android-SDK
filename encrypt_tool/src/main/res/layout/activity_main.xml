@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".MainActivity"
+    tools:ignore="HardcodedText">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_pin_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/input_pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Pin"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            tools:targetApi="o" />
+    </android.support.design.widget.TextInputLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_data_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_pin_layout">
+
+        <EditText
+            android:id="@+id/input_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Data"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            tools:targetApi="o" />
+    </android.support.design.widget.TextInputLayout>
+
+
+    <Button
+        android:id="@+id/button_encrypt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Encrypt"
+        app:layout_constraintEnd_toStartOf="@id/button_decrypt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_data_layout" />
+
+    <Button
+        android:id="@+id/button_decrypt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Decrypt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_encrypt"
+        app:layout_constraintTop_toTopOf="@id/button_encrypt" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Result:"
+        app:layout_constraintTop_toBottomOf="@id/button_encrypt" />
+
+    <TextView
+        android:id="@+id/text_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textIsSelectable="true"
+        app:layout_constraintTop_toBottomOf="@id/button_encrypt" />
+
+    <ProgressBar
+        android:id="@+id/loading_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/button_encrypt" />
+</android.support.constraint.ConstraintLayout>

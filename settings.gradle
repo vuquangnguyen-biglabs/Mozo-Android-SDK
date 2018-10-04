@@ -1,1 +1,1 @@
-include ':shopper-app-example', ':retailer-app-example', ':mozo-sdk'
+include ':shopper-app-example', ':retailer-app-example', ':mozo-sdk', ':encrypt_tool'
