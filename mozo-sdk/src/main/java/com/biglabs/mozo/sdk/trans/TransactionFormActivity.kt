@@ -29,11 +29,10 @@ import com.biglabs.mozo.sdk.services.AddressBookService
 import com.biglabs.mozo.sdk.ui.AddressAddActivity
 import com.biglabs.mozo.sdk.ui.AddressBookActivity
 import com.biglabs.mozo.sdk.ui.SecurityActivity
-import com.biglabs.mozo.sdk.ui.TransactionDetails
 
 
 @Suppress("unused")
-internal class TransferActivity : AppCompatActivity() {
+internal class TransactionFormActivity : AppCompatActivity() {
 
     private var lastSentAddress: String? = null
     private var lastSentAmount: String? = null
@@ -208,10 +207,10 @@ internal class TransferActivity : AppCompatActivity() {
             text_send_complete_msg.text = msg
 
             button_save_address.click {
-                AddressAddActivity.start(this@TransferActivity, lastSentAddress)
+                AddressAddActivity.start(this@TransactionFormActivity, lastSentAddress)
             }
             button_transaction_detail.click {
-                TransactionDetails.start(this@TransferActivity, lastSentAddress, lastSentAmount, lastSentTime)
+                TransactionDetails.start(this@TransactionFormActivity, lastSentAddress, lastSentAmount, lastSentTime)
             }
         } else {
             // TODO show send Tx failed UI
@@ -265,7 +264,7 @@ internal class TransferActivity : AppCompatActivity() {
         private const val KEY_PICK_ADDRESS = 0x0021
 
         fun start(context: Context) {
-            Intent(context, TransferActivity::class.java).apply {
+            Intent(context, TransactionFormActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 context.startActivity(this)

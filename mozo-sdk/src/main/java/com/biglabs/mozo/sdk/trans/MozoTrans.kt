@@ -4,10 +4,8 @@ import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.services.WalletService
-import com.biglabs.mozo.sdk.ui.TransactionHistoryActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PreferenceUtils
-import com.biglabs.mozo.sdk.utils.displayString
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
 import org.web3j.crypto.Credentials
@@ -41,7 +39,7 @@ class MozoTrans private constructor() {
             //            if (!EventBus.getDefault().isRegistered(this@MozoTrans)) {
 //                EventBus.getDefault().register(this@MozoTrans)
 //            }
-            TransferActivity.start(this)
+            TransactionFormActivity.start(this)
             return
         }
     }

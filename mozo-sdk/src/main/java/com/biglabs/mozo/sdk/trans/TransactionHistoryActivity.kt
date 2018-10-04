@@ -1,21 +1,17 @@
-package com.biglabs.mozo.sdk.ui
+package com.biglabs.mozo.sdk.trans
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.view.MenuCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.view.menu.MenuBuilder
 import android.support.v7.widget.DefaultItemAnimator
 import android.view.ContextMenu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.services.WalletService
-import com.biglabs.mozo.sdk.trans.TransactionHistoryRecyclerAdapter
 import com.biglabs.mozo.sdk.utils.click
 import kotlinx.android.synthetic.main.view_transaction_history.*
 import kotlinx.coroutines.experimental.android.UI

@@ -1,4 +1,4 @@
-package com.biglabs.mozo.sdk.ui
+package com.biglabs.mozo.sdk.trans
 
 import android.content.Context
 import android.content.Intent
