@@ -2,6 +2,7 @@ package com.biglabs.mozo.sdk.core
 
 import android.content.Context
 import com.biglabs.mozo.sdk.BuildConfig
+import com.biglabs.mozo.sdk.common.Constant
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import kotlinx.coroutines.experimental.Deferred
@@ -83,7 +84,7 @@ interface MozoApiService {
     @GET("solo/contract/solo-token/txhistory/{address}")
     fun getTransactionHistory(
             @Path("address") address: String,
-            @Query("page") page: Int,
-            @Query("size") size: Int
+            @Query("page") page: Int = Constant.PAGING_START_INDEX,
+            @Query("size") size: Int = Constant.PAGING_SIZE
     ): Deferred<Response<List<Models.TransactionHistory>>>
 }

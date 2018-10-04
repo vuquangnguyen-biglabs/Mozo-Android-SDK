@@ -76,4 +76,5 @@
     <string name="mozo_view_text_tx_all">All</string>
     <string name="mozo_view_text_tx_received">Received</string>
     <string name="mozo_view_text_tx_sent">Sent</string>
+    <string name="mozo_view_text_tx_failed">Failed</string>
 </resources>

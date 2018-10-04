@@ -158,12 +158,16 @@ object Models {
             val contractAddress: String,
             val symbol: String,
             val contractAction: String,
-            val decimal: Int
+            val decimal: Int,
+            val time: Long,
+            val txStatus: String
     ) {
         fun amountDisplay(): String =
                 amount.divide(Math.pow(10.0, decimal.toDouble()).toBigDecimal())
                         .displayString(12)
 
         fun type(address: String?): Boolean = addressFrom.equals(address, ignoreCase = true)
+
+        fun isSuccess() = txStatus.equals("SUCCESS", ignoreCase = true)
     }
 }

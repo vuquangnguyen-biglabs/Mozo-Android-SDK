@@ -60,9 +60,9 @@
             android:includeFontPadding="false"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
+            android:text="@string/mozo_view_text_tx_all"
             android:textColor="@color/mozo_color_action_text"
-            android:textSize="12sp"
-            tools:text="Received" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
