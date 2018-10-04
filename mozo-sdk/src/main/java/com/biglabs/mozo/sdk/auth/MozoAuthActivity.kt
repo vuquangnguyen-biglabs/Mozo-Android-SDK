@@ -77,17 +77,13 @@ internal class MozoAuthActivity : FragmentActivity() {
             return@async
         }
 
-        AuthorizationServiceConfiguration.fetchFromUrl(
-                Uri.parse(string(R.string.auth_discovery_uri))
-        ) { config, ex ->
-            if (config == null) {
-                doResponseAndFinish(exception = ex)
-                return@fetchFromUrl
-            }
-
-            mAuthStateManager!!.replace(AuthState(config))
-            initializeAuthRequest()
-        }
+        mAuthStateManager!!.replace(AuthState(
+                AuthorizationServiceConfiguration(
+                        Uri.parse(string(R.string.auth_end_point_authorization)),
+                        Uri.parse(string(R.string.auth_end_point_token))
+                )
+        ))
+        initializeAuthRequest()
     }
 
     private fun initializeAuthRequest() {
@@ -106,7 +102,7 @@ internal class MozoAuthActivity : FragmentActivity() {
                 ResponseTypeValues.CODE,
                 Uri.parse(string(R.string.auth_redirect_uri, R.string.redirect_url_scheme)))
                 .setPrompt("login")
-                .setScope("")
+                .setScope("openid profile phone")
 
         mAuthRequest.set(authRequestBuilder.build())
     }
