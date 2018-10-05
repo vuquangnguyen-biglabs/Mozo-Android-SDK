@@ -30,6 +30,7 @@
     <string name="mozo_button_send">Send</string>
     <string name="mozo_button_save">Save</string>
     <string name="mozo_button_save_address">Save Address</string>
+    <string name="mozo_button_retry">Retry</string>
 
     <string name="mozo_backup_title">Back up Wallet</string>
     <string name="mozo_backup_sub_title">Store Recovery Phrase</string>
@@ -48,6 +49,7 @@
     <string name="mozo_pin_msg_create_success">Create Security PIN successful</string>
     <string name="mozo_pin_msg_enter_correct">Security PIN is correct</string>
     <string name="mozo_pin_msg_enter_incorrect">You entered an incorrect PIN</string>
+    <string name="mozo_pin_msg_error">Create Wallet failed</string>
 
     <string name="mozo_transfer_title">Send Mozo Offchain</string>
     <string name="mozo_transfer_confirmation">Confirmation</string>

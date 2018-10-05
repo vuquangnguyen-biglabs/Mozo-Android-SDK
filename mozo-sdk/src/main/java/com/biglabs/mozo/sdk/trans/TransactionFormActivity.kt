@@ -7,11 +7,16 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.InputFilter
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.view.View
 import com.biglabs.mozo.sdk.R
-import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
+import com.biglabs.mozo.sdk.services.AddressBookService
+import com.biglabs.mozo.sdk.ui.AddressAddActivity
+import com.biglabs.mozo.sdk.ui.AddressBookActivity
+import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.*
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.view_transfer.*
@@ -19,16 +24,8 @@ import kotlinx.android.synthetic.main.view_transfer_complete.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.WalletUtils
 import java.util.*
-import android.text.InputFilter
-import android.view.View
-import com.biglabs.mozo.sdk.services.AddressBookService
-import com.biglabs.mozo.sdk.ui.AddressAddActivity
-import com.biglabs.mozo.sdk.ui.AddressBookActivity
-import com.biglabs.mozo.sdk.ui.SecurityActivity
 
 
 @Suppress("unused")
@@ -52,11 +49,6 @@ internal class TransactionFormActivity : AppCompatActivity() {
         AddressBookService.getInstance().fetchData(this)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.getDefault().unregister(this)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode != RESULT_OK) return
         when {
@@ -64,6 +56,11 @@ internal class TransactionFormActivity : AppCompatActivity() {
                 data?.run {
                     selectedContact = getParcelableExtra(AddressBookActivity.KEY_SELECTED_ADDRESS)
                     showContactInfoUI()
+                }
+            }
+            requestCode == KEY_VERIFY_PIN -> {
+                data?.run {
+                    sendTx(getStringExtra(SecurityActivity.KEY_DATA))
                 }
             }
             data != null -> {
@@ -80,6 +77,21 @@ internal class TransactionFormActivity : AppCompatActivity() {
                         showContactInfoUI()
                 }
             }
+        }
+    }
+
+    private fun sendTx(pin: String?) {
+        if (pin == null) return
+        val address = selectedContact?.soloAddress ?: output_receiver_address.text.toString()
+        val amount = output_amount.text.toString()
+        launch {
+            showLoading()
+            val txResponse = MozoTrans.getInstance().createTransaction(address, amount, pin).await()
+            lastSentAddress = address
+            lastSentAmount = amount
+            lastSentTime = Calendar.getInstance().timeInMillis
+            showResultUI(txResponse)
+            hideLoading()
         }
     }
 
@@ -119,10 +131,7 @@ internal class TransactionFormActivity : AppCompatActivity() {
             if (output_receiver_address.isEnabled) {
                 if (validateInput()) showConfirmationUI()
             } else {
-                if (!EventBus.getDefault().isRegistered(this)) {
-                    EventBus.getDefault().register(this)
-                }
-                SecurityActivity.start(this, requestCode = SecurityActivity.KEY_VERIFY_PIN)
+                SecurityActivity.start(this, SecurityActivity.KEY_VERIFY_PIN, KEY_VERIFY_PIN)
             }
         }
     }
@@ -243,25 +252,9 @@ internal class TransactionFormActivity : AppCompatActivity() {
         return true
     }
 
-    @Subscribe
-    fun onReceivePin(event: MessageEvent.Pin) {
-        EventBus.getDefault().unregister(this)
-
-        val address = selectedContact?.soloAddress ?: output_receiver_address.text.toString()
-        val amount = output_amount.text.toString()
-        launch {
-            showLoading()
-            val txResponse = MozoTrans.getInstance().createTransaction(address, amount, event.pin).await()
-            lastSentAddress = address
-            lastSentAmount = amount
-            lastSentTime = Calendar.getInstance().timeInMillis
-            showResultUI(txResponse)
-            hideLoading()
-        }
-    }
-
     companion object {
         private const val KEY_PICK_ADDRESS = 0x0021
+        private const val KEY_VERIFY_PIN = 0x0022
 
         fun start(context: Context) {
             Intent(context, TransactionFormActivity::class.java).apply {

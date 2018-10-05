@@ -8,7 +8,10 @@ import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.FragmentActivity
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
+import com.biglabs.mozo.sdk.services.WalletService
+import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.AuthStateManager
+import com.biglabs.mozo.sdk.utils.logAsError
 import com.biglabs.mozo.sdk.utils.setMatchParent
 import com.biglabs.mozo.sdk.utils.string
 import kotlinx.coroutines.experimental.android.UI
@@ -40,7 +43,7 @@ internal class MozoAuthActivity : FragmentActivity() {
 
         mAuthStateManager = AuthStateManager.getInstance(this)
         if (modeSignIn && mAuthStateManager!!.current.isAuthorized) {
-            doResponseAndFinish()
+            handleResult()
             return
         }
 
@@ -141,9 +144,10 @@ internal class MozoAuthActivity : FragmentActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when {
             requestCode == KEY_DO_AUTHENTICATION && modeSignIn -> {
+                if (data == null) return
                 val response = AuthorizationResponse.fromIntent(data)
                 val ex = AuthorizationException.fromIntent(data)
 
@@ -158,21 +162,25 @@ internal class MozoAuthActivity : FragmentActivity() {
                         exchangeAuthorizationCode(response)
                     }
                     else -> {
-                        doResponseAndFinish(exception = ex)
+                        finishAndRemoveTask()
                     }
                 }
             }
-            !modeSignIn -> {
-                doResponseAndFinish()
+            requestCode == KEY_DO_ENTER_PIN -> {
+                EventBus.getDefault().post(MessageEvent.Auth(modeSignIn))
+                finishAndRemoveTask()
             }
-            else -> doResponseAndFinish(Exception("No Result"))
+            !modeSignIn -> {
+                handleResult()
+            }
+            else -> handleResult(Exception("No Result"))
         }
     }
 
     private fun exchangeAuthorizationCode(response: AuthorizationResponse) {
         performTokenRequest(response.createTokenExchangeRequest(), AuthorizationService.TokenResponseCallback { tokenResponse, authException ->
             mAuthStateManager!!.updateAfterTokenResponse(tokenResponse, authException)
-            doResponseAndFinish(exception = authException)
+            handleResult(exception = authException)
         })
     }
 
@@ -181,20 +189,27 @@ internal class MozoAuthActivity : FragmentActivity() {
         try {
             clientAuthentication = mAuthStateManager!!.current.clientAuthentication
         } catch (ex: ClientAuthentication.UnsupportedAuthenticationMethod) {
-            doResponseAndFinish(exception = ex)
+            handleResult(exception = ex)
             return
         }
 
         mAuthService!!.performTokenRequest(request, clientAuthentication, callback)
     }
 
-    private fun doResponseAndFinish(exception: Exception? = null) = async {
-        if (!modeSignIn) {
+    private fun handleResult(exception: Exception? = null) = async {
+        if (modeSignIn) {
+            if (exception == null) {
+                MozoAuth.getInstance().syncProfile().await()
+                // TODO handle sync profile failed
+                val flag = WalletService.getInstance().initWallet().await()
+                SecurityActivity.start(this@MozoAuthActivity, flag, KEY_DO_ENTER_PIN)
+            } else {
+                //TODO handle authentication error
+                exception.message?.logAsError("authentication")
+            }
+            return@async
+        } else
             signOutCallBack?.invoke()
-
-        } else if (exception == null) {
-            MozoAuth.getInstance().saveProfile().await()
-        }
 
         launch(UI) {
             EventBus.getDefault().post(MessageEvent.Auth(modeSignIn, exception))
@@ -205,6 +220,7 @@ internal class MozoAuthActivity : FragmentActivity() {
     companion object {
         private const val FLAG_MODE_SIGN_IN = "FLAG_MODE_SIGN_IN"
         private const val KEY_DO_AUTHENTICATION = 100
+        private const val KEY_DO_ENTER_PIN = 200
 
         private var signOutCallBack: (() -> Unit)? = null
 
