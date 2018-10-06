@@ -3,6 +3,7 @@ package com.biglabs.mozo.sdk.trans
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.DefaultItemAnimator
@@ -10,6 +11,7 @@ import android.support.v7.widget.PopupMenu
 import android.view.MenuItem
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.Constant
+import com.biglabs.mozo.sdk.common.OnLoadMoreListener
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.services.WalletService
@@ -19,7 +21,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 
-internal class TransactionHistoryActivity : AppCompatActivity() {
+internal class TransactionHistoryActivity : AppCompatActivity(), OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
 
     private val walletService: WalletService by lazy { WalletService.getInstance() }
 
@@ -27,7 +29,7 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
     private val onItemClick = { position: Int ->
 
     }
-    private var historyAdapter = TransactionHistoryRecyclerAdapter(histories, onItemClick)
+    private var historyAdapter = TransactionHistoryRecyclerAdapter(histories, onItemClick, this)
 
     private var currentAddress: String? = null
     private var popupFilter: PopupMenu? = null
@@ -42,10 +44,7 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
             setProgressViewOffset(true, progressViewStartOffset + offset, progressViewEndOffset + offset)
             setColorSchemeResources(R.color.mozo_color_primary)
             isRefreshing = true
-            setOnRefreshListener {
-                currentPage = Constant.PAGING_START_INDEX
-                fetchData()
-            }
+            setOnRefreshListener(this@TransactionHistoryActivity)
         }
 
         list_history.setHasFixedSize(true)
@@ -84,8 +83,11 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
                 .await()
 
         if (response.isSuccessful && response.body() != null) {
-            histories.clear()
-            histories.addAll(response.body()!!)
+            if (currentPage <= Constant.PAGING_START_INDEX) histories.clear()
+
+            val data = response.body()!!
+            historyAdapter.setCanLoadMore(data.size == Constant.PAGING_SIZE)
+            histories.addAll(data)
         }
 
         launch(UI) {
@@ -106,6 +108,15 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
         return@OnMenuItemClickListener true
     }
 
+    override fun onLoadMore() {
+        currentPage++
+        fetchData()
+    }
+
+    override fun onRefresh() {
+        currentPage = Constant.PAGING_START_INDEX
+        fetchData()
+    }
 
     companion object {
         fun start(context: Context) {

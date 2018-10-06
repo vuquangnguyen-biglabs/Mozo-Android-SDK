@@ -79,6 +79,9 @@
             android:id="@+id/list_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbarAlwaysDrawHorizontalTrack="true"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="horizontal"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/item_history" />
     </android.support.v4.widget.SwipeRefreshLayout>
