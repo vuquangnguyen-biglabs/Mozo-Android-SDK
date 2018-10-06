@@ -41,8 +41,7 @@ internal class SecurityActivity : AppCompatActivity() {
             KEY_ENTER_PIN -> showPinInputRestoreUI()
             KEY_VERIFY_PIN -> showPinVerifyUI()
             else -> {
-                finish()
-                EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
+                finishAndRemoveTask()
             }
         }
     }
@@ -221,7 +220,6 @@ internal class SecurityActivity : AppCompatActivity() {
                     showErrorAndRetryUI()
                     return@async
                 }
-                setResult(RESULT_OK)
                 showPinCreatedUI()
             }
             KEY_ENTER_PIN -> {
@@ -247,8 +245,12 @@ internal class SecurityActivity : AppCompatActivity() {
         }
         delay(mShowMessageDuration)
 
-        finish()
         EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
+
+        val intent = Intent()
+        intent.putExtra(KEY_DATA, mPIN)
+        setResult(RESULT_OK, intent)
+        finishAndRemoveTask()
     }
 
     companion object {

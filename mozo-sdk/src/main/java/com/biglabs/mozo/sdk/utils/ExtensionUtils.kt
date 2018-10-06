@@ -5,9 +5,11 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Resources
+import android.support.annotation.ColorRes
 import android.support.annotation.IdRes
 import android.support.annotation.IntegerRes
 import android.support.annotation.StringRes
+import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -53,6 +55,10 @@ internal fun Context.getInteger(@IntegerRes id: Int) = resources.getInteger(id)
 
 internal fun Context.string(@StringRes id: Int, @StringRes idRef: Int = 0): String {
     return if (idRef != 0) getString(id, string(idRef)) else getString(id)
+}
+
+internal fun Context.color(@ColorRes id: Int): Int {
+    return ContextCompat.getColor(this, id)
 }
 
 internal fun visible(views: Array<View>) {

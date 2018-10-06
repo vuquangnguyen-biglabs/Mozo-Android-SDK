@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.InputFilter
 import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.View
 import com.biglabs.mozo.sdk.R
@@ -25,6 +25,8 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.web3j.crypto.WalletUtils
+import java.math.BigDecimal
+import java.text.NumberFormat
 import java.util.*
 
 
@@ -35,6 +37,7 @@ internal class TransactionFormActivity : AppCompatActivity() {
     private var lastSentAmount: String? = null
     private var lastSentTime: Long = 0
 
+    private var currentBalance = BigDecimal.ZERO
     private var selectedContact: Models.Contact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +50,14 @@ internal class TransactionFormActivity : AppCompatActivity() {
         mozo_wallet_balance_rate_side.text = "₩102.230"
 
         AddressBookService.getInstance().fetchData(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lastSentAddress = null
+        lastSentAmount = null
+        lastSentTime = 0
+        selectedContact = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -106,15 +117,30 @@ internal class TransactionFormActivity : AppCompatActivity() {
 
     private fun initUI() {
         launch {
-            val balance = MozoTrans.getInstance().getBalance().await()
+            val balance = MozoTrans.getInstance().getBalance().await() ?: "0"
+            currentBalance = BigDecimal(NumberFormat.getNumberInstance().parse(balance).toDouble())
             launch(UI) {
-                mozo_wallet_balance_value?.text = balance ?: "0"
+                mozo_wallet_balance_value?.text = balance
+
+                val str = SpannableString(getString(R.string.mozo_transfer_spendable, balance))
+                str.setSpan(
+                        ForegroundColorSpan(color(R.color.mozo_color_title)),
+                        0,
+                        10,
+                        SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
+                )
+                text_spendable.text = str
             }
         }
 
-        val onTextChanged: (s: CharSequence?) -> Unit = { updateSubmitButton() }
-        output_receiver_address.onTextChanged(onTextChanged)
-        output_amount.onTextChanged(onTextChanged)
+        output_receiver_address.onTextChanged {
+            hideErrorAddressUI()
+            updateSubmitButton()
+        }
+        output_amount.onTextChanged {
+            hideErrorAmountUI()
+            updateSubmitButton()
+        }
 
         val decimal = PreferenceUtils.getInstance(this).getDecimal()
         output_amount.filters = arrayOf<InputFilter>(DecimalDigitsInputFilter(12, decimal))
@@ -123,6 +149,7 @@ internal class TransactionFormActivity : AppCompatActivity() {
         button_address_book.click { AddressBookActivity.startForResult(this, KEY_PICK_ADDRESS) }
         button_scan_qr.click {
             IntentIntegrator(this)
+                    .setBeepEnabled(true)
                     .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
                     .setPrompt("")
                     .initiateScan()
@@ -146,8 +173,7 @@ internal class TransactionFormActivity : AppCompatActivity() {
                 button_address_book,
                 button_scan_qr,
                 output_amount,
-                output_amount_underline,
-                text_spendable
+                output_amount_underline
         ))
         gone(arrayOf(
                 output_receiver_address_user,
@@ -157,9 +183,14 @@ internal class TransactionFormActivity : AppCompatActivity() {
         transfer_toolbar.setTitle(R.string.mozo_transfer_title)
         transfer_toolbar.showBackButton(false)
         button_submit.setText(R.string.mozo_button_continue)
+
+        if (output_amount_error_msg.visibility != View.VISIBLE) {
+            text_spendable.visible()
+        }
     }
 
     private fun showContactInfoUI() {
+        hideErrorAddressUI()
         updateSubmitButton()
         selectedContact?.run {
             output_receiver_address.visibility = View.INVISIBLE
@@ -215,8 +246,11 @@ internal class TransactionFormActivity : AppCompatActivity() {
             )
             text_send_complete_msg.text = msg
 
-            button_save_address.click {
-                AddressAddActivity.start(this@TransactionFormActivity, lastSentAddress)
+            button_save_address?.apply {
+                if (selectedContact != null) gone() else visible()
+                click {
+                    AddressAddActivity.start(this@TransactionFormActivity, lastSentAddress)
+                }
             }
             button_transaction_detail.click {
                 TransactionDetails.start(this@TransactionFormActivity, lastSentAddress, lastSentAmount, lastSentTime)
@@ -239,17 +273,59 @@ internal class TransactionFormActivity : AppCompatActivity() {
         loading_container.hide()
     }
 
+    private fun showErrorAddressUI() {
+        val errorColor = color(R.color.mozo_color_error)
+        output_receiver_address_label.setTextColor(errorColor)
+        output_receiver_address_underline.setBackgroundColor(errorColor)
+        output_receiver_address_error_msg.visible()
+    }
+
+    private fun hideErrorAddressUI() {
+        output_receiver_address_label.setTextColor(color(R.color.mozo_color_content))
+        output_receiver_address_underline.setBackgroundColor(color(R.color.mozo_color_un_active))
+        output_receiver_address_error_msg.gone()
+    }
+
+    private fun showErrorAmountUI() {
+        val errorColor = color(R.color.mozo_color_error)
+        output_amount_label.setTextColor(errorColor)
+        output_amount_underline.setBackgroundColor(errorColor)
+        output_amount_error_msg.visible()
+        text_spendable.gone()
+    }
+
+    private fun hideErrorAmountUI() {
+        output_amount_label.setTextColor(color(R.color.mozo_color_content))
+        output_amount_underline.setBackgroundColor(color(R.color.mozo_color_un_active))
+        output_amount_error_msg.gone()
+        text_spendable.visible()
+    }
+
     @SuppressLint("SetTextI18n")
     private fun validateInput(): Boolean {
+        var isValidAddress = true
         val address = selectedContact?.soloAddress ?: output_receiver_address.text.toString()
         if (!WalletUtils.isValidAddress(address)) {
-            AlertDialog.Builder(this).setMessage("The Receiver Address is not valid!").show()
-            return false
+            showErrorAddressUI()
+            isValidAddress = false
         }
-        if (output_amount.text.startsWith(".")) {
-            output_amount.setText("0${output_amount.text}")
+
+        var isValidAmount = true
+        var amount = output_amount.text.toString()
+        if (amount.startsWith(".")) {
+            amount = "0$amount"
         }
-        return true
+        if (amount.endsWith(".")) {
+            amount = "${amount}0"
+        }
+        output_amount.setText(amount)
+        val bigAmount = BigDecimal(amount)
+        if (bigAmount <= BigDecimal.ZERO || bigAmount > currentBalance) {
+            showErrorAmountUI()
+            isValidAmount = false
+        }
+
+        return isValidAddress && isValidAmount
     }
 
     companion object {

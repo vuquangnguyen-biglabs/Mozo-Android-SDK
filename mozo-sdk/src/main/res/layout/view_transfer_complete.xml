@@ -73,13 +73,15 @@
     <LinearLayout
         android:id="@+id/button_save_address"
         style="@style/MozoWalletInfoButton"
-        android:layout_width="0dp"
-        android:layout_marginStart="25dp"
+        android:layout_width="wrap_content"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
         android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_transaction_detail"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_send_complete_msg"
         app:layout_goneMarginEnd="0dp">
@@ -93,12 +95,14 @@
     <LinearLayout
         android:id="@+id/button_transaction_detail"
         style="@style/MozoWalletInfoButton"
-        android:layout_width="0dp"
-        android:layout_marginEnd="25dp"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="15dp"
         android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/button_save_address"
-        app:layout_constraintTop_toTopOf="@id/button_save_address">
+        app:layout_constraintTop_toBottomOf="@+id/text_send_complete_msg">
 
         <TextView
             style="@style/MozoWalletInfoButtonText"

@@ -56,10 +56,12 @@
     <string name="mozo_transfer_confirmation">Confirmation</string>
     <string name="mozo_transfer_from">From Mozo Offchain Wallet</string>
     <string name="mozo_transfer_receiver_address">Receiver Address</string>
-    <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address or Mozo ID</string>
+    <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address</string>
+    <string name="mozo_transfer_receiver_address_error">Error: The Receiver Address is not valid.</string>
     <string name="mozo_transfer_amount">Amount</string>
     <string name="mozo_transfer_amount_offchain">Amount (Mozo Offchain)</string>
-    <string name="mozo_transfer_amount_hint">Mozo amount</string>
+    <string name="mozo_transfer_amount_hint">Input value in decimal format</string>
+    <string name="mozo_transfer_amount_error">Error: Please input value in decimal format.</string>
     <string name="mozo_transfer_spendable">Spendable: %s Mozo (Offchain)</string>
     <string name="mozo_transfer_send_complete">Send Complete</string>
     <string name="mozo_transfer_send_complete_msg">You sent {%s} Mozo Offchain to address:\n%s</string>
