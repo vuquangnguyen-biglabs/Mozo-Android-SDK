@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="mozo_dialog_corner_radius">12.5dp</dimen>
+    <dimen name="mozo_dialog_corner_radius">5dp</dimen>
 
     <dimen name="mozo_btn_corner_radius">5dp</dimen>
     <dimen name="mozo_btn_width">45dp</dimen>
@@ -19,5 +19,5 @@
 
     <dimen name="mozo_refresh_progress_offset">10dp</dimen>
 
-    <item name="mozo_background_dim_amount" format="float" type="dimen">0.3</item>
+    <item name="mozo_background_dim_amount" format="float" type="dimen">0.4</item>
 </resources>
