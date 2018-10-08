@@ -86,7 +86,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="@string/redirect_url_host"
+                    android:host="@string/auth_redirect_host"
                     android:path="/auth/realms/mozo/login-actions/authenticate"
                     android:scheme="https" />
             </intent-filter>
@@ -97,7 +97,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="@string/redirect_url_scheme" />
+                <data android:scheme="${applicationId}" />
             </intent-filter>
         </activity>
 

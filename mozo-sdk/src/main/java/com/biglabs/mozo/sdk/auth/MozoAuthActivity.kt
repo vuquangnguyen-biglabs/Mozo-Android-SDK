@@ -96,6 +96,7 @@ internal class MozoAuthActivity : FragmentActivity() {
     }
 
     private fun createAuthRequest() {
+        val redirectUrl = getString(R.string.auth_redirect_uri, applicationInfo.packageName)
         val authRequestBuilder = AuthorizationRequest.Builder(
                 if (modeSignIn)
                     mAuthStateManager!!.current.authorizationServiceConfiguration!!
@@ -103,7 +104,7 @@ internal class MozoAuthActivity : FragmentActivity() {
                     signOutConfiguration!!,
                 string(R.string.auth_client_id),
                 ResponseTypeValues.CODE,
-                Uri.parse(string(R.string.auth_redirect_uri, R.string.redirect_url_scheme)))
+                Uri.parse(redirectUrl))
                 .setPrompt("login")
                 .setScope("openid profile phone")
 
