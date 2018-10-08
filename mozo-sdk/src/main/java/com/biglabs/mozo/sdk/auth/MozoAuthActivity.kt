@@ -96,7 +96,7 @@ internal class MozoAuthActivity : FragmentActivity() {
     }
 
     private fun createAuthRequest() {
-        val redirectUrl = getString(R.string.auth_redirect_uri, applicationInfo.packageName)
+        val redirectUrl = string(R.string.auth_redirect_uri, R.string.auth_redirect_scheme)
         val authRequestBuilder = AuthorizationRequest.Builder(
                 if (modeSignIn)
                     mAuthStateManager!!.current.authorizationServiceConfiguration!!
