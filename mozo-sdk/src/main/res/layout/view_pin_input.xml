@@ -31,9 +31,9 @@
         android:id="@+id/text_content_pin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/mozo_screen_padding"
         android:layout_marginStart="@dimen/mozo_screen_padding"
         android:layout_marginTop="40dp"
+        android:layout_marginEnd="@dimen/mozo_screen_padding"
         android:gravity="center"
         android:text="@string/mozo_pin_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,8 +44,8 @@
         android:id="@+id/text_correct_pin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawablePadding="9dp"
         android:drawableStart="@drawable/ic_check_green"
+        android:drawablePadding="9dp"
         android:gravity="center"
         android:includeFontPadding="false"
         android:text="@string/mozo_pin_msg_enter_correct"
@@ -74,6 +74,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_content_pin"
         app:layout_constraintVertical_bias="0.8" />
+
+    <LinearLayout
+        android:id="@+id/error_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_content_pin"
+        app:layout_constraintVertical_bias="0.2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/mozo_pin_msg_error"
+            android:textColor="@color/mozo_color_error"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/input_pin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_content_pin"
+            app:layout_constraintVertical_bias="0.8"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/button_retry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mozo_button_retry" />
+    </LinearLayout>
 
     <com.biglabs.mozo.sdk.ui.widget.PinEntryEditText
         android:id="@+id/input_pin"
@@ -127,7 +163,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="@string/mozo_dialog_loading_msg"
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

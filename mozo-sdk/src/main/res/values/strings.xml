@@ -8,6 +8,7 @@
     <string name="mozo_address_add_msg_saved">Address Saved</string>
     <string name="mozo_address_add_msg_error">This address already exists in your Address Book</string>
 
+    <string name="mozo_dialog_qr_code">Mozo Wallet Address</string>
     <string name="mozo_dialog_storage_permission_title">Storage Access</string>
     <string name="mozo_dialog_storage_permission_msg">Storage permission is required for this feature.</string>
     <string name="mozo_dialog_loading_msg">Creating Interface</string>
@@ -30,6 +31,7 @@
     <string name="mozo_button_send">Send</string>
     <string name="mozo_button_save">Save</string>
     <string name="mozo_button_save_address">Save Address</string>
+    <string name="mozo_button_retry">Retry</string>
 
     <string name="mozo_backup_title">Back up Wallet</string>
     <string name="mozo_backup_sub_title">Store Recovery Phrase</string>
@@ -48,18 +50,21 @@
     <string name="mozo_pin_msg_create_success">Create Security PIN successful</string>
     <string name="mozo_pin_msg_enter_correct">Security PIN is correct</string>
     <string name="mozo_pin_msg_enter_incorrect">You entered an incorrect PIN</string>
+    <string name="mozo_pin_msg_error">Create Wallet failed</string>
 
     <string name="mozo_transfer_title">Send Mozo Offchain</string>
     <string name="mozo_transfer_confirmation">Confirmation</string>
     <string name="mozo_transfer_from">From Mozo Offchain Wallet</string>
     <string name="mozo_transfer_receiver_address">Receiver Address</string>
-    <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address or Mozo ID</string>
+    <string name="mozo_transfer_receiver_address_hint">Enter receiver wallet address</string>
+    <string name="mozo_transfer_receiver_address_error">Error: The Receiver Address is not valid.</string>
     <string name="mozo_transfer_amount">Amount</string>
     <string name="mozo_transfer_amount_offchain">Amount (Mozo Offchain)</string>
-    <string name="mozo_transfer_amount_hint">Mozo amount</string>
+    <string name="mozo_transfer_amount_hint">Input value in decimal format</string>
+    <string name="mozo_transfer_amount_error">Error: Please input value in decimal format.</string>
     <string name="mozo_transfer_spendable">Spendable: %s Mozo (Offchain)</string>
-    <string name="mozo_transfer_send_complete">Send Complete</string>
-    <string name="mozo_transfer_send_complete_msg">You sent {%s} Mozo Offchain to address:\n%s</string>
+    <string name="mozo_transfer_send_complete">Your TX has been broadcast</string>
+    <string name="mozo_transfer_send_complete_msg">TX Hash:</string>
 
     <string name="mozo_transaction_detail_title">Transaction detail</string>
     <string name="mozo_transaction_history_title">Transaction History</string>
@@ -69,6 +74,7 @@
     <string name="mozo_view_balance_title">Mozo Offchain Balance</string>
     <string name="mozo_view_address_title">Your Mozo Offchain Wallet Address</string>
     <string name="mozo_view_text_hint">…</string>
+    <string name="mozo_view_text_from">From</string>
     <string name="mozo_view_text_search">Search</string>
     <string name="mozo_view_text_login_require_prefix">You must</string>
     <string name="mozo_view_text_login_require_btn"><u>Login</u></string>
@@ -76,4 +82,7 @@
     <string name="mozo_view_text_tx_all">All</string>
     <string name="mozo_view_text_tx_received">Received</string>
     <string name="mozo_view_text_tx_sent">Sent</string>
+    <string name="mozo_view_text_tx_pending">Pending</string>
+    <string name="mozo_view_text_tx_failed">Failed</string>
+    <string name="mozo_view_text_tx_success">Success</string>
 </resources>

@@ -7,7 +7,7 @@ import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.auth.MozoAuth
 import com.biglabs.mozo.sdk.common.MessageEvent
-import com.biglabs.mozo.sdk.ui.TransactionHistoryActivity
+import com.biglabs.mozo.sdk.trans.TransactionHistoryActivity
 
 class TransactionHistoryButton : BaseButton {
 
@@ -23,7 +23,7 @@ class TransactionHistoryButton : BaseButton {
     }
 
     override fun authorizeChanged(auth: MessageEvent.Auth) {
-        if (needToContinue) {
+        if (needToContinue && MozoAuth.getInstance().isSignedIn()) {
             needToContinue = false
             doOpenTxHistory()
         }

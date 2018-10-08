@@ -23,7 +23,7 @@ class MozoAuth private constructor() {
 
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
     private val mozoService: MozoApiService by lazy { MozoApiService.getInstance(MozoSDK.context!!) }
-    private val wallet: WalletService by lazy { WalletService.getInstance() }
+    private val walletService: WalletService by lazy { WalletService.getInstance() }
 
     private val authStateManager: AuthStateManager by lazy { AuthStateManager.getInstance(MozoSDK.context!!) }
     private val mAuthService: AuthorizationService by lazy { AuthorizationService(MozoSDK.context!!) }
@@ -59,6 +59,7 @@ class MozoAuth private constructor() {
     }
 
     fun signIn() {
+        walletService.clear()
         MozoSDK.context?.run {
             if (!EventBus.getDefault().isRegistered(this@MozoAuth)) {
                 EventBus.getDefault().register(this@MozoAuth)
@@ -68,9 +69,10 @@ class MozoAuth private constructor() {
         }
     }
 
-    fun isSignedIn() = authStateManager.current.isAuthorized
+    fun isSignedIn() = authStateManager.current.isAuthorized && walletService.isHasWallet()
 
     fun signOut() {
+        walletService.clear()
         MozoSDK.context?.let {
             MozoAuthActivity.signOut(it) {
 
@@ -112,15 +114,13 @@ class MozoAuth private constructor() {
 
         /* notify for caller */
         mAuthListener?.onChanged(auth.isSignedIn)
-
-        wallet.initWallet()
     }
 
-    internal fun saveProfile() = async {
+    internal fun syncProfile() = async {
         val response = mozoService.fetchProfile().await()
-        val serverProfile = response.body()
+        if (response.isSuccessful && response.body() != null) {
+            val serverProfile = response.body()!!
 
-        if (response.isSuccessful && serverProfile != null) {
             /* save User info first */
             mozoDB.userInfo().save(Models.UserInfo(
                     userId = serverProfile.userId
@@ -130,8 +130,8 @@ class MozoAuth private constructor() {
             mozoDB.profile().save(serverProfile)
         } else {
             // TODO handle fetch profile error
-            "Failed to fetch user profile!!".logAsError()
         }
+        response.message().logAsError("syncProfile")
     }
 
     private fun doRefreshToken() {

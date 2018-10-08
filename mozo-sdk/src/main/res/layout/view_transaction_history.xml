@@ -60,9 +60,9 @@
             android:includeFontPadding="false"
             android:paddingStart="5dp"
             android:paddingEnd="0dp"
+            android:text="@string/mozo_view_text_tx_all"
             android:textColor="@color/mozo_color_action_text"
-            android:textSize="12sp"
-            tools:text="Received" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -79,6 +79,9 @@
             android:id="@+id/list_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scrollbarAlwaysDrawHorizontalTrack="true"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="horizontal"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/item_history" />
     </android.support.v4.widget.SwipeRefreshLayout>

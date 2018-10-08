@@ -1,38 +1,39 @@
-package com.biglabs.mozo.sdk.ui
+package com.biglabs.mozo.sdk.trans
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.view.MenuCompat
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.view.menu.MenuBuilder
+import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.DefaultItemAnimator
-import android.view.ContextMenu
-import android.view.MenuInflater
+import android.support.v7.widget.PopupMenu
 import android.view.MenuItem
-import android.view.View
 import com.biglabs.mozo.sdk.R
+import com.biglabs.mozo.sdk.common.Constant
+import com.biglabs.mozo.sdk.common.OnLoadMoreListener
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.services.WalletService
-import com.biglabs.mozo.sdk.trans.TransactionHistoryRecyclerAdapter
 import com.biglabs.mozo.sdk.utils.click
 import kotlinx.android.synthetic.main.view_transaction_history.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 
-internal class TransactionHistoryActivity : AppCompatActivity() {
+internal class TransactionHistoryActivity : AppCompatActivity(), OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
 
     private val walletService: WalletService by lazy { WalletService.getInstance() }
 
     private val histories = arrayListOf<Models.TransactionHistory>()
-
     private val onItemClick = { position: Int ->
-
+        TransactionDetails.start(this@TransactionHistoryActivity, histories[position])
     }
-    private var historyAdapter = TransactionHistoryRecyclerAdapter(histories, onItemClick)
+    private var historyAdapter = TransactionHistoryRecyclerAdapter(histories, onItemClick, this)
+
     private var currentAddress: String? = null
+    private var popupFilter: PopupMenu? = null
+    private var currentPage = Constant.PAGING_START_INDEX
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,19 +44,21 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
             setProgressViewOffset(true, progressViewStartOffset + offset, progressViewEndOffset + offset)
             setColorSchemeResources(R.color.mozo_color_primary)
             isRefreshing = true
-            setOnRefreshListener { fetchData() }
+            setOnRefreshListener(this@TransactionHistoryActivity)
         }
 
         list_history.setHasFixedSize(true)
         list_history.itemAnimator = DefaultItemAnimator()
         list_history.adapter = historyAdapter
 
-//        menuInflater.inflate(R.menu.menu_transaction_type)
-//        button_filter.createContextMenu()
-
-        registerForContextMenu(button_filter)
-
-        button_filter.click { openContextMenu(it) }
+        popupFilter = PopupMenu(ContextThemeWrapper(this, R.style.MozoPopup), button_filter)
+                .apply {
+                    menuInflater.inflate(R.menu.menu_transaction_type, menu)
+                    setOnMenuItemClickListener(onFilterSelect)
+                }
+        button_filter.click {
+            popupFilter?.show()
+        }
     }
 
     override fun onStart() {
@@ -63,23 +66,11 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
         fetchData()
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-
-        menuInflater.inflate(R.menu.menu_transaction_type, menu)
-        if (button_filter_text.tag != null) {
-            button_filter_text.tag.toString().toIntOrNull()?.let {
-                menu?.findItem(it)?.isChecked = true
-            }
-        } else {
-            menu?.getItem(0)?.isChecked = true
-        }
-    }
-
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
-        button_filter_text.text = item?.title
-        button_filter_text.tag = item?.itemId
-        return super.onContextItemSelected(item)
+    override fun onDestroy() {
+        super.onDestroy()
+        popupFilter?.dismiss()
+        popupFilter?.setOnMenuItemClickListener(null)
+        popupFilter = null
     }
 
     private fun fetchData() = async {
@@ -88,12 +79,15 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
             historyAdapter.address = currentAddress
         }
         val response = MozoApiService.getInstance(this@TransactionHistoryActivity)
-                .getTransactionHistory(currentAddress ?: "", 0, 0)
+                .getTransactionHistory(currentAddress!!, page = currentPage)
                 .await()
 
         if (response.isSuccessful && response.body() != null) {
-            histories.clear()
-            histories.addAll(response.body()!!)
+            if (currentPage <= Constant.PAGING_START_INDEX) histories.clear()
+
+            val data = response.body()!!
+            historyAdapter.setCanLoadMore(data.size == Constant.PAGING_SIZE)
+            histories.addAll(data)
         }
 
         launch(UI) {
@@ -102,6 +96,27 @@ internal class TransactionHistoryActivity : AppCompatActivity() {
         }
     }
 
+    private val onFilterSelect = PopupMenu.OnMenuItemClickListener { item: MenuItem ->
+        button_filter_text.text = item.title
+        button_filter_text.tag = item.itemId
+        item.isChecked = true
+        when (item.itemId) {
+            R.id.action_type_all -> historyAdapter.filter(TransactionHistoryRecyclerAdapter.FILTER_ALL)
+            R.id.action_type_received -> historyAdapter.filter(TransactionHistoryRecyclerAdapter.FILTER_RECEIVED)
+            R.id.action_type_send -> historyAdapter.filter(TransactionHistoryRecyclerAdapter.FILTER_SENT)
+        }
+        return@OnMenuItemClickListener true
+    }
+
+    override fun onLoadMore() {
+        currentPage++
+        fetchData()
+    }
+
+    override fun onRefresh() {
+        currentPage = Constant.PAGING_START_INDEX
+        fetchData()
+    }
 
     companion object {
         fun start(context: Context) {

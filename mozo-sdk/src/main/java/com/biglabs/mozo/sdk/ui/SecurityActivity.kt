@@ -1,13 +1,11 @@
 package com.biglabs.mozo.sdk.ui
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.widget.TextViewCompat
 import android.support.v7.app.AppCompatActivity
-import android.text.TextUtils
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.MessageEvent
@@ -18,6 +16,7 @@ import kotlinx.android.synthetic.main.view_backup.*
 import kotlinx.android.synthetic.main.view_pin_input.*
 import kotlinx.android.synthetic.main.view_toolbar.view.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
@@ -35,16 +34,14 @@ internal class SecurityActivity : AppCompatActivity() {
         mPINLength = getInteger(R.integer.security_pin_length)
         mShowMessageDuration = getInteger(R.integer.security_pin_show_msg_duration)
 
-        mRequestCode = intent.getIntExtra(KEY_REQUEST_CODE, mRequestCode)
+        mRequestCode = intent.getIntExtra(KEY_MODE, mRequestCode)
 
-        val seed = intent.getStringExtra(KEY_SEED_WORDS)
-        when {
-            seed != null -> showBackupUI(seed)
-            mRequestCode == KEY_ENTER_PIN -> showPinInputRestoreUI()
-            mRequestCode == KEY_VERIFY_PIN -> showPinVerifyUI()
+        when (mRequestCode) {
+            KEY_CREATE_PIN -> showBackupUI()
+            KEY_ENTER_PIN -> showPinInputRestoreUI()
+            KEY_VERIFY_PIN -> showPinVerifyUI()
             else -> {
-                finish()
-                EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
+                finishAndRemoveTask()
             }
         }
     }
@@ -59,11 +56,12 @@ internal class SecurityActivity : AppCompatActivity() {
         mPIN = ""
     }
 
-    private fun showBackupUI(seed: String) {
+    private fun showBackupUI() {
+        "showBackupUI".logAsError(localClassName)
         setContentView(R.layout.view_backup)
 
         val padding = resources.dp2Px(10f).toInt()
-        seed.split(" ").map {
+        WalletService.getInstance().getSeed()?.split(" ")?.map {
             val word = TextView(this@SecurityActivity)
             word.setPaddingRelative(padding, padding, padding, padding)
             word.text = it
@@ -86,20 +84,25 @@ internal class SecurityActivity : AppCompatActivity() {
         text_content_pin.setText(R.string.mozo_pin_content)
 
         input_pin?.apply {
-            onBackPress { finish() }
-
+            onBackPress { finishAndRemoveTask() }
             setMaxLength(mPINLength)
-            setOnEditorActionListener { _, actionId, _ ->
-                actionId == EditorInfo.IME_ACTION_NEXT && validatePIN()
-            }
             onTextChanged {
-                hideErrorUI()
-                if (it?.length == mPINLength) {
-                    when {
-                        mRequestCode == KEY_ENTER_PIN -> doResponseResult()
-                        mRequestCode == KEY_VERIFY_PIN -> doResponseResult()
-                        !mPIN.isEmpty() && TextUtils.equals(input_pin.text, mPIN) -> doResponseResult()
-                        !mPIN.isEmpty() && !TextUtils.equals(input_pin.text, mPIN) -> showErrorUI()
+                hidePinInputWrongUI()
+                it?.toString()?.run {
+                    if (this.length < mPINLength) return@run
+
+                    when (mRequestCode) {
+                        KEY_CREATE_PIN -> {
+                            when {
+                                mPIN.isEmpty() -> {
+                                    mPIN = this
+                                    showPinInputConfirmUI()
+                                }
+                                mPIN == this -> submitForResult()
+                                else -> showPinInputWrongUI()
+                            }
+                        }
+                        else -> submitForResult()
                     }
                 }
             }
@@ -109,7 +112,7 @@ internal class SecurityActivity : AppCompatActivity() {
                 showKeyboard()
             }
         }
-        input_pin_checker_status.visibility = View.GONE
+        input_pin_checker_status.gone()
     }
 
     private fun showPinInputRestoreUI() {
@@ -127,7 +130,7 @@ internal class SecurityActivity : AppCompatActivity() {
         sub_title_pin.setText(R.string.mozo_pin_sub_title_restore)
 
         input_pin?.apply {
-            visibility = View.VISIBLE
+            visible()
             if (clearPin) {
                 text.clear()
             }
@@ -146,16 +149,16 @@ internal class SecurityActivity : AppCompatActivity() {
         sub_title_pin.setText(R.string.mozo_pin_confirm_sub_title)
         text_content_pin.setText(R.string.mozo_pin_confirm_content)
 
-        input_pin.text.clear()
-        input_pin_checker_status.visibility = View.VISIBLE
+        input_pin.setText("")
+        input_pin_checker_status.visible()
         input_pin_checker_status.isSelected = false
     }
 
     private fun showPinCreatedUI() {
         text_correct_pin.setText(R.string.mozo_pin_msg_create_success)
-        text_correct_pin.visibility = View.VISIBLE
+        text_correct_pin.visible()
         input_pin_checker_status.isSelected = true
-        input_pin.visibility = View.VISIBLE
+        input_pin.visible()
         input_pin.isEnabled = false
         hideLoadingUI()
     }
@@ -165,92 +168,104 @@ internal class SecurityActivity : AppCompatActivity() {
         text_correct_pin.setText(R.string.mozo_pin_msg_enter_correct)
     }
 
-    private fun showErrorUI() {
-        text_incorrect_pin.visibility = View.VISIBLE
+    private fun showPinInputWrongUI() {
+        text_incorrect_pin.visible()
     }
 
-    private fun hideErrorUI() {
+    private fun hidePinInputWrongUI() {
         input_pin_checker_status.isSelected = false
         if (text_incorrect_pin.visibility != View.GONE)
-            text_incorrect_pin.visibility = View.GONE
+            text_incorrect_pin.gone()
     }
 
     private fun showLoadingUI() {
-        text_correct_pin.visibility = View.GONE
-        text_incorrect_pin.visibility = View.GONE
-        input_pin.visibility = View.GONE
-        input_pin_checker_status.visibility = View.GONE
+        gone(arrayOf(
+                text_correct_pin,
+                text_incorrect_pin,
+                input_pin,
+                input_pin_checker_status,
+                error_container
+        ))
 
-        input_loading_indicator.visibility = View.VISIBLE
-        input_loading_text.visibility = View.VISIBLE
+        visible(arrayOf(
+                input_loading_indicator,
+                input_loading_text
+        ))
     }
 
     private fun hideLoadingUI() {
-        input_loading_indicator.visibility = View.GONE
-        input_loading_text.visibility = View.GONE
+        gone(arrayOf(
+                input_loading_indicator,
+                input_loading_text
+        ))
     }
 
-    private fun validatePIN(): Boolean {
-        when {
-            mRequestCode == KEY_CREATE_PIN && mPIN.isEmpty() && input_pin.length() == mPINLength -> {
+    private fun showErrorAndRetryUI() {
+        hideLoadingUI()
+        error_container.visible()
+        button_retry.click {
+            submitForResult()
+        }
+    }
+
+    private fun submitForResult() = async(UI) {
+        showLoadingUI()
+
+        when (mRequestCode) {
+            KEY_CREATE_PIN -> {
+                val isSuccess = WalletService.getInstance()
+                        .executeSaveWallet(mPIN, this@SecurityActivity)
+                        .await()
+                if (!isSuccess) {
+                    showErrorAndRetryUI()
+                    return@async
+                }
+                showPinCreatedUI()
+            }
+            KEY_ENTER_PIN -> {
                 mPIN = input_pin.text.toString()
-                showPinInputConfirmUI()
-            }
-        }
-        return true
-    }
-
-    private fun doResponseResult() {
-        launch(UI) {
-            showLoadingUI()
-
-            when (mRequestCode) {
-                KEY_CREATE_PIN -> {
-                    WalletService.getInstance().executeSaveWallet(mPIN).await()
-                    showPinCreatedUI()
-                }
-                KEY_ENTER_PIN -> {
-                    mPIN = input_pin.text.toString()
-                    val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
-                    initRestoreUI(!isCorrect)
-                    if (isCorrect) showPinInputCorrectUI()
-                    else {
-                        showErrorUI()
-                        return@launch
-                    }
-                }
-                KEY_VERIFY_PIN -> {
-                    mPIN = input_pin.text.toString()
-                    val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
-                    initVerifyUI(!isCorrect)
-                    if (isCorrect) showPinInputCorrectUI()
-                    else {
-                        showErrorUI()
-                        return@launch
-                    }
+                val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
+                initRestoreUI(!isCorrect)
+                if (isCorrect) showPinInputCorrectUI()
+                else {
+                    showPinInputWrongUI()
+                    return@async
                 }
             }
-            delay(mShowMessageDuration)
-
-            finish()
-            EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
+            KEY_VERIFY_PIN -> {
+                mPIN = input_pin.text.toString()
+                val isCorrect = WalletService.getInstance().validatePin(mPIN).await()
+                initVerifyUI(!isCorrect)
+                if (isCorrect) showPinInputCorrectUI()
+                else {
+                    showPinInputWrongUI()
+                    return@async
+                }
+            }
         }
+        delay(mShowMessageDuration)
+
+        EventBus.getDefault().post(MessageEvent.Pin(mPIN, mRequestCode))
+
+        val intent = Intent()
+        intent.putExtra(KEY_DATA, mPIN)
+        setResult(RESULT_OK, intent)
+        finishAndRemoveTask()
     }
 
     companion object {
-        private const val KEY_SEED_WORDS = "SEED_WORDS"
-        private const val KEY_REQUEST_CODE = "REQUEST_CODE"
+        private const val KEY_MODE = "KEY_MODE"
 
         const val KEY_CREATE_PIN = 0x001
         const val KEY_ENTER_PIN = 0x002
         const val KEY_VERIFY_PIN = 0x003
 
-        fun start(context: Context, seed: String? = null, requestCode: Int) {
-            Intent(context, SecurityActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                putExtra(KEY_SEED_WORDS, seed)
-                putExtra(KEY_REQUEST_CODE, requestCode)
-                context.startActivity(this)
+        const val KEY_DATA = "KEY_DATA"
+
+        fun start(activity: Activity, mode: Int, requestCode: Int) {
+            Intent(activity, SecurityActivity::class.java).apply {
+                putExtra(KEY_MODE, mode)
+                activity.startActivityForResult(this, requestCode)
             }
         }
     }
