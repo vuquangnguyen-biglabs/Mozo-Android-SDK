@@ -97,7 +97,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="${applicationId}" />
+                <data android:scheme="@string/auth_redirect_scheme" />
             </intent-filter>
         </activity>
 
