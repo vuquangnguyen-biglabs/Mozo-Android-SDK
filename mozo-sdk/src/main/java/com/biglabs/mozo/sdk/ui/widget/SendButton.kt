@@ -23,7 +23,7 @@ class SendButton : BaseButton {
     }
 
     override fun authorizeChanged(auth: MessageEvent.Auth) {
-        if (needToContinue && MozoAuth.getInstance().isSignedIn()) {
+        if (needToContinue && MozoAuth.getInstance().isSignUpCompleted()) {
             needToContinue = false
             doTransfer()
         }
@@ -35,7 +35,7 @@ class SendButton : BaseButton {
 
     override fun onClick(view: View) {
         MozoAuth.getInstance().run {
-            if (isSignedIn())
+            if (isSignUpCompleted())
                 doTransfer()
             else {
                 needToContinue = true

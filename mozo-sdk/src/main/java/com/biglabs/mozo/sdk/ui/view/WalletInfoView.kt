@@ -94,7 +94,7 @@ class WalletInfoView : ConstraintLayout {
     }
 
     private fun fetchData() {
-        if (MozoAuth.getInstance().isSignedIn()) {
+        if (MozoAuth.getInstance().isSignUpCompleted()) {
             launch {
                 mAddress = WalletService.getInstance().getAddress().await()
                 launch(UI) {

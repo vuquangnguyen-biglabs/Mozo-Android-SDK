@@ -69,7 +69,9 @@ class MozoAuth private constructor() {
         }
     }
 
-    fun isSignedIn() = authStateManager.current.isAuthorized && walletService.isHasWallet()
+    fun isSignedIn() = authStateManager.current.isAuthorized
+
+    fun isSignUpCompleted() = authStateManager.current.isAuthorized && walletService.isHasWallet()
 
     fun signOut() {
         walletService.clear()

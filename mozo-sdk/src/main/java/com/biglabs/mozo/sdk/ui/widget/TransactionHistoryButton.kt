@@ -23,7 +23,7 @@ class TransactionHistoryButton : BaseButton {
     }
 
     override fun authorizeChanged(auth: MessageEvent.Auth) {
-        if (needToContinue && MozoAuth.getInstance().isSignedIn()) {
+        if (needToContinue && MozoAuth.getInstance().isSignUpCompleted()) {
             needToContinue = false
             doOpenTxHistory()
         }
@@ -35,7 +35,7 @@ class TransactionHistoryButton : BaseButton {
 
     override fun onClick(view: View) {
         MozoAuth.getInstance().run {
-            if (isSignedIn())
+            if (isSignUpCompleted())
                 doOpenTxHistory()
             else {
                 needToContinue = true
