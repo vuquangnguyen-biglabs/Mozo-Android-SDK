@@ -3,13 +3,11 @@ package com.biglabs.mozo.sdk.trans
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.InputFilter
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.core.Models
@@ -20,8 +18,8 @@ import com.biglabs.mozo.sdk.ui.AddressBookActivity
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.*
 import com.google.zxing.integration.android.IntentIntegrator
-import kotlinx.android.synthetic.main.view_transfer.*
-import kotlinx.android.synthetic.main.view_transfer_complete.*
+import kotlinx.android.synthetic.main.view_transaction_form.*
+import kotlinx.android.synthetic.main.view_transaction_sent.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
@@ -39,7 +37,7 @@ internal class TransactionFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.view_transfer)
+        setContentView(R.layout.view_transaction_form)
 
         initUI()
         showInputUI()
@@ -228,17 +226,10 @@ internal class TransactionFormActivity : AppCompatActivity() {
 
     private fun showResultUI(txResponse: Models.TransactionResponse?) = async(UI) {
         if (txResponse != null) {
-            setContentView(R.layout.view_transfer_complete)
+            setContentView(R.layout.view_transaction_sent)
             button_close_transfer.click { finishAndRemoveTask() }
 
-            val msg = SpannableString(getString(R.string.mozo_transfer_send_complete_msg, history.amount.toString(), history.addressTo))
-            msg.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    9,
-                    25 + history.amount.toString().length,
-                    SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
-            )
-            text_send_complete_msg.text = msg
+            text_send_complete_msg.text = txResponse.tx.hash
 
             button_save_address?.apply {
                 if (selectedContact != null) gone() else visible()
