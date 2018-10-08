@@ -28,16 +28,18 @@ interface MozoApiService {
         }!!
 
         private fun createService(context: Context): MozoApiService {
-            val client = OkHttpClient.Builder().addInterceptor {
-                val accessToken = AuthStateManager.getInstance(context).current.accessToken
-                val original = it.request()
-                val request = original.newBuilder()
-                        .header("Authorization", "Bearer $accessToken")
-                        .header("Content-Type", "application/json")
-                        .method(original.method(), original.body())
-                        .build()
-                it.proceed(request)
-            }
+            val client = OkHttpClient.Builder()
+                    .addInterceptor {
+                        val accessToken = AuthStateManager.getInstance(context).current.accessToken
+                        val original = it.request()
+                        val request = original.newBuilder()
+                                .header("Authorization", "Bearer $accessToken")
+                                .header("Content-Type", "application/json")
+                                .method(original.method(), original.body())
+                                .build()
+                        it.proceed(request)
+                    }
+
             if (BuildConfig.DEBUG) {
                 val logging = HttpLoggingInterceptor()
                         .setLevel(HttpLoggingInterceptor.Level.BODY)
