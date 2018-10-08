@@ -96,12 +96,14 @@ class MozoTrans private constructor() {
     }
 
     private fun prepareRequest(inAdd: String, outAdd: String, amount: String): Models.TransactionRequest {
-        val finalAmount = amount.toBigDecimal().multiply(BigDecimal.valueOf(decimalRate))
+        val finalAmount = amountWithDecimal(amount)
         return Models.TransactionRequest(
                 arrayListOf(Models.TransactionAddress(arrayListOf(inAdd))),
                 arrayListOf(Models.TransactionAddressOutput(arrayListOf(outAdd), finalAmount))
         )
     }
+
+    internal fun amountWithDecimal(amount: String) = amount.toBigDecimal().multiply(BigDecimal.valueOf(decimalRate))
 
     companion object {
         @Volatile

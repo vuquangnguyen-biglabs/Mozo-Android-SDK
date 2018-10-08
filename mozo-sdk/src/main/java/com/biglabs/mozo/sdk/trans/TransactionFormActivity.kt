@@ -13,6 +13,7 @@ import android.text.style.StyleSpan
 import android.view.View
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.core.Models
+import com.biglabs.mozo.sdk.core.Models.TransactionHistory.CREATOR.MY_ADDRESS
 import com.biglabs.mozo.sdk.services.AddressBookService
 import com.biglabs.mozo.sdk.ui.AddressAddActivity
 import com.biglabs.mozo.sdk.ui.AddressBookActivity
@@ -29,16 +30,12 @@ import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.*
 
-
 @Suppress("unused")
 internal class TransactionFormActivity : AppCompatActivity() {
 
-    private var lastSentAddress: String? = null
-    private var lastSentAmount: String? = null
-    private var lastSentTime: Long = 0
-
     private var currentBalance = BigDecimal.ZERO
     private var selectedContact: Models.Contact? = null
+    private val history = Models.TransactionHistory("", 0L, "", 0.0, BigDecimal.ZERO, MY_ADDRESS, "", "", "", "", 2, 0L, "")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +51,6 @@ internal class TransactionFormActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lastSentAddress = null
-        lastSentAmount = null
-        lastSentTime = 0
         selectedContact = null
     }
 
@@ -98,9 +92,9 @@ internal class TransactionFormActivity : AppCompatActivity() {
         launch {
             showLoading()
             val txResponse = MozoTrans.getInstance().createTransaction(address, amount, pin).await()
-            lastSentAddress = address
-            lastSentAmount = amount
-            lastSentTime = Calendar.getInstance().timeInMillis
+            history.addressTo = address
+            history.amount = MozoTrans.getInstance().amountWithDecimal(amount)
+            history.time = Calendar.getInstance().timeInMillis / 1000L
             showResultUI(txResponse)
             hideLoading()
         }
@@ -237,11 +231,11 @@ internal class TransactionFormActivity : AppCompatActivity() {
             setContentView(R.layout.view_transfer_complete)
             button_close_transfer.click { finishAndRemoveTask() }
 
-            val msg = SpannableString(getString(R.string.mozo_transfer_send_complete_msg, lastSentAmount, lastSentAddress))
+            val msg = SpannableString(getString(R.string.mozo_transfer_send_complete_msg, history.amount.toString(), history.addressTo))
             msg.setSpan(
                     StyleSpan(Typeface.BOLD),
                     9,
-                    25 + (lastSentAmount ?: "").length,
+                    25 + history.amount.toString().length,
                     SpannableString.SPAN_INCLUSIVE_EXCLUSIVE
             )
             text_send_complete_msg.text = msg
@@ -249,11 +243,13 @@ internal class TransactionFormActivity : AppCompatActivity() {
             button_save_address?.apply {
                 if (selectedContact != null) gone() else visible()
                 click {
-                    AddressAddActivity.start(this@TransactionFormActivity, lastSentAddress)
+                    AddressAddActivity.start(this@TransactionFormActivity, history.addressTo)
                 }
             }
+
+            history.txHash = txResponse.tx.hash ?: ""
             button_transaction_detail.click {
-                TransactionDetails.start(this@TransactionFormActivity, lastSentAddress, lastSentAmount, lastSentTime)
+                TransactionDetails.start(this@TransactionFormActivity, history)
             }
         } else {
             // TODO show send Tx failed UI

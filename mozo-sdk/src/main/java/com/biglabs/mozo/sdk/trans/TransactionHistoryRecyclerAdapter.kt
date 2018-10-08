@@ -27,7 +27,7 @@ internal class TransactionHistoryRecyclerAdapter(
 
     var address: String? = null
     private var dataFilter: List<Models.TransactionHistory>? = null
-    private val dateFormat = SimpleDateFormat("MMM dd, yyyy - h:mm aa", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat(Constant.HISTORY_TIME_FORMAT, Locale.getDefault())
 
     private var totalItemCount = 0
     private var lastVisibleItem = 0

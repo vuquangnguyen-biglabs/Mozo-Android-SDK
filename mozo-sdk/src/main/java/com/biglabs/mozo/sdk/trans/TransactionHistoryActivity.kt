@@ -27,7 +27,7 @@ internal class TransactionHistoryActivity : AppCompatActivity(), OnLoadMoreListe
 
     private val histories = arrayListOf<Models.TransactionHistory>()
     private val onItemClick = { position: Int ->
-
+        TransactionDetails.start(this@TransactionHistoryActivity, histories[position])
     }
     private var historyAdapter = TransactionHistoryRecyclerAdapter(histories, onItemClick, this)
 
