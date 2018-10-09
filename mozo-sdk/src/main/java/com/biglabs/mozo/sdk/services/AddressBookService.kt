@@ -3,6 +3,7 @@ package com.biglabs.mozo.sdk.services
 import android.content.Context
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.MozoApiService
+import com.biglabs.mozo.sdk.core.MozoService
 import kotlinx.coroutines.experimental.async
 
 internal class AddressBookService {
@@ -10,8 +11,8 @@ internal class AddressBookService {
     val data = arrayListOf<Models.Contact>()
 
     fun fetchData(context: Context) = async {
-        val response = MozoApiService.getInstance(context).getContacts().await()
-        response.body()?.let { contacts ->
+        val response = MozoService.getInstance(context).getContacts().await()
+        response?.let { contacts ->
             data.clear()
             data.addAll(contacts.sortedBy { it.name })
         }

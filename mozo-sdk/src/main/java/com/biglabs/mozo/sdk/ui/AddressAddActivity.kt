@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.core.MozoApiService
+import com.biglabs.mozo.sdk.core.MozoService
 import com.biglabs.mozo.sdk.utils.*
 import kotlinx.android.synthetic.main.view_address_add_new.*
 import kotlinx.coroutines.experimental.android.UI
@@ -16,7 +16,7 @@ import kotlinx.coroutines.experimental.launch
 
 class AddressAddActivity : AppCompatActivity() {
 
-    private val mozoService by lazy { MozoApiService.getInstance(this) }
+    private val mozoService by lazy { MozoService.getInstance(this) }
 
     private var mShowMessageDuration: Int = 0
 
@@ -39,7 +39,7 @@ class AddressAddActivity : AppCompatActivity() {
             val contact = Models.Contact(0, input_contact_name.text.toString().trim(), address)
             launch {
                 val response = mozoService.saveContact(contact).await()
-                if (response.isSuccessful) {
+                if (response != null) {
                     showDoneMsg()
                 } else {
                     hideLoading()

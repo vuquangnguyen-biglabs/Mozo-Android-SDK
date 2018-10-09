@@ -4,8 +4,8 @@ import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
 import com.biglabs.mozo.sdk.core.Models.AnonymousUserInfo
-import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
+import com.biglabs.mozo.sdk.core.MozoService
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.utils.AuthStateManager
 import com.biglabs.mozo.sdk.utils.logAsError
@@ -22,7 +22,7 @@ import java.util.*
 class MozoAuth private constructor() {
 
     private val mozoDB: MozoDatabase by lazy { MozoDatabase.getInstance(MozoSDK.context!!) }
-    private val mozoService: MozoApiService by lazy { MozoApiService.getInstance(MozoSDK.context!!) }
+    private val mozoService: MozoService by lazy { MozoService.getInstance(MozoSDK.context!!) }
     private val walletService: WalletService by lazy { WalletService.getInstance() }
 
     private val authStateManager: AuthStateManager by lazy { AuthStateManager.getInstance(MozoSDK.context!!) }
@@ -39,17 +39,17 @@ class MozoAuth private constructor() {
                 // TODO authentication with anonymousUser
             } else {
                 val response = mozoService.fetchProfile().await()
-                if (response.code() == 401) {
-                    signOut()
-                    return@launch
-                } else {
-                    response.body()?.run {
-                        mozoDB.profile().save(this)
-                    }
-                    if (authStateManager.current.needsTokenRefresh) {
-                        doRefreshToken()
-                    }
+//                if (response.code() == 401) {
+//                    signOut()
+//                    return@launch
+//                } else {
+                response?.run {
+                    mozoDB.profile().save(this)
                 }
+                if (authStateManager.current.needsTokenRefresh) {
+                    doRefreshToken()
+                }
+//                }
             }
 
             launch(UI) {
@@ -120,20 +120,19 @@ class MozoAuth private constructor() {
 
     internal fun syncProfile() = async {
         val response = mozoService.fetchProfile().await()
-        if (response.isSuccessful && response.body() != null) {
-            val serverProfile = response.body()!!
+        if (response != null) {
 
             /* save User info first */
             mozoDB.userInfo().save(Models.UserInfo(
-                    userId = serverProfile.userId
+                    userId = response.userId
             ))
 
             /* update local profile to match with server profile */
-            mozoDB.profile().save(serverProfile)
+            mozoDB.profile().save(response)
         } else {
             // TODO handle fetch profile error
         }
-        response.message().logAsError("syncProfile")
+        "syncProfile OK".logAsError()
     }
 
     private fun doRefreshToken() {

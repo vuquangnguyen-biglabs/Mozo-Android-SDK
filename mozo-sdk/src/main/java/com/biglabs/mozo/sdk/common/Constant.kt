@@ -7,5 +7,7 @@ class Constant {
         const val LIST_VISIBLE_THRESHOLD = 5
 
         const val HISTORY_TIME_FORMAT = "MMM dd, yyyy - h:mm aa"
+
+        const val BASE_API_URL = "http://18.136.55.245:8080/solomon/api/"
     }
 }

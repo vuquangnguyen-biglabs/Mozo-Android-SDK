@@ -1,18 +1,16 @@
 package com.biglabs.mozo.sdk.services
 
-import android.app.Activity
 import android.content.Context
 import com.biglabs.mozo.sdk.MozoSDK
 import com.biglabs.mozo.sdk.common.MessageEvent
 import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.core.MozoApiService
 import com.biglabs.mozo.sdk.core.MozoDatabase
+import com.biglabs.mozo.sdk.core.MozoService
 import com.biglabs.mozo.sdk.ui.SecurityActivity
 import com.biglabs.mozo.sdk.utils.CryptoUtils
 import com.biglabs.mozo.sdk.utils.PreferenceUtils
 import com.biglabs.mozo.sdk.utils.logAsError
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.web3j.crypto.Credentials
@@ -90,13 +88,14 @@ internal class WalletService private constructor() {
     }
 
     private fun syncWalletInfo(walletInfo: Models.WalletInfo, context: Context) = async {
-        val response = MozoApiService.getInstance(context).saveWallet(walletInfo).await()
+        val response = MozoService.getInstance(context).saveWallet(walletInfo).await()
+        val success = response != null
         PreferenceUtils.getInstance(context).setFlag(
                 PreferenceUtils.FLAG_SYNC_WALLET_INFO,
-                !response.isSuccessful
+                !success
         )
 
-        return@async response.isSuccessful
+        return@async success
     }
 
     fun validatePin(pin: String) = async {

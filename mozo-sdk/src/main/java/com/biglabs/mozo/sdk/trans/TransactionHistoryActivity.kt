@@ -13,7 +13,7 @@ import com.biglabs.mozo.sdk.R
 import com.biglabs.mozo.sdk.common.Constant
 import com.biglabs.mozo.sdk.common.OnLoadMoreListener
 import com.biglabs.mozo.sdk.core.Models
-import com.biglabs.mozo.sdk.core.MozoApiService
+import com.biglabs.mozo.sdk.core.MozoService
 import com.biglabs.mozo.sdk.services.WalletService
 import com.biglabs.mozo.sdk.utils.click
 import kotlinx.android.synthetic.main.view_transaction_history.*
@@ -78,16 +78,15 @@ internal class TransactionHistoryActivity : AppCompatActivity(), OnLoadMoreListe
             currentAddress = walletService.getAddress().await() ?: return@async
             historyAdapter.address = currentAddress
         }
-        val response = MozoApiService.getInstance(this@TransactionHistoryActivity)
+        val response = MozoService.getInstance(this@TransactionHistoryActivity)
                 .getTransactionHistory(currentAddress!!, page = currentPage)
                 .await()
 
-        if (response.isSuccessful && response.body() != null) {
+        if (response != null) {
             if (currentPage <= Constant.PAGING_START_INDEX) histories.clear()
 
-            val data = response.body()!!
-            historyAdapter.setCanLoadMore(data.size == Constant.PAGING_SIZE)
-            histories.addAll(data)
+            historyAdapter.setCanLoadMore(response.size == Constant.PAGING_SIZE)
+            histories.addAll(response)
         }
 
         launch(UI) {

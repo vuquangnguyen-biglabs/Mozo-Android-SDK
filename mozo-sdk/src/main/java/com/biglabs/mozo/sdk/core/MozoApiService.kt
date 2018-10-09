@@ -1,61 +1,10 @@
 package com.biglabs.mozo.sdk.core
 
-import android.content.Context
-import com.biglabs.mozo.sdk.BuildConfig
-import com.biglabs.mozo.sdk.common.Constant
-import com.biglabs.mozo.sdk.utils.AuthStateManager
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
 import kotlinx.coroutines.experimental.Deferred
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 interface MozoApiService {
-
-    companion object {
-
-        private const val BASE_URL = "http://18.136.55.245:8080/solomon/api/"
-
-        @Volatile
-        private var instance: MozoApiService? = null
-
-        fun getInstance(context: Context) = instance ?: synchronized(this) {
-            if (instance == null) instance = createService(context)
-            instance
-        }!!
-
-        private fun createService(context: Context): MozoApiService {
-            val client = OkHttpClient.Builder()
-                    .addInterceptor {
-                        val accessToken = AuthStateManager.getInstance(context).current.accessToken
-                        val original = it.request()
-                        val request = original.newBuilder()
-                                .header("Authorization", "Bearer $accessToken")
-                                .header("Content-Type", "application/json")
-                                .method(original.method(), original.body())
-                                .build()
-                        it.proceed(request)
-                    }
-
-            if (BuildConfig.DEBUG) {
-                val logging = HttpLoggingInterceptor()
-                        .setLevel(HttpLoggingInterceptor.Level.BODY)
-                client.addInterceptor(logging)
-            }
-
-            return Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(client.build())
-                    .addCallAdapterFactory(CoroutineCallAdapterFactory())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(MozoApiService::class.java)
-        }
-    }
-
     @GET("contacts")
     fun getContacts(): Deferred<Response<List<Models.Contact>>>
 
@@ -84,9 +33,5 @@ interface MozoApiService {
     fun sendTransaction(@Body request: Models.TransactionResponse): Deferred<Response<Models.TransactionResponse>>
 
     @GET("solo/contract/solo-token/txhistory/{address}")
-    fun getTransactionHistory(
-            @Path("address") address: String,
-            @Query("page") page: Int = Constant.PAGING_START_INDEX,
-            @Query("size") size: Int = Constant.PAGING_SIZE
-    ): Deferred<Response<List<Models.TransactionHistory>>>
+    fun getTransactionHistory(@Path("address") address: String, @Query("page") page: Int, @Query("size") size: Int): Deferred<Response<List<Models.TransactionHistory>>>
 }
